@@ -4,7 +4,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-class admins extends RestController
+class users extends RestController
 {
 
     function __construct()
@@ -16,9 +16,9 @@ class admins extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $admins = $this->mCore->list_data('admins')->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $users = $this->mCore->list_data('users')->result_array();
+            if ($users) {
+                $this->response($users, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -26,9 +26,9 @@ class admins extends RestController
                 ], 404);
             }
         } else {
-            $admins = $this->mCore->get_data('admins', ['id' => $id])->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $users = $this->mCore->get_data('users', ['id' => $id])->result_array();
+            if ($users) {
+                $this->response($users, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -42,15 +42,12 @@ class admins extends RestController
     function save_post()
     {
         $data = array(
-            'name' => $this->post('name'),
             'email' => $this->post('email'),
             'password' => md5($this->post('password')),
-            'program_id' => $this->post('program_id'),
-            'role' => $this->post('role'),
-            'profile_url' => $this->post('profile_url'),
+            'program_category_id' => $this->post('program_category_id'),
             'created_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('admins', $data);
+        $sql = $this->mCore->save_data('users', $data);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -66,16 +63,11 @@ class admins extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
-            // 'password' => $this->post('password'),
-            'program_id' => $this->post('program_id'),
-            'role' => $this->post('role'),
-            'profile_url' => $this->post('profile_url'),
-            'is_active' => $this->post('is_active'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'email' => $this->put('email'),
+            'program_category_id' => $this->put('program_category_id'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -88,7 +80,7 @@ class admins extends RestController
 
     //UPDATE DATA
     function update_password_put()
-    {
+    { 
         $new_password = $this->put('password');
         $new_password_confirm = $this->put('password_confirm');
         if ($new_password != $new_password_confirm) {
@@ -97,18 +89,19 @@ class admins extends RestController
                 'message' => 'Sorry, the password is not the same'
             ], 404);
         }
-        
+
         $id = $this->put('id');
+        
         $data = array(
-            'password' => $this->put('password'),
+            'password' => md5($this->put('password')),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
-            'status' => true,
-            'message' => 'Data saved successfully'
-        ], 200);
+                'status' => true,
+                'message' => 'Data saved successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -126,43 +119,13 @@ class admins extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
             $this->response([
                 'status' => false,
                 'message' => 'Sorry, failed to delete'
-            ], 404);
-        }
-    }
-
-    function program_list_get()
-    {
-        $program_id = $this->get('id');
-
-        $admins = $this->mCore->get_data('admins', ['program_id' => $program_id])->result_array();
-        if ($admins) {
-            $this->response($admins, 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'No result were found'
-            ], 404);
-        }
-    }
-
-    // LOGIN
-    function login_post()
-    {
-        $id_login = $this->mCore->do_login($this->post('email'), $this->post('password'), $this->post('program_id'));
-        if ($id_login) {
-            $sql = $this->mCore->get_data('admins', ['id' => $id_login])->row_array();
-            $this->response($sql, 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Email/Password are Incorrect!'
             ], 404);
         }
     }
