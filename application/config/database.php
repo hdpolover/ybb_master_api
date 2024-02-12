@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /*
 | -------------------------------------------------------------------
@@ -73,12 +73,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+// ganti ke true untuk development, false untuk production
+$isDev = false;
+
+if ($isDev) {
+	$_username = 'root';
+	$_password = '';
+	$_database = 'db_ybb';
+} else {
+	$_username = 'u1437096_ybb_master_app_admin_user';
+	$_password = '7}bB9M&Umk_6';
+	$_database = 'u1437096_ybb_master_app_db';
+}
+
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'db_ybb',
+	'username' => $_username,
+	'password' => $_password,
+	'database' => $_database,
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
