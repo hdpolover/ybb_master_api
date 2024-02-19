@@ -74,7 +74,7 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 // ganti ke true untuk development, false untuk production
-$isDev = false;
+$isDev = true;
 
 if ($isDev) {
 	$_username = 'root';

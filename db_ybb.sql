@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 10, 2024 at 01:59 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 7.4.33
+-- Generation Time: Feb 19, 2024 at 07:29 AM
+-- Server version: 10.4.22-MariaDB
+-- PHP Version: 7.4.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -37,25 +37,25 @@ CREATE TABLE `admins` (
   `profile_url` varchar(255) DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `admins`
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `role`, `program_id`, `profile_url`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
-(1, 'IVAL TINDIK', 'ival@gmail.com', '202cb962ac59075b964b07152d234b70', 'super', 1, '123', 1, 0, '2024-02-09 20:01:28', NULL),
-(2, 'IVAL TATO', 'iva@gmail.com', '202cb962ac59075b964b07152d234b70', 'program', 1, '123', 1, 0, '2024-02-09 20:01:28', NULL);
+(1, 'IVAL TINDIK', 'ival@gmail.com', '202cb962ac59075b964b07152d234b70', 'super', 1, '123', 1, 0, '2024-02-09 20:01:28', '2024-02-12 20:20:14'),
+(2, 'IVAL TATO', 'iva@gmail.com', '202cb962ac59075b964b07152d234b70', 'program', 1, '123', 1, 0, '2024-02-09 20:01:28', '2024-02-12 20:20:03');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `paricipants`
+-- Table structure for table `participants`
 --
 
-CREATE TABLE `paricipants` (
+CREATE TABLE `participants` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `account_id` varchar(255) NOT NULL COMMENT 'uid',
@@ -70,7 +70,7 @@ CREATE TABLE `paricipants` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -88,7 +88,7 @@ CREATE TABLE `payment_methods` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -112,7 +112,14 @@ CREATE TABLE `programs` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `programs`
+--
+
+INSERT INTO `programs` (`id`, `program_category_id`, `name`, `logo_url`, `description`, `guideline`, `twibbon`, `start_date`, `end_date`, `registration_video_url`, `sponsor_canva_url`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
+(1, 1, 'IYS 2024', '123', '123', 'asfa', 'egeg', '2024-02-21 20:29:22', '2024-02-29 20:29:22', 'effe', 'fef', 1, 0, '2024-02-12 20:29:22', '2024-02-12 20:29:22');
 
 -- --------------------------------------------------------
 
@@ -131,7 +138,7 @@ CREATE TABLE `program_announcements` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -155,7 +162,14 @@ CREATE TABLE `program_categories` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `program_categories`
+--
+
+INSERT INTO `program_categories` (`id`, `name`, `description`, `web_url`, `contact`, `location`, `email`, `instagram`, `tiktok`, `youtube`, `telegram`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
+(1, 'Istanbul Youth Summit', 'test', 'https://istanbulyouthsummit.com', '232424', 'Istanbul, Turkiye', 'a@gmail.com', 'abc', 'anc', 'ac', 'ac', 1, 0, '2024-02-12 20:25:06', '2024-02-12 20:25:06');
 
 -- --------------------------------------------------------
 
@@ -173,7 +187,7 @@ CREATE TABLE `program_faqs` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -196,7 +210,7 @@ CREATE TABLE `program_payments` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -213,7 +227,7 @@ CREATE TABLE `program_photos` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -233,7 +247,7 @@ CREATE TABLE `program_schedules` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -251,7 +265,7 @@ CREATE TABLE `program_sponsors` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -271,7 +285,7 @@ CREATE TABLE `program_testimonies` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -289,7 +303,7 @@ CREATE TABLE `users` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -311,7 +325,7 @@ CREATE TABLE `web_setting_about` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -340,7 +354,7 @@ CREATE TABLE `web_setting_home` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Indexes for dumped tables
@@ -350,31 +364,36 @@ CREATE TABLE `web_setting_home` (
 -- Indexes for table `admins`
 --
 ALTER TABLE `admins`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_admins_program_id` (`program_id`);
 
 --
--- Indexes for table `paricipants`
+-- Indexes for table `participants`
 --
-ALTER TABLE `paricipants`
-  ADD PRIMARY KEY (`id`);
+ALTER TABLE `participants`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_participans_program_id` (`program_id`);
 
 --
 -- Indexes for table `payment_methods`
 --
 ALTER TABLE `payment_methods`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_payment_methods_program_id` (`program_id`);
 
 --
 -- Indexes for table `programs`
 --
 ALTER TABLE `programs`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_category_id` (`program_category_id`);
 
 --
 -- Indexes for table `program_announcements`
 --
 ALTER TABLE `program_announcements`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_announcements_program_id` (`program_id`);
 
 --
 -- Indexes for table `program_categories`
@@ -386,55 +405,64 @@ ALTER TABLE `program_categories`
 -- Indexes for table `program_faqs`
 --
 ALTER TABLE `program_faqs`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_faqs_program_id` (`program_id`);
 
 --
 -- Indexes for table `program_payments`
 --
 ALTER TABLE `program_payments`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_payments_program_id` (`program_id`);
 
 --
 -- Indexes for table `program_photos`
 --
 ALTER TABLE `program_photos`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_photos_program_category_id` (`program_category_id`);
 
 --
 -- Indexes for table `program_schedules`
 --
 ALTER TABLE `program_schedules`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_schedules_program_id` (`program_id`);
 
 --
 -- Indexes for table `program_sponsors`
 --
 ALTER TABLE `program_sponsors`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_sponsors_program_id` (`program_id`);
 
 --
 -- Indexes for table `program_testimonies`
 --
 ALTER TABLE `program_testimonies`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_testimonies_program_id` (`program_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_users_program_category_id` (`program_category_id`);
 
 --
 -- Indexes for table `web_setting_about`
 --
 ALTER TABLE `web_setting_about`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_web_setting_about_program_id` (`program_id`);
 
 --
 -- Indexes for table `web_setting_home`
 --
 ALTER TABLE `web_setting_home`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_web_setting_home_program_id` (`program_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -447,9 +475,9 @@ ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `paricipants`
+-- AUTO_INCREMENT for table `participants`
 --
-ALTER TABLE `paricipants`
+ALTER TABLE `participants`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -462,7 +490,7 @@ ALTER TABLE `payment_methods`
 -- AUTO_INCREMENT for table `programs`
 --
 ALTER TABLE `programs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `program_announcements`
@@ -474,7 +502,7 @@ ALTER TABLE `program_announcements`
 -- AUTO_INCREMENT for table `program_categories`
 --
 ALTER TABLE `program_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `program_faqs`
@@ -529,6 +557,94 @@ ALTER TABLE `web_setting_about`
 --
 ALTER TABLE `web_setting_home`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `admins`
+--
+ALTER TABLE `admins`
+  ADD CONSTRAINT `fk_admins_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `participants`
+--
+ALTER TABLE `participants`
+  ADD CONSTRAINT `fk_participans_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `payment_methods`
+--
+ALTER TABLE `payment_methods`
+  ADD CONSTRAINT `fk_payment_methods_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `programs`
+--
+ALTER TABLE `programs`
+  ADD CONSTRAINT `fk_programs_category_id` FOREIGN KEY (`program_category_id`) REFERENCES `program_categories` (`id`);
+
+--
+-- Constraints for table `program_announcements`
+--
+ALTER TABLE `program_announcements`
+  ADD CONSTRAINT `fk_program_announcements_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_faqs`
+--
+ALTER TABLE `program_faqs`
+  ADD CONSTRAINT `fk_program_faqs_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_payments`
+--
+ALTER TABLE `program_payments`
+  ADD CONSTRAINT `fk_program_payments_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_photos`
+--
+ALTER TABLE `program_photos`
+  ADD CONSTRAINT `fk_program_photos_program_category_id` FOREIGN KEY (`program_category_id`) REFERENCES `program_categories` (`id`);
+
+--
+-- Constraints for table `program_schedules`
+--
+ALTER TABLE `program_schedules`
+  ADD CONSTRAINT `fk_program_schedules_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_sponsors`
+--
+ALTER TABLE `program_sponsors`
+  ADD CONSTRAINT `fk_program_sponsors_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_testimonies`
+--
+ALTER TABLE `program_testimonies`
+  ADD CONSTRAINT `fk_program_testimonies_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_program_category_id` FOREIGN KEY (`program_category_id`) REFERENCES `program_categories` (`id`);
+
+--
+-- Constraints for table `web_setting_about`
+--
+ALTER TABLE `web_setting_about`
+  ADD CONSTRAINT `fk_web_setting_about_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `web_setting_home`
+--
+ALTER TABLE `web_setting_home`
+  ADD CONSTRAINT `fk_web_setting_home_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
