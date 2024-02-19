@@ -12,14 +12,14 @@ class Admins_upload extends CI_Controller
     public function do_upload_profile($id = 0)
     {
 
-        $admins = $this->MCore->get_data('admins', 'id = ' . $id)->row_array();
-        if ($admins['profile_url'] != '') {
-            $path = $admins['profile_url'];
-            if (isset($path)) {
-                unlink($path);
-            }
-        }
-        $new_name = $this->session->userdata('id') . '_' . time();
+        // $admins = $this->mCore->get_data('admins', 'id = ' . $id)->row_array();
+        // if ($admins['profile_url'] != '') {
+        //     $path = $admins['profile_url'];
+        //     if (isset($path)) {
+        //         unlink($path);
+        //     }
+        // }
+        $new_name = $id . '_' . time();
 
         $config['upload_path']          = './uploads/admins';
         $config['allowed_types']        = 'gif|jpg|png|jpeg';
@@ -46,7 +46,9 @@ class Admins_upload extends CI_Controller
             $this->load->library('image_lib', $config);
             $this->image_lib->resize();
 
-            $sql = $this->MCore->save_data('admins', ['profile_url' => $image], true, array('id' => $id));
+            $url = base_url().$image;
+
+            $sql = $this->mCore->save_data('admins', ['profile_url' => $url], true, array('id' => $id));
 
             $arr['status'] = $sql;
 

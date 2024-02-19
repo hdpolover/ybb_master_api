@@ -28,6 +28,7 @@ $config['base_url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ?
 $config['base_url'] .= "://" . $_SERVER['HTTP_HOST'];
 $config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 
+$config['dir_file'] = 'https://storage.ybbfoundation.com/uploads/';
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -164,7 +165,7 @@ $config['composer_autoload'] = FCPATH . 'vendor/autoload.php';
 | DO NOT CHANGE THIS UNLESS YOU FULLY UNDERSTAND THE REPERCUSSIONS!!
 |
 */
-$config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
+$config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-@\=';
 
 /*
 |--------------------------------------------------------------------------
