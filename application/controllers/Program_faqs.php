@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_methods extends RestController
+class Program_faqs extends RestController
 {
 
     function __construct()
@@ -20,9 +20,9 @@ class Program_methods extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_methods = $this->mCore->list_data('program_methods')->result_array();
-            if ($program_methods) {
-                $this->response($program_methods, 200);
+            $program_faqs = $this->mCore->list_data('program_faqs')->result_array();
+            if ($program_faqs) {
+                $this->response($program_faqs, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +30,9 @@ class Program_methods extends RestController
                 ], 404);
             }
         } else {
-            $program_methods = $this->mCore->get_data('program_methods', ['id' => $id])->result_array();
-            if ($program_methods	) {
-                $this->response($program_methods, 200);
+            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->result_array();
+            if ($program_faqs) {
+                $this->response($program_faqs, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -47,12 +47,13 @@ class Program_methods extends RestController
     {
         $data = array(
             'program_id' => $this->post('program_id'),
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'img_url' => $this->post('img_url'),
+            'question' => $this->post('question'),
+            'answer' => $this->post('answer'),
+            'faq_category' => $this->post('faq_category'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_methods', $data);
+        $sql = $this->mCore->save_data('program_faqs', $data);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -68,12 +69,12 @@ class Program_methods extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'img_url' => $this->post('img_url'),
+            'question' => $this->post('question'),
+            'answer' => $this->post('answer'),
+            'faq_category' => $this->post('faq_category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_methods', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -93,7 +94,7 @@ class Program_methods extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_methods', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {

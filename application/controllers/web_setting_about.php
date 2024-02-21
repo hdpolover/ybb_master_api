@@ -55,6 +55,7 @@ class Web_setting_about extends RestController
             'what_program' => $this->post('what_program'),
             'ybb_video_url' => $this->post('ybb_video_url'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('web_setting_about', $data);
         if ($sql) {

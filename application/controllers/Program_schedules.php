@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_testimonies extends RestController
+class Program_schedules	extends RestController
 {
 
     function __construct()
@@ -20,9 +20,9 @@ class Program_testimonies extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_testimonies = $this->mCore->list_data('program_testimonies')->result_array();
-            if ($program_testimonies) {
-                $this->response($program_testimonies, 200);
+            $program_schedules = $this->mCore->list_data('program_schedules')->result_array();
+            if ($program_schedules) {
+                $this->response($program_schedules, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +30,9 @@ class Program_testimonies extends RestController
                 ], 404);
             }
         } else {
-            $program_testimonies = $this->mCore->get_data('program_testimonies', ['id' => $id])->result_array();
-            if ($program_testimonies) {
-                $this->response($program_testimonies, 200);
+            $program_schedules = $this->mCore->get_data('program_schedules', ['id' => $id])->result_array();
+            if ($program_schedules) {
+                $this->response($program_schedules, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -47,13 +47,15 @@ class Program_testimonies extends RestController
     {
         $data = array(
             'program_id' => $this->post('program_id'),
-            'person_name' => $this->post('person_name'),
-            'testimony' => $this->post('testimony'),
-            'occupation' => $this->post('occupation'),
-            'img_url' => $this->post('img_url'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'start_date' => $this->post('start_date'),
+            'end_date' => $this->post('end_date'),
+            'order_number' => $this->post('order_number'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_testimonies', $data);
+        $sql = $this->mCore->save_data('program_schedules', $data);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -69,13 +71,14 @@ class Program_testimonies extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'person_name' => $this->post('person_name'),
-            'testimony' => $this->post('testimony'),
-            'occupation' => $this->post('occupation'),
-            'img_url' => $this->post('img_url'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'start_date' => $this->post('start_date'),
+            'end_date' => $this->post('end_date'),
+            'order_number' => $this->post('order_number'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_testimonies', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_schedules', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -95,7 +98,7 @@ class Program_testimonies extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_testimonies', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_schedules', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {

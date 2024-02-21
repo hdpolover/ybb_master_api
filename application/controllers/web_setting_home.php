@@ -49,11 +49,11 @@ class Web_setting_home extends RestController
             'program_id' => $this->post('program_id'),
             'page_name' => $this->post('page_name'),
             'menu_path' => $this->post('menu_path'),
-            'banner1_img_url' => $this->post('banner1_img_url'),
+            'banner1_img_url' => NULL,
             'banner1_title' => $this->post('banner1_title'),
             'banner1_description' => $this->post('banner1_description'),
             'banner1_date' => $this->post('banner1_date'),
-            'banner2_img_url' => $this->post('banner2_img_url'),
+            'banner2_img_url' => NULL,
             'banner2_title' => $this->post('banner2_title'),
             'banner2_description' => $this->post('banner2_description'),
             'banner2_date' => $this->post('banner2_date'),
@@ -62,6 +62,7 @@ class Web_setting_home extends RestController
             'agenda' => $this->post('agenda'),
             'introduction' => $this->post('introduction'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('web_setting_home', $data);
         if ($sql) {
@@ -81,11 +82,9 @@ class Web_setting_home extends RestController
         $data = array(
             'page_name' => $this->post('page_name'),
             'menu_path' => $this->post('menu_path'),
-            'banner1_img_url' => $this->post('banner1_img_url'),
             'banner1_title' => $this->post('banner1_title'),
             'banner1_description' => $this->post('banner1_description'),
             'banner1_date' => $this->post('banner1_date'),
-            'banner2_img_url' => $this->post('banner2_img_url'),
             'banner2_title' => $this->post('banner2_title'),
             'banner2_description' => $this->post('banner2_description'),
             'banner2_date' => $this->post('banner2_date'),
@@ -122,6 +121,177 @@ class Web_setting_home extends RestController
             $this->response([
                 'status' => false,
                 'message' => 'Sorry, failed to delete'
+            ], 404);
+        }
+    }
+    
+    // UPLOAD BANNER 1
+    public function do_upload_banner1_post()
+    {
+
+        $this->load->library('ftp');
+
+        $id = $this->post('id');
+        $program_id = $this->post('program_id');
+
+        $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
+        if ($data['banner1_img_url'] != '') {
+            $exp = (explode('/', $data['banner1_img_url']));
+            $temp_img = end($exp);
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $this->ftp->delete_file('web-setting-home/' . $program_id . '/' . $temp_img);
+
+            $this->ftp->close();
+        }
+
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload("image")) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            if ($this->ftp->list_files('web-setting-home/' . $program_id . '/') == FALSE) {
+                $this->ftp->mkdir('web-setting-home/' . $program_id . '/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'web-setting-home/' . $program_id . '/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('web_setting_home', ['banner1_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $program_id . '/' . $fileName], true, array('id' => $id));
+
+            if ($sql) {
+                $this->response([
+                    'status' => true,
+                    'message' => 'Banner saved successfully'
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Sorry, failed to update'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->upload->display_errors()
+            ], 404);
+        }
+    }
+
+    
+    // UPLOAD BANNER 2
+    public function do_upload_banner2_post()
+    {
+
+        $this->load->library('ftp');
+
+        $id = $this->post('id');
+        $program_id = $this->post('program_id');
+
+        $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
+        if ($data['banner2_img_url'] != '') {
+            $exp = (explode('/', $data['banner2_img_url']));
+            $temp_img = end($exp);
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $this->ftp->delete_file('web-setting-home/' . $program_id . '/' . $temp_img);
+
+            $this->ftp->close();
+        }
+
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload("image")) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            if ($this->ftp->list_files('web-setting-home/' . $program_id . '/') == FALSE) {
+                $this->ftp->mkdir('web-setting-home/' . $program_id . '/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'web-setting-home/' . $program_id . '/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('web_setting_home', ['banner2_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $program_id . '/' . $fileName], true, array('id' => $id));
+
+            if ($sql) {
+                $this->response([
+                    'status' => true,
+                    'message' => 'Banner saved successfully'
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Sorry, failed to update'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->upload->display_errors()
             ], 404);
         }
     }

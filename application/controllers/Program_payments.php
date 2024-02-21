@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_faqs extends RestController
+class Program_payments extends RestController
 {
 
     function __construct()
@@ -20,9 +20,9 @@ class Program_faqs extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_faqs = $this->mCore->list_data('program_faqs')->result_array();
-            if ($program_faqs) {
-                $this->response($program_faqs, 200);
+            $program_payments = $this->mCore->list_data('program_payments')->result_array();
+            if ($program_payments) {
+                $this->response($program_payments	, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +30,9 @@ class Program_faqs extends RestController
                 ], 404);
             }
         } else {
-            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->result_array();
-            if ($program_faqs) {
-                $this->response($program_faqs, 200);
+            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->result_array();
+            if ($program_payments	) {
+                $this->response($program_payments, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -47,12 +47,18 @@ class Program_faqs extends RestController
     {
         $data = array(
             'program_id' => $this->post('program_id'),
-            'question' => $this->post('question'),
-            'answer' => $this->post('answer'),
-            'faq_category' => $this->post('faq_category'),
+            'name' => $this->post('name'),
+            'description' => $this->post('logo_url'),
+            'start_date' => $this->post('description'),
+            'end_date' => $this->post('guideline'),
+            'order_number' => $this->post('order_number'),
+            'idr_amount' => $this->post('idr_amount'),
+            'usd_amount' => $this->post('usd_amount'),
+            'category' => $this->post('category'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_faqs', $data);
+        $sql = $this->mCore->save_data('program_payments', $data);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -68,12 +74,17 @@ class Program_faqs extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'question' => $this->post('question'),
-            'answer' => $this->post('answer'),
-            'faq_category' => $this->post('faq_category'),
+            'name' => $this->post('name'),
+            'description' => $this->post('logo_url'),
+            'start_date' => $this->post('description'),
+            'end_date' => $this->post('guideline'),
+            'order_number' => $this->post('order_number'),
+            'idr_amount' => $this->post('idr_amount'),
+            'usd_amount' => $this->post('usd_amount'),
+            'category' => $this->post('category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -93,7 +104,7 @@ class Program_faqs extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {

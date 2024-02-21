@@ -49,8 +49,9 @@ class Program_sponsors extends RestController
             'program_id' => $this->post('program_id'),
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'img_url' => $this->post('img_url'),
+            'img_url' => NULL,
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_sponsors', $data);
         if ($sql) {
@@ -70,7 +71,6 @@ class Program_sponsors extends RestController
         $data = array(
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'img_url' => $this->post('img_url'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_sponsors', $data, true, ['id' => $id]);
@@ -100,6 +100,85 @@ class Program_sponsors extends RestController
             $this->response([
                 'status' => false,
                 'message' => 'Sorry, failed to delete'
+            ], 404);
+        }
+    }
+    
+    // UPLOAD SPONSOR
+    public function do_upload_image_post()
+    {
+        $id = $this->post('id');
+
+        $data = $this->mCore->get_data('program_sponsors', 'id = ' . $id)->row_array();
+        if ($data['img_url'] != '') {
+            $exp = (explode('/', $data['img_url']));
+            $temp_img = end($exp);
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $this->ftp->delete_file('sponsors/' . $temp_img);
+
+            $this->ftp->close();
+        }
+
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload("image")) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            $this->load->library('ftp');
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $destination = 'sponsors/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('program_sponsors', ['img_url' => config_item('dir_upload') . 'sponsors/' . $fileName], true, array('id' => $id));
+            
+            if ($sql) {
+                $this->response([
+                    'status' => true,
+                    'message' => 'Image saved successfully'
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Sorry, failed to update'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->upload->display_errors()
             ], 404);
         }
     }

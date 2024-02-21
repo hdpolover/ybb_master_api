@@ -50,6 +50,7 @@ class Users extends RestController
             'password' => md5($this->post('password')),
             'program_category_id' => $this->post('program_category_id'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('users', $data);
         if ($sql) {

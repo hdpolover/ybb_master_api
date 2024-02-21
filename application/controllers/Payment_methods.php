@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_announcements extends RestController
+class Payment_methods extends RestController
 {
 
     function __construct()
@@ -20,9 +20,9 @@ class Program_announcements extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_announcements = $this->mCore->list_data('program_announcements')->result_array();
-            if ($program_announcements) {
-                $this->response($program_announcements, 200);
+            $payment_methods = $this->mCore->list_data('payment_methods')->result_array();
+            if ($payment_methods) {
+                $this->response($payment_methods, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +30,9 @@ class Program_announcements extends RestController
                 ], 404);
             }
         } else {
-            $program_announcements = $this->mCore->get_data('program_announcements', ['id' => $id])->result_array();
-            if ($program_announcements) {
-                $this->response($program_announcements, 200);
+            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->result_array();
+            if ($payment_methods	) {
+                $this->response($payment_methods, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -47,13 +47,13 @@ class Program_announcements extends RestController
     {
         $data = array(
             'program_id' => $this->post('program_id'),
-            'title' => $this->post('title'),
+            'name' => $this->post('name'),
             'description' => $this->post('description'),
             'img_url' => NULL,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_announcements', $data);
+        $sql = $this->mCore->save_data('payment_methods', $data);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -69,11 +69,11 @@ class Program_announcements extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'title' => $this->post('title'),
+            'name' => $this->post('name'),
             'description' => $this->post('description'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_announcements', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -93,7 +93,7 @@ class Program_announcements extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_announcements', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response($data, 200);
         } else {
@@ -107,13 +107,11 @@ class Program_announcements extends RestController
     // UPLOAD IMAGE
     public function do_upload_image_post()
     {
-
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
-        $data = $this->mCore->get_data('program_announcements', 'id = ' . $id)->row_array();
+        $data = $this->mCore->get_data('payment_methods', 'id = ' . $id)->row_array();
         if ($data['img_url'] != '') {
             $exp = (explode('/', $data['img_url']));
             $temp_img = end($exp);
@@ -127,7 +125,7 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $program_id . '/'. $temp_img);
+            $this->ftp->delete_file('payment-methods/'. $temp_img);
 
             $this->ftp->close();
         }
@@ -135,7 +133,7 @@ class Program_announcements extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = time();
+        $config['file_name'] = $id;
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
@@ -155,11 +153,7 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('announcements/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('announcements/' . $program_id . '/', DIR_WRITE_MODE);
-            }
-
-            $destination = 'announcements/' . $program_id . '/' . $fileName;
+            $destination = 'payment-methods/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -168,8 +162,8 @@ class Program_announcements extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('program_announcements', ['img_url' => config_item('dir_upload') . 'announcements/' . $program_id . '/' . $fileName], true, array('id' => $id));
-
+            $sql = $this->mCore->save_data('payment_methods', ['img_url' => config_item('dir_upload') . 'payment-methods/' . $fileName], true, array('id' => $id));
+            
             if ($sql) {
                 $this->response([
                     'status' => true,

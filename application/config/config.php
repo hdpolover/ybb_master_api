@@ -28,7 +28,12 @@ $config['base_url'] = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ?
 $config['base_url'] .= "://" . $_SERVER['HTTP_HOST'];
 $config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 
-$config['dir_upload'] = 'https://storage.ybbfoundation.com/YBB/uploads/';
+$config['dir_upload'] = 'https://storage.ybbfoundation.com/';
+$config['hostname_upload'] = 'ftp.ybbfoundation.com';
+$config['username_upload'] = 'storage_user@ybbfoundation.com';
+$config['password_upload'] = 'Ns@%L(y_iSU9';
+$config['port_upload'] = 21;
+
 /*
 |--------------------------------------------------------------------------
 | Index File

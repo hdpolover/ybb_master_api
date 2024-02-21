@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_announcements extends RestController
+class Certificates extends RestController
 {
 
     function __construct()
@@ -20,9 +20,9 @@ class Program_announcements extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_announcements = $this->mCore->list_data('program_announcements')->result_array();
-            if ($program_announcements) {
-                $this->response($program_announcements, 200);
+            $admins = $this->mCore->list_data('certificates')->result_array();
+            if ($admins) {
+                $this->response($admins, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +30,9 @@ class Program_announcements extends RestController
                 ], 404);
             }
         } else {
-            $program_announcements = $this->mCore->get_data('program_announcements', ['id' => $id])->result_array();
-            if ($program_announcements) {
-                $this->response($program_announcements, 200);
+            $admins = $this->mCore->get_data('certificates', ['id' => $id])->result_array();
+            if ($admins) {
+                $this->response($admins, 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -42,70 +42,8 @@ class Program_announcements extends RestController
         }
     }
 
-    //SIMPAN DATA
-    function save_post()
-    {
-        $data = array(
-            'program_id' => $this->post('program_id'),
-            'title' => $this->post('title'),
-            'description' => $this->post('description'),
-            'img_url' => NULL,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('program_announcements', $data);
-        if ($sql) {
-            $this->response($data, 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to save'
-            ], 404);
-        }
-    }
-
-    //UPDATE DATA
-    function update_put()
-    {
-        $id = $this->put('id');
-        $data = array(
-            'title' => $this->post('title'),
-            'description' => $this->post('description'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('program_announcements', $data, true, ['id' => $id]);
-        if ($sql) {
-            $this->response($data, 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to update'
-            ], 404);
-        }
-    }
-
-    //DELETE DATA
-    function delete_get()
-    {
-        $id = $this->get('id');
-        $data = array(
-            'is_active' => 0,
-            'is_deleted' => 1
-            // 'updated_at' => date('Y-m-d H:i:s')
-        );
-        $sql = $this->mCore->save_data('program_announcements', $data, true, ['id' => $id]);
-        if ($sql) {
-            $this->response($data, 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to delete'
-            ], 404);
-        }
-    }
-    
-    // UPLOAD IMAGE
-    public function do_upload_image_post()
+    // UPLOAD CERTIFICATES
+    public function do_upload_certificates_post()
     {
 
         $this->load->library('ftp');
@@ -113,7 +51,7 @@ class Program_announcements extends RestController
         $id = $this->post('id');
         $program_id = $this->post('program_id');
 
-        $data = $this->mCore->get_data('program_announcements', 'id = ' . $id)->row_array();
+        $data = $this->mCore->get_data('certificates', 'id = ' . $id)->row_array();
         if ($data['img_url'] != '') {
             $exp = (explode('/', $data['img_url']));
             $temp_img = end($exp);
@@ -127,7 +65,7 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $program_id . '/'. $temp_img);
+            $this->ftp->delete_file('certificates/' . $program_id . '/'. $temp_img);
 
             $this->ftp->close();
         }
@@ -155,11 +93,11 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('announcements/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('announcements/' . $program_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('certificates/' . $program_id . '/') == FALSE) {
+                $this->ftp->mkdir('certificates/' . $program_id . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'announcements/' . $program_id . '/' . $fileName;
+            $destination = 'certificates/' . $program_id . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -168,7 +106,7 @@ class Program_announcements extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('program_announcements', ['img_url' => config_item('dir_upload') . 'announcements/' . $program_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('certificates', ['img_url' => config_item('dir_upload') . 'certificates/' . $program_id . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([
