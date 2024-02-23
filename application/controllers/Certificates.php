@@ -43,7 +43,7 @@ class Certificates extends RestController
     }
 
     // UPLOAD CERTIFICATES
-    public function do_upload_certificates_post()
+    public function do_upload_certificate_post()
     {
 
         $this->load->library('ftp');
