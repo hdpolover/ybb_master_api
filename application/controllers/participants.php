@@ -55,6 +55,7 @@ class Participants extends RestController
             'gender' => $this->post('gender'),
             'phone_number' => $this->post('phone_number'),
             'country_code' => $this->post('country_code'),
+            'picture_url' => NULL,
             'progam_id' => $this->post('progam_id'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -122,26 +123,25 @@ class Participants extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
-        // if ($data['img_url'] != '') {
-        //     $exp = (explode('/', $data['img_url']));
-        //     $temp_img = end($exp);
+        if ($data['picture_url'] != '') {
+            $exp = (explode('/', $data['picture_url']));
+            $temp_img = end($exp);
 
-        //     //FTP configuration
-        //     $ftp_config['hostname'] = config_item('hostname_upload');
-        //     $ftp_config['username'] = config_item('username_upload');
-        //     $ftp_config['password'] = config_item('password_upload');
-        //     $ftp_config['port'] = config_item('port_upload');
-        //     $ftp_config['debug'] = TRUE;
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
 
-        //     $this->ftp->connect($ftp_config);
+            $this->ftp->connect($ftp_config);
 
-        //     $this->ftp->delete_file('participants/' . $program_id . '/' . $temp_img);
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/'. $data['uid'] . '/' . $temp_img);
 
-        //     $this->ftp->close();
-        // }
+            $this->ftp->close();
+        }
 
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
@@ -166,11 +166,11 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $program_id . '/' . $data['account_id'] . '/pictures/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $program_id . '/' . $data['account_id'] . '/pictures/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/', DIR_WRITE_MODE);
             }
 
-            $destination = 'participants/' . $program_id . '/' . $data['account_id'] . '/pictures/' . $fileName;
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -179,7 +179,7 @@ class Participants extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $program_id . '/' . $data['account_id'] . '/pictures/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([
@@ -207,7 +207,6 @@ class Participants extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
         // if ($data['img_url'] != '') {
@@ -251,11 +250,11 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $program_id . '/' . $data['account_id'] . '/documents/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $program_id . '/' . $data['account_id'] . '/documents/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/', DIR_WRITE_MODE);
             }
 
-            $destination = 'participants/' . $program_id . '/' . $data['account_id'] . '/documents/' . $fileName;
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -264,7 +263,7 @@ class Participants extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('participants', ['document_url' => config_item('dir_upload') . 'participants/' . $program_id . '/' . $data['account_id'] . '/documents/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participants', ['document_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

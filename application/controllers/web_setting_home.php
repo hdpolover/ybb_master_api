@@ -132,7 +132,6 @@ class Web_setting_home extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
         if ($data['banner1_img_url'] != '') {
@@ -148,7 +147,7 @@ class Web_setting_home extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('web-setting-home/' . $program_id . '/' . $temp_img);
+            $this->ftp->delete_file('web-setting-home/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -176,11 +175,11 @@ class Web_setting_home extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('web-setting-home/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('web-setting-home/' . $program_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('web-setting-home/' . $data['program_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('web-setting-home/' . $data['program_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'web-setting-home/' . $program_id . '/' . $fileName;
+            $destination = 'web-setting-home/' . $data['program_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -189,7 +188,7 @@ class Web_setting_home extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('web_setting_home', ['banner1_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $program_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('web_setting_home', ['banner1_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([
@@ -218,7 +217,6 @@ class Web_setting_home extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
         if ($data['banner2_img_url'] != '') {
@@ -234,7 +232,7 @@ class Web_setting_home extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('web-setting-home/' . $program_id . '/' . $temp_img);
+            $this->ftp->delete_file('web-setting-home/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -262,11 +260,11 @@ class Web_setting_home extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('web-setting-home/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('web-setting-home/' . $program_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('web-setting-home/' . $data['program_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('web-setting-home/' . $data['program_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'web-setting-home/' . $program_id . '/' . $fileName;
+            $destination = 'web-setting-home/' . $data['program_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -275,7 +273,7 @@ class Web_setting_home extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('web_setting_home', ['banner2_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $program_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('web_setting_home', ['banner2_img_url ' => config_item('dir_upload') . 'web-setting-home/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

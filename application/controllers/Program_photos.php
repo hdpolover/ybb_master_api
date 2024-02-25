@@ -101,7 +101,7 @@ class Program_photos extends RestController
             ], 404);
         }
     }
-    
+
     // UPLOAD IMAGE
     public function do_upload_image_post()
     {
@@ -109,7 +109,6 @@ class Program_photos extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_category_id = $this->post('program_category_id');
 
         $data = $this->mCore->get_data('program_photos', 'id = ' . $id)->row_array();
         if ($data['img_url'] != '') {
@@ -125,7 +124,7 @@ class Program_photos extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('program-photos/' . $program_category_id . '/'. $temp_img);
+            $this->ftp->delete_file('program-photos/' . $data['program_category_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -153,11 +152,11 @@ class Program_photos extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('program-photos/' . $program_category_id . '/') == FALSE) {
-                $this->ftp->mkdir('program-photos/' . $program_category_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('program-photos/' . $data['program_category_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('program-photos/' . $data['program_category_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'program-photos/' . $program_category_id . '/' . $fileName;
+            $destination = 'program-photos/' . $data['program_category_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -166,7 +165,7 @@ class Program_photos extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('program_photos', ['img_url' => config_item('dir_upload') . 'program-photos/' . $program_category_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('program_photos', ['img_url' => config_item('dir_upload') . 'program-photos/' . $data['program_category_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

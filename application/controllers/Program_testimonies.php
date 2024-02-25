@@ -112,7 +112,6 @@ class Program_testimonies extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('program_testimonies', 'id = ' . $id)->row_array();
         if ($data['img_url'] != '') {
@@ -128,7 +127,7 @@ class Program_testimonies extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('testimonies/' . $program_id . '/'. $temp_img);
+            $this->ftp->delete_file('testimonies/' . $data['program_id'] . '/'. $temp_img);
 
             $this->ftp->close();
         }
@@ -156,11 +155,11 @@ class Program_testimonies extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('testimonies/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('testimonies/' . $program_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('testimonies/' . $data['program_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('testimonies/' . $data['program_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'testimonies/' . $program_id . '/' . $fileName;
+            $destination = 'testimonies/' . $data['program_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -169,7 +168,7 @@ class Program_testimonies extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('program_testimonies', ['img_url' => config_item('dir_upload') . 'testimonies/' . $program_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('program_testimonies', ['img_url' => config_item('dir_upload') . 'testimonies/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

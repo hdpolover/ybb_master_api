@@ -49,7 +49,6 @@ class Payments extends RestController
         $this->load->library('ftp');
 
         $id = $this->post('id');
-        $program_id = $this->post('program_id');
 
         $data = $this->mCore->get_data('payments', 'id = ' . $id)->row_array();
         if ($data['img_url'] != '') {
@@ -65,7 +64,7 @@ class Payments extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('payments/' . $program_id . '/'. $temp_img);
+            $this->ftp->delete_file('payments/' . $data['program_id'] . '/'. $temp_img);
 
             $this->ftp->close();
         }
@@ -93,11 +92,11 @@ class Payments extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('payments/' . $program_id . '/') == FALSE) {
-                $this->ftp->mkdir('payments/' . $program_id . '/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('payments/' . $data['program_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'payments/' . $program_id . '/' . $fileName;
+            $destination = 'payments/' . $data['program_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -106,7 +105,7 @@ class Payments extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('payments', ['img_url' => config_item('dir_upload') . 'payments/' . $program_id . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('payments', ['img_url' => config_item('dir_upload') . 'payments/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 22, 2024 at 12:28 PM
+-- Generation Time: Feb 25, 2024 at 11:31 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -64,6 +64,7 @@ CREATE TABLE `participants` (
   `nationality` varchar(100) NOT NULL,
   `gender` enum('male','female') NOT NULL COMMENT '''male'',''female''',
   `country_code` varchar(10) NOT NULL,
+  `picture_url` varchar(255) DEFAULT NULL,
   `phone_number` varchar(25) NOT NULL,
   `program_id` int(11) NOT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
