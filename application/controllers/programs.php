@@ -22,7 +22,10 @@ class Programs extends RestController
         if ($id == '') {
             $programs = $this->mCore->list_data('programs')->result_array();
             if ($programs) {
-                $this->response($programs, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $programs
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -32,7 +35,10 @@ class Programs extends RestController
         } else {
             $programs = $this->mCore->get_data('programs', ['id' => $id])->result_array();
             if ($programs) {
-                $this->response($programs, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $programs
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -61,7 +67,10 @@ class Programs extends RestController
         );
         $sql = $this->mCore->save_data('programs', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -88,7 +97,10 @@ class Programs extends RestController
         );
         $sql = $this->mCore->save_data('programs', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -108,7 +120,10 @@ class Programs extends RestController
         );
         $sql = $this->mCore->save_data('programs', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

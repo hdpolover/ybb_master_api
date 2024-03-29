@@ -22,7 +22,10 @@ class Payment_methods extends RestController
         if ($id == '') {
             $payment_methods = $this->mCore->list_data('payment_methods')->result_array();
             if ($payment_methods) {
-                $this->response($payment_methods, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $payment_methods
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -31,8 +34,11 @@ class Payment_methods extends RestController
             }
         } else {
             $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->result_array();
-            if ($payment_methods	) {
-                $this->response($payment_methods, 200);
+            if ($payment_methods) {
+                $this->response([
+                    'status' => true,
+                    'data' => $payment_methods
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -55,7 +61,10 @@ class Payment_methods extends RestController
         );
         $sql = $this->mCore->save_data('payment_methods', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -75,7 +84,10 @@ class Payment_methods extends RestController
         );
         $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -95,7 +107,10 @@ class Payment_methods extends RestController
         );
         $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

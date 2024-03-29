@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 25, 2024 at 11:31 AM
+-- Generation Time: Mar 29, 2024 at 04:57 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -46,8 +46,28 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `name`, `email`, `password`, `role`, `program_id`, `profile_url`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
-(1, 'IVAL TINDIK', 'ival@gmail.com', '202cb962ac59075b964b07152d234b70', 'super', 1, 'https://storage.ybbfoundation.com/admins/1_1708421742.png', 1, 0, '2024-02-09 20:01:28', '2024-02-12 20:20:14'),
+(1, 'IVAL TINDIK', 'ival@gmail.com', '202cb962ac59075b964b07152d234b70', 'super', 1, '123', 1, 0, '2024-02-09 20:01:28', '2024-02-12 20:20:14'),
 (2, 'IVAL TATO', 'iva@gmail.com', '202cb962ac59075b964b07152d234b70', 'program', 1, '123', 1, 0, '2024-02-09 20:01:28', '2024-02-12 20:20:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ambassador`
+--
+
+CREATE TABLE `ambassador` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `ref_code` varchar(50) DEFAULT NULL,
+  `program_id` int(11) NOT NULL,
+  `institution` varchar(255) NOT NULL,
+  `gender` enum('male','female') NOT NULL,
+  `is_active` char(1) NOT NULL DEFAULT '1',
+  `is_deleted` char(1) NOT NULL DEFAULT '0',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -120,7 +140,7 @@ CREATE TABLE `programs` (
 --
 
 INSERT INTO `programs` (`id`, `program_category_id`, `name`, `logo_url`, `description`, `guideline`, `twibbon`, `start_date`, `end_date`, `registration_video_url`, `sponsor_canva_url`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
-(1, 1, 'IYS 2024', 'https://storage.ybbfoundation.com/programs/1/1.png', '123', 'asfa', 'egeg', '2024-02-21 20:29:22', '2024-02-29 20:29:22', 'effe', 'fef', 1, 0, '2024-02-12 20:29:22', '2024-02-12 20:29:22');
+(1, 1, 'IYS 2024', '123', '123', 'asfa', 'egeg', '2024-02-21 20:29:22', '2024-02-29 20:29:22', 'effe', 'fef', 1, 0, '2024-02-12 20:29:22', '2024-02-12 20:29:22');
 
 -- --------------------------------------------------------
 
@@ -151,6 +171,7 @@ CREATE TABLE `program_categories` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
+  `program_type_id` int(11) DEFAULT NULL,
   `web_url` varchar(255) DEFAULT NULL,
   `contact` varchar(50) DEFAULT NULL,
   `location` varchar(255) DEFAULT NULL,
@@ -169,8 +190,8 @@ CREATE TABLE `program_categories` (
 -- Dumping data for table `program_categories`
 --
 
-INSERT INTO `program_categories` (`id`, `name`, `description`, `web_url`, `contact`, `location`, `email`, `instagram`, `tiktok`, `youtube`, `telegram`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
-(1, 'Istanbul Youth Summit', 'test', 'https://istanbulyouthsummit.com', '232424', 'Istanbul, Turkiye', 'a@gmail.com', 'abc', 'anc', 'ac', 'ac', 1, 0, '2024-02-12 20:25:06', '2024-02-12 20:25:06');
+INSERT INTO `program_categories` (`id`, `name`, `description`, `program_type_id`, `web_url`, `contact`, `location`, `email`, `instagram`, `tiktok`, `youtube`, `telegram`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
+(1, 'Istanbul Youth Summit', 'test', NULL, 'https://istanbulyouthsummit.com', '232424', 'Istanbul, Turkiye', 'a@gmail.com', 'abc', 'anc', 'ac', 'ac', 1, 0, '2024-02-12 20:25:06', '2024-02-12 20:25:06');
 
 -- --------------------------------------------------------
 
@@ -291,6 +312,22 @@ CREATE TABLE `program_testimonies` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `program_type`
+--
+
+CREATE TABLE `program_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `is_active` char(1) NOT NULL DEFAULT '1',
+  `is_deleted` char(1) NOT NULL DEFAULT '0',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -369,6 +406,13 @@ ALTER TABLE `admins`
   ADD KEY `fk_admins_program_id` (`program_id`);
 
 --
+-- Indexes for table `ambassador`
+--
+ALTER TABLE `ambassador`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_ambassador_program_id` (`program_id`);
+
+--
 -- Indexes for table `participants`
 --
 ALTER TABLE `participants`
@@ -401,7 +445,8 @@ ALTER TABLE `program_announcements`
 -- Indexes for table `program_categories`
 --
 ALTER TABLE `program_categories`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_program_categories_program_type` (`program_type_id`);
 
 --
 -- Indexes for table `program_faqs`
@@ -446,6 +491,12 @@ ALTER TABLE `program_testimonies`
   ADD KEY `fk_program_testimonies_program_id` (`program_id`);
 
 --
+-- Indexes for table `program_type`
+--
+ALTER TABLE `program_type`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -475,6 +526,12 @@ ALTER TABLE `web_setting_home`
 --
 ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `ambassador`
+--
+ALTER TABLE `ambassador`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `participants`
@@ -543,6 +600,12 @@ ALTER TABLE `program_testimonies`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `program_type`
+--
+ALTER TABLE `program_type`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -571,6 +634,12 @@ ALTER TABLE `admins`
   ADD CONSTRAINT `fk_admins_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
 
 --
+-- Constraints for table `ambassador`
+--
+ALTER TABLE `ambassador`
+  ADD CONSTRAINT `fk_ambassador_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
 -- Constraints for table `participants`
 --
 ALTER TABLE `participants`
@@ -594,6 +663,12 @@ ALTER TABLE `programs`
 --
 ALTER TABLE `program_announcements`
   ADD CONSTRAINT `fk_program_announcements_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
+
+--
+-- Constraints for table `program_categories`
+--
+ALTER TABLE `program_categories`
+  ADD CONSTRAINT `fk_program_categories_program_type` FOREIGN KEY (`program_type_id`) REFERENCES `program_type` (`id`);
 
 --
 -- Constraints for table `program_faqs`

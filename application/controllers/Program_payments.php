@@ -22,7 +22,10 @@ class Program_payments extends RestController
         if ($id == '') {
             $program_payments = $this->mCore->list_data('program_payments')->result_array();
             if ($program_payments) {
-                $this->response($program_payments	, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $program_payments
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -31,8 +34,11 @@ class Program_payments extends RestController
             }
         } else {
             $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->result_array();
-            if ($program_payments	) {
-                $this->response($program_payments, 200);
+            if ($program_payments) {
+                $this->response([
+                    'status' => true,
+                    'data' => $program_payments
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -60,7 +66,10 @@ class Program_payments extends RestController
         );
         $sql = $this->mCore->save_data('program_payments', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -86,7 +95,10 @@ class Program_payments extends RestController
         );
         $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -106,7 +118,10 @@ class Program_payments extends RestController
         );
         $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

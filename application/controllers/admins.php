@@ -20,9 +20,12 @@ class Admins extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $admins = $this->mCore->list_data('admins')->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $data = $this->mCore->list_data('admins')->result_array();
+            if ($data) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +33,12 @@ class Admins extends RestController
                 ], 404);
             }
         } else {
-            $admins = $this->mCore->get_data('admins', ['id' => $id])->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $data = $this->mCore->get_data('admins', ['id' => $id])->result_array();
+            if ($data) {
+                $this->response([
+                    'status' => true,
+                    'data' => $data
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -57,7 +63,10 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -81,7 +90,10 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -132,7 +144,10 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

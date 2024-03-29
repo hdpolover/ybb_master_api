@@ -22,7 +22,10 @@ class Web_setting_home extends RestController
         if ($id == '') {
             $web_setting_home = $this->mCore->list_data('web_setting_home')->result_array();
             if ($web_setting_home) {
-                $this->response($web_setting_home, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $web_setting_home
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -32,7 +35,10 @@ class Web_setting_home extends RestController
         } else {
             $web_setting_home = $this->mCore->get_data('web_setting_home', ['id' => $id])->result_array();
             if ($web_setting_home) {
-                $this->response($web_setting_home, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $web_setting_home
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -66,7 +72,10 @@ class Web_setting_home extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_home', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -96,7 +105,10 @@ class Web_setting_home extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_home', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -116,7 +128,10 @@ class Web_setting_home extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_home', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

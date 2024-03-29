@@ -46,6 +46,13 @@ class Core_model extends CI_Model
         return abs($dt[$pk]) + 1;
     }
 
+    public function get_lastid($table, $pk)
+    {
+        $this->db->select_max($pk);
+        $dt = $this->db->get($table)->row_array();
+        return abs($dt[$pk]);
+    }
+
     public function save_data($table, $data, $is_update = false, $arrWhere = [])
     {
         if ($is_update) {

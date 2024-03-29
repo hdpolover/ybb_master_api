@@ -22,7 +22,10 @@ class Web_setting_about extends RestController
         if ($id == '') {
             $web_setting_about = $this->mCore->list_data('web_setting_about')->result_array();
             if ($web_setting_about) {
-                $this->response($web_setting_about, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $web_setting_about
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -32,7 +35,10 @@ class Web_setting_about extends RestController
         } else {
             $web_setting_about = $this->mCore->get_data('web_setting_about', ['id' => $id])->result_array();
             if ($web_setting_about) {
-                $this->response($web_setting_about, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $web_setting_about
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -59,7 +65,10 @@ class Web_setting_about extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_about', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -84,7 +93,10 @@ class Web_setting_about extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_about', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -104,7 +116,10 @@ class Web_setting_about extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_about', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

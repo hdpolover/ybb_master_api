@@ -20,9 +20,12 @@ class Certificates extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $admins = $this->mCore->list_data('certificates')->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $certificates = $this->mCore->list_data('certificates')->result_array();
+            if ($certificates) {
+                $this->response([
+                    'status' => true,
+                    'data' => $certificates
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +33,12 @@ class Certificates extends RestController
                 ], 404);
             }
         } else {
-            $admins = $this->mCore->get_data('certificates', ['id' => $id])->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $certificates = $this->mCore->get_data('certificates', ['id' => $id])->result_array();
+            if ($certificates) {
+                $this->response([
+                    'status' => true,
+                    'data' => $certificates
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,

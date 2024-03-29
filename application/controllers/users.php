@@ -22,7 +22,10 @@ class Users extends RestController
         if ($id == '') {
             $users = $this->mCore->list_data('users')->result_array();
             if ($users) {
-                $this->response($users, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $users
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -32,7 +35,10 @@ class Users extends RestController
         } else {
             $users = $this->mCore->get_data('users', ['id' => $id])->result_array();
             if ($users) {
-                $this->response($users, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $users
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -54,7 +60,10 @@ class Users extends RestController
         );
         $sql = $this->mCore->save_data('users', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -74,7 +83,10 @@ class Users extends RestController
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -126,7 +138,10 @@ class Users extends RestController
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

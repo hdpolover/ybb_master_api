@@ -22,7 +22,10 @@ class Program_faqs extends RestController
         if ($id == '') {
             $program_faqs = $this->mCore->list_data('program_faqs')->result_array();
             if ($program_faqs) {
-                $this->response($program_faqs, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $program_faqs
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -32,7 +35,10 @@ class Program_faqs extends RestController
         } else {
             $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->result_array();
             if ($program_faqs) {
-                $this->response($program_faqs, 200);
+                $this->response([
+                    'status' => true,
+                    'data' => $program_faqs
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -55,7 +61,10 @@ class Program_faqs extends RestController
         );
         $sql = $this->mCore->save_data('program_faqs', $data);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -76,7 +85,10 @@ class Program_faqs extends RestController
         );
         $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
@@ -96,7 +108,10 @@ class Program_faqs extends RestController
         );
         $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
         if ($sql) {
-            $this->response($data, 200);
+            $this->response([
+                'status' => true,
+                'message' => 'Data deleted successfully'
+            ], 200);
         } else {
             $this->response([
                 'status' => false,

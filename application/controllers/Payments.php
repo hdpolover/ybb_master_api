@@ -20,9 +20,12 @@ class Payments extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $admins = $this->mCore->list_data('payments')->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $payments = $this->mCore->list_data('payments')->result_array();
+            if ($payments) {
+                $this->response([
+                    'status' => true,
+                    'data' => $payments
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
@@ -30,9 +33,12 @@ class Payments extends RestController
                 ], 404);
             }
         } else {
-            $admins = $this->mCore->get_data('payments', ['id' => $id])->result_array();
-            if ($admins) {
-                $this->response($admins, 200);
+            $payments = $this->mCore->get_data('payments', ['id' => $id])->result_array();
+            if ($payments) {
+                $this->response([
+                    'status' => true,
+                    'data' => $payments
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
