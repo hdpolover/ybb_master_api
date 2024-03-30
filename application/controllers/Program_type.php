@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_payments extends RestController
+class Program_type extends RestController
 {
 
     function __construct()
@@ -20,11 +20,11 @@ class Program_payments extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_payments = $this->mCore->list_data('program_payments')->result_array();
-            if ($program_payments) {
+            $program_type = $this->mCore->list_data('program_type')->result_array();
+            if ($program_type) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_payments
+                    'data' => $program_type
                 ], 200);
             } else {
                 $this->response([
@@ -33,11 +33,11 @@ class Program_payments extends RestController
                 ], 404);
             }
         } else {
-            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->result_array();
-            if ($program_payments) {
+            $program_type = $this->mCore->get_data('program_type', ['id' => $id])->result_array();
+            if ($program_type) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_payments
+                    'data' => $program_type
                 ], 200);
             } else {
                 $this->response([
@@ -52,19 +52,12 @@ class Program_payments extends RestController
     function save_post()
     {
         $data = array(
-            'program_id' => $this->post('program_id'),
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'start_date' => $this->post('start_date'),
-            'end_date' => $this->post('end_date'),
-            'order_number' => $this->post('order_number'),
-            'idr_amount' => $this->post('idr_amount'),
-            'usd_amount' => $this->post('usd_amount'),
-            'category' => $this->post('category'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_payments', $data);
+        $sql = $this->mCore->save_data('program_type', $data);
         if ($sql) {
             $this->response([
                 'status' => true,
@@ -85,15 +78,9 @@ class Program_payments extends RestController
         $data = array(
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'start_date' => $this->post('start_date'),
-            'end_date' => $this->post('end_date'),
-            'order_number' => $this->post('order_number'),
-            'idr_amount' => $this->post('idr_amount'),
-            'usd_amount' => $this->post('usd_amount'),
-            'category' => $this->post('category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_type', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
@@ -116,7 +103,7 @@ class Program_payments extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_type', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
