@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2024 at 04:57 PM
+-- Generation Time: Mar 31, 2024 at 07:33 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -52,10 +52,10 @@ INSERT INTO `admins` (`id`, `name`, `email`, `password`, `role`, `program_id`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `ambassador`
+-- Table structure for table `ambassadors`
 --
 
-CREATE TABLE `ambassador` (
+CREATE TABLE `ambassadors` (
   `id` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
@@ -129,6 +129,8 @@ CREATE TABLE `programs` (
   `end_date` datetime NOT NULL,
   `registration_video_url` varchar(255) DEFAULT NULL,
   `sponsor_canva_url` varchar(255) DEFAULT NULL,
+  `theme` varchar(255) DEFAULT NULL,
+  `sub_themes` text DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
@@ -139,8 +141,8 @@ CREATE TABLE `programs` (
 -- Dumping data for table `programs`
 --
 
-INSERT INTO `programs` (`id`, `program_category_id`, `name`, `logo_url`, `description`, `guideline`, `twibbon`, `start_date`, `end_date`, `registration_video_url`, `sponsor_canva_url`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
-(1, 1, 'IYS 2024', '123', '123', 'asfa', 'egeg', '2024-02-21 20:29:22', '2024-02-29 20:29:22', 'effe', 'fef', 1, 0, '2024-02-12 20:29:22', '2024-02-12 20:29:22');
+INSERT INTO `programs` (`id`, `program_category_id`, `name`, `logo_url`, `description`, `guideline`, `twibbon`, `start_date`, `end_date`, `registration_video_url`, `sponsor_canva_url`, `theme`, `sub_themes`, `is_active`, `is_deleted`, `created_at`, `updated_at`) VALUES
+(1, 1, 'IYS 2024', '123', '123', 'asfa', 'egeg', '2024-02-21 20:29:22', '2024-02-29 20:29:22', 'effe', 'fef', NULL, NULL, 1, 0, '2024-02-12 20:29:22', '2024-02-12 20:29:22');
 
 -- --------------------------------------------------------
 
@@ -406,9 +408,9 @@ ALTER TABLE `admins`
   ADD KEY `fk_admins_program_id` (`program_id`);
 
 --
--- Indexes for table `ambassador`
+-- Indexes for table `ambassadors`
 --
-ALTER TABLE `ambassador`
+ALTER TABLE `ambassadors`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_ambassador_program_id` (`program_id`);
 
@@ -528,9 +530,9 @@ ALTER TABLE `admins`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `ambassador`
+-- AUTO_INCREMENT for table `ambassadors`
 --
-ALTER TABLE `ambassador`
+ALTER TABLE `ambassadors`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -561,7 +563,7 @@ ALTER TABLE `program_announcements`
 -- AUTO_INCREMENT for table `program_categories`
 --
 ALTER TABLE `program_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `program_faqs`
@@ -634,9 +636,9 @@ ALTER TABLE `admins`
   ADD CONSTRAINT `fk_admins_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
 
 --
--- Constraints for table `ambassador`
+-- Constraints for table `ambassadors`
 --
-ALTER TABLE `ambassador`
+ALTER TABLE `ambassadors`
   ADD CONSTRAINT `fk_ambassador_program_id` FOREIGN KEY (`program_id`) REFERENCES `programs` (`id`);
 
 --
