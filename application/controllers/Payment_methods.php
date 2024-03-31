@@ -33,7 +33,7 @@ class Payment_methods extends RestController
                 ], 404);
             }
         } else {
-            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->result_array();
+            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
             if ($payment_methods) {
                 $this->response([
                     'status' => true,
@@ -61,9 +61,11 @@ class Payment_methods extends RestController
         );
         $sql = $this->mCore->save_data('payment_methods', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('payment_methods', 'id');
+            $last_data = $this->mCore->get_data('payment_methods', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -84,9 +86,10 @@ class Payment_methods extends RestController
         );
         $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

@@ -33,7 +33,7 @@ class Program_payments extends RestController
                 ], 404);
             }
         } else {
-            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->result_array();
+            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->row_array();
             if ($program_payments) {
                 $this->response([
                     'status' => true,
@@ -66,9 +66,11 @@ class Program_payments extends RestController
         );
         $sql = $this->mCore->save_data('program_payments', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('program_payments', 'id');
+            $last_data = $this->mCore->get_data('program_payments', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -95,9 +97,10 @@ class Program_payments extends RestController
         );
         $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('program_payments', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

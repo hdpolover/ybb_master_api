@@ -33,7 +33,7 @@ class Program_faqs extends RestController
                 ], 404);
             }
         } else {
-            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->result_array();
+            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->row_array();
             if ($program_faqs) {
                 $this->response([
                     'status' => true,
@@ -61,9 +61,11 @@ class Program_faqs extends RestController
         );
         $sql = $this->mCore->save_data('program_faqs', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('program_faqs', 'id');
+            $last_data = $this->mCore->get_data('program_faqs', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -85,9 +87,10 @@ class Program_faqs extends RestController
         );
         $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('program_faqs', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

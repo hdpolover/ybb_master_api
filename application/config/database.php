@@ -77,18 +77,20 @@ $query_builder = TRUE;
 $isDev = false;
 
 if ($isDev) {
+	$_hostname = 'localhost';
 	$_username = 'root';
 	$_password = '';
 	$_database = 'db_ybb';
 } else {
+	$_hostname = 'localhost';
 	$_username = 'u1437096_ybb_master_app_admin_user';
-	$_password = '7}bB9M&Umk_6';
+	$_password = 'A%QR]fEos(Y3';
 	$_database = 'u1437096_ybb_master_app_db';
 }
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
+	'hostname' => $_hostname,
 	'username' => $_username,
 	'password' => $_password,
 	'database' => $_database,

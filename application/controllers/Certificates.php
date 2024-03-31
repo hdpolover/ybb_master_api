@@ -33,7 +33,7 @@ class Certificates extends RestController
                 ], 404);
             }
         } else {
-            $certificates = $this->mCore->get_data('certificates', ['id' => $id])->result_array();
+            $certificates = $this->mCore->get_data('certificates', ['id' => $id])->row_array();
             if ($certificates) {
                 $this->response([
                     'status' => true,

@@ -33,7 +33,7 @@ class Payments extends RestController
                 ], 404);
             }
         } else {
-            $payments = $this->mCore->get_data('payments', ['id' => $id])->result_array();
+            $payments = $this->mCore->get_data('payments', ['id' => $id])->row_array();
             if ($payments) {
                 $this->response([
                     'status' => true,

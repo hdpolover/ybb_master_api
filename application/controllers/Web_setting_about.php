@@ -18,8 +18,8 @@ class Web_setting_about extends RestController
 
     function index_get()
     {
-        $id = $this->get('id');
-        if ($id == '') {
+        $program_id = $this->get('program_id');
+        if ($program_id == '') {
             $web_setting_about = $this->mCore->list_data('web_setting_about')->result_array();
             if ($web_setting_about) {
                 $this->response([
@@ -33,7 +33,7 @@ class Web_setting_about extends RestController
                 ], 404);
             }
         } else {
-            $web_setting_about = $this->mCore->get_data('web_setting_about', ['id' => $id])->result_array();
+            $web_setting_about = $this->mCore->get_data('web_setting_about', ['program_id' => $program_id])->row_array();
             if ($web_setting_about) {
                 $this->response([
                     'status' => true,
@@ -65,9 +65,11 @@ class Web_setting_about extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_about', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('web_setting_about', 'id');
+            $last_data = $this->mCore->get_data('web_setting_about', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -93,9 +95,10 @@ class Web_setting_about extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_about', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('web_setting_about', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

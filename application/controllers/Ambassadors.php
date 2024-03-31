@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Ambassador extends RestController
+class Ambassadors extends RestController
 {
 
     function __construct()
@@ -20,7 +20,7 @@ class Ambassador extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $data = $this->mCore->list_data('ambassador')->result_array();
+            $data = $this->mCore->list_data('ambassadors')->result_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Ambassador extends RestController
                 ], 404);
             }
         } else {
-            $data = $this->mCore->get_data('ambassador', ['id' => $id])->result_array();
+            $data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -60,14 +60,15 @@ class Ambassador extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('ambassador', $data);
+        $sql = $this->mCore->save_data('ambassadors', $data);
         if ($sql) {
-            $last_id = $this->mCore->get_lastid('ambassador', 'id');
-            $this->mCore->save_data('ambassador', ['ref_code' => strtoupper(substr(str_replace(' ', '',$this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
+            $last_id = $this->mCore->get_lastid('ambassadors', 'id');
+            $this->mCore->save_data('ambassadors', ['ref_code' => strtoupper(substr(str_replace(' ', '',$this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
             
+            $last_data = $this->mCore->get_data('ambassadors', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -89,11 +90,12 @@ class Ambassador extends RestController
             'gender' => $this->post('gender'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('ambassador', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -112,7 +114,7 @@ class Ambassador extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('ambassador', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
@@ -123,6 +125,25 @@ class Ambassador extends RestController
                 'status' => false,
                 'message' => 'Sorry, failed to delete'
             ], 404);
+        }
+    }
+
+    function login_post()
+    {
+        $email = $this->post('email');
+        $ref_code = $this->post('ref_code');
+
+        $check_data = $this->mCore->get_data('ambassadors', ['email' => $email, 'ref_code' => $ref_code]);
+        if($check_data->num_rows() > 0){
+            $this->response([
+                'status' => true,
+                'message' => 'Login successfully'
+            ], 200);
+        }else{
+            $this->response([
+                'status' => true,
+                'message' => 'Login failed'
+            ], 200);
         }
     }
 }

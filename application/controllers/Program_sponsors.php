@@ -33,7 +33,7 @@ class Program_sponsors extends RestController
                 ], 404);
             }
         } else {
-            $program_sponsors = $this->mCore->get_data('program_sponsors', ['id' => $id])->result_array();
+            $program_sponsors = $this->mCore->get_data('program_sponsors', ['id' => $id])->row_array();
             if ($program_sponsors) {
                 $this->response([
                     'status' => true,
@@ -61,9 +61,11 @@ class Program_sponsors extends RestController
         );
         $sql = $this->mCore->save_data('program_sponsors', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('program_sponsors', 'id');
+            $last_data = $this->mCore->get_data('program_sponsors', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -84,9 +86,10 @@ class Program_sponsors extends RestController
         );
         $sql = $this->mCore->save_data('program_sponsors', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('program_sponsors', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

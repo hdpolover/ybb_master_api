@@ -18,8 +18,8 @@ class Web_setting_home extends RestController
 
     function index_get()
     {
-        $id = $this->get('id');
-        if ($id == '') {
+        $program_id = $this->get('program_id');
+        if ($program_id == '') {
             $web_setting_home = $this->mCore->list_data('web_setting_home')->result_array();
             if ($web_setting_home) {
                 $this->response([
@@ -33,7 +33,7 @@ class Web_setting_home extends RestController
                 ], 404);
             }
         } else {
-            $web_setting_home = $this->mCore->get_data('web_setting_home', ['id' => $id])->result_array();
+            $web_setting_home = $this->mCore->get_data('web_setting_home', ['program_id' => $program_id])->row_array();
             if ($web_setting_home) {
                 $this->response([
                     'status' => true,
@@ -72,9 +72,11 @@ class Web_setting_home extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_home', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('web_setting_home', 'id');
+            $last_data = $this->mCore->get_data('web_setting_home', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -105,9 +107,10 @@ class Web_setting_home extends RestController
         );
         $sql = $this->mCore->save_data('web_setting_home', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('web_setting_home', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

@@ -33,7 +33,7 @@ class Program_testimonies extends RestController
                 ], 404);
             }
         } else {
-            $program_testimonies = $this->mCore->get_data('program_testimonies', ['id' => $id])->result_array();
+            $program_testimonies = $this->mCore->get_data('program_testimonies', ['id' => $id])->row_array();
             if ($program_testimonies) {
                 $this->response([
                     'status' => true,
@@ -62,9 +62,11 @@ class Program_testimonies extends RestController
         );
         $sql = $this->mCore->save_data('program_testimonies', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('program_testimonies', 'id');
+            $last_data = $this->mCore->get_data('program_testimonies', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -86,9 +88,10 @@ class Program_testimonies extends RestController
         );
         $sql = $this->mCore->save_data('program_testimonies', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('program_testimonies', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

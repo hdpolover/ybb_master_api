@@ -33,7 +33,7 @@ class Program_categories extends RestController
                 ], 404);
             }
         } else {
-            $program_categories = $this->mCore->get_data('program_categories', ['id' => $id])->result_array();
+            $program_categories = $this->mCore->get_data('program_categories', ['id' => $id])->row_array();
             if ($program_categories) {
                 $this->response([
                     'status' => true,
@@ -45,6 +45,37 @@ class Program_categories extends RestController
                     'message' => 'No result were found'
                 ], 404);
             }
+        }
+    }
+
+    function web_get()
+    {
+        $url = $this->get('url');
+        if ($url) {
+            $join = [
+                'select' => '*',
+                'table' => 'programs',
+                'join' => ['program_categories'=> 'program_categories.id = programs.program_category_id'],
+                'where' => ['program_categories.web_url' => $url, 'programs.is_active' => 1],
+                'order' => ['programs.id' => 'asc']
+            ];
+            $web_url = $this->mCore->join_table($join)->row_array();
+            if ($web_url) {
+                $this->response([
+                    'status' => true,
+                    'data' => $web_url
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'No result were found'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
         }
     }
 
@@ -66,9 +97,11 @@ class Program_categories extends RestController
         );
         $sql = $this->mCore->save_data('program_categories', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('program_categories', 'id');
+            $last_data = $this->mCore->get_data('program_categories', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -97,9 +130,10 @@ class Program_categories extends RestController
         );
         $sql = $this->mCore->save_data('program_categories', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('program_categories', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -132,4 +166,3 @@ class Program_categories extends RestController
         }
     }
 }
-?>

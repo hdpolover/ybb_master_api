@@ -33,7 +33,7 @@ class Programs extends RestController
                 ], 404);
             }
         } else {
-            $programs = $this->mCore->get_data('programs', ['id' => $id])->result_array();
+            $programs = $this->mCore->get_data('programs', ['id' => $id])->row_array();
             if ($programs) {
                 $this->response([
                     'status' => true,
@@ -62,14 +62,18 @@ class Programs extends RestController
             'end_date' => $this->post('end_date'),
             'registration_video_url' => $this->post('registration_video_url'),
             'sponsor_canva_url' => $this->post('sponsor_canva_url'),
+            'theme' => $this->post('theme'),
+            'sub_themes' => $this->post('sub_themes'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('programs', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('programs', 'id');
+            $last_data = $this->mCore->get_data('programs', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -97,9 +101,10 @@ class Programs extends RestController
         );
         $sql = $this->mCore->save_data('programs', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('programs', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -154,11 +159,11 @@ class Programs extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('programs/' . $id . '/'. $temp_img);
+            $this->ftp->delete_file('programs/' . $id . '/' . $temp_img);
 
             $this->ftp->close();
         }
-        
+
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
@@ -216,4 +221,3 @@ class Programs extends RestController
         }
     }
 }
-?>

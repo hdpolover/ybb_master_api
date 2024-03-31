@@ -33,7 +33,7 @@ class Users extends RestController
                 ], 404);
             }
         } else {
-            $users = $this->mCore->get_data('users', ['id' => $id])->result_array();
+            $users = $this->mCore->get_data('users', ['id' => $id])->row_array();
             if ($users) {
                 $this->response([
                     'status' => true,
@@ -60,9 +60,11 @@ class Users extends RestController
         );
         $sql = $this->mCore->save_data('users', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('users', 'id');
+            $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -83,9 +85,10 @@ class Users extends RestController
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

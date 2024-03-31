@@ -34,7 +34,7 @@ class Participants extends RestController
                 ], 404);
             }
         } else {
-            $participants = $this->mCore->get_data('participants', ['id' => $id])->result_array();
+            $participants = $this->mCore->get_data('participants', ['id' => $id])->row_array();
             if ($participants) {
                 $this->response([
                     'status' => true,
@@ -68,9 +68,11 @@ class Participants extends RestController
         );
         $sql = $this->mCore->save_data('participants', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('participants', 'id');
+            $last_data = $this->mCore->get_data('participants', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -96,9 +98,10 @@ class Participants extends RestController
         );
         $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([

@@ -33,7 +33,7 @@ class Admins extends RestController
                 ], 404);
             }
         } else {
-            $data = $this->mCore->get_data('admins', ['id' => $id])->result_array();
+            $data = $this->mCore->get_data('admins', ['id' => $id])->row_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -63,9 +63,11 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data);
         if ($sql) {
+            $last_id = $this->mCore->get_lastid('admins', 'id');
+            $last_data = $this->mCore->get_data('admins', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
@@ -90,9 +92,10 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
         if ($sql) {
+            $last_data = $this->mCore->get_data('admins', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $data
+                'data' => $last_data
             ], 200);
         } else {
             $this->response([
