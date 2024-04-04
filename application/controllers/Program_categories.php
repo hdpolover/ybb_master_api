@@ -116,16 +116,16 @@ class Program_categories extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'web_url' => $this->post('web_url'),
-            'contact' => $this->post('contact'),
-            'location' => $this->post('location'),
-            'email' => $this->post('email'),
-            'instagram' => $this->post('instagram'),
-            'titktok' => $this->post('titktok'),
-            'youtube' => $this->post('youtube'),
-            'telegram' => $this->post('telegram'),
+            'name' => $this->put('name'),
+            'description' => $this->put('description'),
+            'web_url' => $this->put('web_url'),
+            'contact' => $this->put('contact'),
+            'location' => $this->put('location'),
+            'email' => $this->put('email'),
+            'instagram' => $this->put('instagram'),
+            'titktok' => $this->put('titktok'),
+            'youtube' => $this->put('youtube'),
+            'telegram' => $this->put('telegram'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_categories', $data, true, ['id' => $id]);

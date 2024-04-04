@@ -99,7 +99,7 @@ class Users extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'full_name' => $this->post('full_name'),
+            'full_name' => $this->put('full_name'),
             'email' => $this->put('email'),
             // 'program_category_id' => $this->put('program_category_id'),
             'updated_at' => date('Y-m-d H:i:s'),

@@ -83,11 +83,11 @@ class Ambassadors extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
-            'program_id' => $this->post('program_id'),
-            'instituion' => $this->post('instituion'),
-            'gender' => $this->post('gender'),
+            'name' => $this->put('name'),
+            'email' => $this->put('email'),
+            'program_id' => $this->put('program_id'),
+            'instituion' => $this->put('instituion'),
+            'gender' => $this->put('gender'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);

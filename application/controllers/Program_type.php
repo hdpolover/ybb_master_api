@@ -78,8 +78,8 @@ class Program_type extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
+            'name' => $this->put('name'),
+            'description' => $this->put('description'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_type', $data, true, ['id' => $id]);

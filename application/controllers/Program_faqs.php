@@ -80,9 +80,9 @@ class Program_faqs extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'question' => $this->post('question'),
-            'answer' => $this->post('answer'),
-            'faq_category' => $this->post('faq_category'),
+            'question' => $this->put('question'),
+            'answer' => $this->put('answer'),
+            'faq_category' => $this->put('faq_category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);

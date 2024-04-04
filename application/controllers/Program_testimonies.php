@@ -81,9 +81,9 @@ class Program_testimonies extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'person_name' => $this->post('person_name'),
-            'testimony' => $this->post('testimony'),
-            'occupation' => $this->post('occupation'),
+            'person_name' => $this->put('person_name'),
+            'testimony' => $this->put('testimony'),
+            'occupation' => $this->put('occupation'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_testimonies', $data, true, ['id' => $id]);

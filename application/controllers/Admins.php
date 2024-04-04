@@ -63,10 +63,16 @@ class Admins extends RestController
         );
         $sql = $this->mCore->save_data('admins', $data);
         if ($sql) {
-            if ($this->input->post('profile_url')) {
-                $this->do_upload_profile($this->input->post('profile_url'));
-            }
             $last_id = $this->mCore->get_lastid('admins', 'id');
+            if (!empty($_FILES['profile_url']['name'])) {
+                $upload_file = $this->upload_profile('profile_url', $last_id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
             $last_data = $this->mCore->get_data('admins', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
@@ -84,17 +90,26 @@ class Admins extends RestController
     function update_put()
     {
         $id = $this->put('id');
+        if($id == ''){
+            $this->response([
+                'status' => false,
+                'message' => "Sorry, id doesn't exists"
+            ], 404);
+        }
         $data = array(
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
+            'name' => $this->put('name'),
+            'email' => $this->put('email'),
             // 'password' => $this->post('password'),
-            'program_id' => $this->post('program_id'),
-            'role' => $this->post('role'),
-            'is_active' => $this->post('is_active'),
+            'program_id' => $this->put('program_id'),
+            // 'role' => $this->post('role'),
+            'is_active' => $this->put('is_active'),
             'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
         if ($sql) {
+            if (!empty($_FILES['profile_url']['name'])) {
+                $this->upload_profile('profile_url', $id);
+            }
             $last_data = $this->mCore->get_data('admins', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
@@ -193,85 +208,159 @@ class Admins extends RestController
     }
 
     // UPLOAD PROFILE
-    public function do_upload_profile($profile = "")
+    private function upload_profile($profile_url, $id)
     {
-        if ($profile) {
-            $this->load->library('ftp');
+        $this->load->library('ftp');
 
-            $id = $this->post('id');
+        $data = $this->mCore->get_data('admins', 'id = ' . $id)->row_array();
+        if ($data['profile_url'] != '') {
+            $exp = (explode('/', $data['profile_url']));
+            $temp_img = end($exp);
 
-            $data = $this->mCore->get_data('admins', 'id = ' . $id)->row_array();
-            if ($data['profile_url'] != '') {
-                $exp = (explode('/', $data['profile_url']));
-                $temp_img = end($exp);
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
 
-                //FTP configuration
-                $ftp_config['hostname'] = config_item('hostname_upload');
-                $ftp_config['username'] = config_item('username_upload');
-                $ftp_config['password'] = config_item('password_upload');
-                $ftp_config['port'] = config_item('port_upload');
-                $ftp_config['debug'] = TRUE;
+            $this->ftp->connect($ftp_config);
 
-                $this->ftp->connect($ftp_config);
+            $this->ftp->delete_file('admins/' . $id . '/' . $temp_img);
 
-                $this->ftp->delete_file('admins/' . $id . '/' . $temp_img);
+            $this->ftp->close();
+        }
 
-                $this->ftp->close();
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+        // $config['max_width']            = 1024;
+        // $config['max_height']           = 768;
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload($profile_url)) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $destination = 'admins/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('admins', ['profile_url' => config_item('dir_upload') . 'admins/' . $fileName], true, array('id' => $id));
+
+            if ($sql) {
+                $data['status'] = 1;
+                $data['message'] = 'Image saved successfully';
+            } else {
+                $data['status'] = 0;
+                $data['message'] = 'Sorry, failed to update';
             }
+        } else {
+            $data['status'] = 0;
+            $data['message'] = $this->upload->display_errors();
+        }
 
-            $config['upload_path'] = './uploads';
-            $config['allowed_types'] = 'gif|jpg|png|jpeg';
-            $config['max_size'] = 5000;
-            $config['file_name'] = time();
-            // $config['max_width']            = 1024;
-            // $config['max_height']           = 768;
+        return $data;
+    }
+    
+    // UPLOAD PROFILE
+    public function do_upload_profile_post()
+    {
+        $this->load->library('ftp');
 
-            $this->load->library('upload', $config);
-            $this->upload->initialize($config);
-            if ($this->upload->do_upload($profile)) {
+        $id = $this->post('id');
 
-                $upload_data = $this->upload->data();
-                $fileName = $upload_data['file_name'];
+        $data = $this->mCore->get_data('admins', 'id = ' . $id)->row_array();
+        if ($data['profile_url'] != '') {
+            $exp = (explode('/', $data['profile_url']));
+            $temp_img = end($exp);
 
-                $source = './uploads/' . $fileName;
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
 
-                //FTP configuration
-                $ftp_config['hostname'] = config_item('hostname_upload');
-                $ftp_config['username'] = config_item('username_upload');
-                $ftp_config['password'] = config_item('password_upload');
-                $ftp_config['port'] = config_item('port_upload');
-                $ftp_config['debug'] = TRUE;
+            $this->ftp->connect($ftp_config);
 
-                $this->ftp->connect($ftp_config);
+            $this->ftp->delete_file('admins/' . $id . '/'. $temp_img);
 
-                $destination = 'admins/' . $fileName;
+            $this->ftp->close();
+        }
+        
 
-                $this->ftp->upload($source, $destination);
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+        // $config['max_width']            = 1024;
+        // $config['max_height']           = 768;
 
-                $this->ftp->close();
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload("profile")) {
 
-                //Delete file from local server
-                @unlink($source);
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
 
-                $sql = $this->mCore->save_data('admins', ['profile_url' => config_item('dir_upload') . 'admins/' . $fileName], true, array('id' => $id));
+            $source = './uploads/' . $fileName;
 
-                if ($sql) {
-                    $this->response([
-                        'status' => true,
-                        'message' => 'Profile saved successfully'
-                    ], 200);
-                } else {
-                    $this->response([
-                        'status' => false,
-                        'message' => 'Sorry, failed to update'
-                    ], 404);
-                }
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $destination = 'admins/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('admins', ['profile_url' => config_item('dir_upload') . 'admins/' . $fileName], true, array('id' => $id));
+            
+            if ($sql) {
+                $this->response([
+                    'status' => true,
+                    'message' => 'Profile saved successfully'
+                ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => $this->upload->display_errors()
+                    'message' => 'Sorry, failed to update'
                 ], 404);
             }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->upload->display_errors()
+            ], 404);
         }
     }
 }

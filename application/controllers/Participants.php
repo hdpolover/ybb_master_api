@@ -69,6 +69,15 @@ class Participants extends RestController
         $sql = $this->mCore->save_data('participants', $data);
         if ($sql) {
             $last_id = $this->mCore->get_lastid('participants', 'id');
+            if (!empty($_FILES['picture_url']['name'])) {
+                $upload_file = $this->upload_picture('picture_url', $last_id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
             $last_data = $this->mCore->get_data('participants', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
@@ -87,13 +96,13 @@ class Participants extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'full_name' => $this->post('full_name'),
-            'birthdate' => $this->post('birthdate'),
-            'nationality' => $this->post('nationality'),
-            'gender' => $this->post('gender'),
-            'phone_number' => $this->post('phone_number'),
-            'country_code' => $this->post('country_code'),
-            'progam_id' => $this->post('progam_id'),
+            'full_name' => $this->put('full_name'),
+            'birthdate' => $this->put('birthdate'),
+            'nationality' => $this->put('nationality'),
+            'gender' => $this->put('gender'),
+            'phone_number' => $this->put('phone_number'),
+            'country_code' => $this->put('country_code'),
+            'progam_id' => $this->put('progam_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
@@ -135,6 +144,84 @@ class Participants extends RestController
     }
 
     // UPLOAD PICTURE
+    private function upload_picture($picture_url, $id)
+    {
+
+        $this->load->library('ftp');
+
+        $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
+        if ($data['picture_url'] != '') {
+            $exp = (explode('/', $data['picture_url']));
+            $temp_img = end($exp);
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['uid'] . '/' . $temp_img);
+
+            $this->ftp->close();
+        }
+
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload($picture_url)) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName], true, array('id' => $id));
+
+            if ($sql) {
+                $data['status'] = 1;
+                $data['message'] = 'Image saved successfully';
+            } else {
+                $data['status'] = 0;
+                $data['message'] = 'Sorry, failed to update';
+            }
+        } else {
+            $data['status'] = 0;
+            $data['message'] = $this->upload->display_errors();
+        }
+
+        return $data;
+    }
+
+    // UPLOAD PICTURE DIRECT
     public function do_upload_picture_post()
     {
 
@@ -156,7 +243,7 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/'. $data['uid'] . '/' . $temp_img);
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['uid'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -218,7 +305,7 @@ class Participants extends RestController
         }
     }
 
-    // UPLOAD PICTURE
+    // UPLOAD PICTURE DIRECT
     public function do_upload_document_post()
     {
 
@@ -301,5 +388,5 @@ class Participants extends RestController
             ], 404);
         }
     }
+    
 }
-?>

@@ -82,11 +82,11 @@ class Program_schedules	extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'start_date' => $this->post('start_date'),
-            'end_date' => $this->post('end_date'),
-            'order_number' => $this->post('order_number'),
+            'name' => $this->put('name'),
+            'description' => $this->put('description'),
+            'start_date' => $this->put('start_date'),
+            'end_date' => $this->put('end_date'),
+            'order_number' => $this->put('order_number'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_schedules', $data, true, ['id' => $id]);

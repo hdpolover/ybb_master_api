@@ -82,7 +82,7 @@ if ($isDev) {
 	$_password = '';
 	$_database = 'db_ybb';
 } else {
-	$_hostname = 'localhost';
+	$_hostname = '5.181.216.151';
 	$_username = 'u1437096_ybb_master_app_admin_user';
 	$_password = 'A%QR]fEos(Y3';
 	$_database = 'u1437096_ybb_master_app_db';

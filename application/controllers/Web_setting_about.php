@@ -84,13 +84,13 @@ class Web_setting_about extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'page_name' => $this->post('page_name'),
-            'menu_path' => $this->post('menu_path'),
-            'about_ybb' => $this->post('about_ybb'),
-            'about_program' => $this->post('about_program'),
-            'why_program' => $this->post('why_program'),
-            'what_program' => $this->post('what_program'),
-            'ybb_video_url' => $this->post('ybb_video_url'),
+            'page_name' => $this->put('page_name'),
+            'menu_path' => $this->put('menu_path'),
+            'about_ybb' => $this->put('about_ybb'),
+            'about_program' => $this->put('about_program'),
+            'why_program' => $this->put('why_program'),
+            'what_program' => $this->put('what_program'),
+            'ybb_video_url' => $this->put('ybb_video_url'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('web_setting_about', $data, true, ['id' => $id]);
