@@ -52,6 +52,7 @@ class Users extends RestController
     function save_post()
     {
         $data = array(
+            'full_name' => $this->post('full_name'),
             'email' => $this->post('email'),
             'password' => md5($this->post('password')),
             'program_category_id' => $this->post('program_category_id'),
@@ -61,7 +62,7 @@ class Users extends RestController
         $sql = $this->mCore->save_data('users', $data);
         if ($sql) {
             $last_id = $this->mCore->get_lastid('users', 'id');
-            $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row_array();
+            $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -74,13 +75,33 @@ class Users extends RestController
         }
     }
 
+    //VERIF DATA
+    function verif_post()
+    {
+        $id = $this->post('id');
+        $sql = $this->mCore->save_data('users', ['is_verif' => 1], true, ['id' => $id]);
+        if ($sql) {
+            $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
+            $this->response([
+                'status' => true,
+                'data' => $last_data
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Sorry, failed to verif'
+            ], 404);
+        }
+    }
+
     //UPDATE DATA
     function update_put()
     {
         $id = $this->put('id');
         $data = array(
+            'full_name' => $this->post('full_name'),
             'email' => $this->put('email'),
-            'program_category_id' => $this->put('program_category_id'),
+            // 'program_category_id' => $this->put('program_category_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);

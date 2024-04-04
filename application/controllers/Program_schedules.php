@@ -18,8 +18,8 @@ class Program_schedules	extends RestController
 
     function index_get()
     {
-        $id = $this->get('id');
-        if ($id == '') {
+        $program_id = $this->get('program_id');
+        if ($program_id == '') {
             $program_schedules = $this->mCore->list_data('program_schedules')->result_array();
             if ($program_schedules) {
                 $this->response([
@@ -33,7 +33,7 @@ class Program_schedules	extends RestController
                 ], 404);
             }
         } else {
-            $program_schedules = $this->mCore->get_data('program_schedules', ['id' => $id])->row_array();
+            $program_schedules = $this->mCore->get_data('program_schedules', ['program_id' => $program_id])->row_array();
             if ($program_schedules) {
                 $this->response([
                     'status' => true,
