@@ -33,7 +33,7 @@ class Program_schedules	extends RestController
                 ], 404);
             }
         } else {
-            $program_schedules = $this->mCore->get_data('program_schedules', ['program_id' => $program_id])->row_array();
+            $program_schedules = $this->mCore->get_data('program_schedules', ['program_id' => $program_id])->result_array();
             if ($program_schedules) {
                 $this->response([
                     'status' => true,

@@ -237,5 +237,26 @@ class Core_model extends CI_Model
             return false;
         }
     }
+    
+    public function do_login_user($email = '', $password = '')
+    {
+        $this->db->where('email', $email);
+        $user = $this->db->get('users');
+
+        if ($user->num_rows() == 1) {
+            if ($user->row_array()['is_active'] == 1) {
+                $isPasswordTrue = $user->row_array()['password'] == md5($password);
+                if ($isPasswordTrue) {
+                    return $user->row_array()['id'];
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
 ?>

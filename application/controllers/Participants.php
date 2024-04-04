@@ -50,12 +50,13 @@ class Participants extends RestController
     }
 
     //SIMPAN DATA
-    function save_post()
+    function save_post($ref_code = NULL)
     {
         $data = array(
             'user_id' => $this->post('user_id'),
-            'account_id' => Uuid::uuid5(Uuid::NAMESPACE_URL, $this->post('user_id')),
+            'account_id' => uniqid($this->post('user_id')),
             'full_name' => $this->post('full_name'),
+            'ref_code_ambassador' => $ref_code,
             'birthdate' => $this->post('birthdate'),
             'nationality' => $this->post('nationality'),
             'gender' => $this->post('gender'),

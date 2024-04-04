@@ -94,6 +94,23 @@ class Users extends RestController
         }
     }
 
+    // LOGIN
+    function login_post()
+    {
+        $id_login = $this->mCore->do_login_user($this->post('email'), $this->post('password'));
+        if ($id_login) {
+            $sql = $this->mCore->get_data('users', ['id' => $id_login])->row_array();
+            $this->response([
+                'status' => false,
+                'data' => $sql,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Email/Password are Incorrect!'
+            ], 404);
+        }
+    }
     //UPDATE DATA
     function update_put()
     {
@@ -121,7 +138,7 @@ class Users extends RestController
 
     //UPDATE DATA
     function update_password_put()
-    { 
+    {
         $new_password = $this->put('password');
         $new_password_confirm = $this->put('password_confirm');
         if ($new_password != $new_password_confirm) {
@@ -132,7 +149,7 @@ class Users extends RestController
         }
 
         $id = $this->put('id');
-        
+
         $data = array(
             'password' => md5($this->put('password')),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -174,4 +191,3 @@ class Users extends RestController
         }
     }
 }
-?>
