@@ -63,7 +63,7 @@ class Participants extends RestController
             'phone_number' => $this->post('phone_number'),
             'country_code' => $this->post('country_code'),
             'picture_url' => NULL,
-            'progam_id' => $this->post('progam_id'),
+            'program_id' => $this->post('program_id'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -103,7 +103,7 @@ class Participants extends RestController
             'gender' => $this->put('gender'),
             'phone_number' => $this->put('phone_number'),
             'country_code' => $this->put('country_code'),
-            'progam_id' => $this->put('progam_id'),
+            'program_id' => $this->put('program_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);

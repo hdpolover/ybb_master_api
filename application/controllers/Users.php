@@ -62,6 +62,23 @@ class Users extends RestController
         $sql = $this->mCore->save_data('users', $data);
         if ($sql) {
             $last_id = $this->mCore->get_lastid('users', 'id');
+            
+            //insert data participants
+            $ref_code = NULL;
+            if ($this->post('ref_code')) {
+                $ref_code = $this->post('ref_code');
+            }
+            $participants = array(
+                'user_id' => $last_id,
+                'account_id' => uniqid($last_id),
+                'full_name' => $data['full_name'],
+                'ref_code_ambassador' => $ref_code,
+                'program_id' => $this->post('program_id'),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            );
+            $this->mCore->save_data('participants', $participants);
+            
             $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
             $this->response([
                 'status' => true,

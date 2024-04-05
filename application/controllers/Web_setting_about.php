@@ -33,7 +33,7 @@ class Web_setting_about extends RestController
                 ], 404);
             }
         } else {
-            $web_setting_about = $this->mCore->get_data('web_setting_about', ['program_id' => $program_id])->row_array();
+            $web_setting_about = $this->mCore->get_data('web_setting_about', ['program_id' => $program_id])->result();
             if ($web_setting_about) {
                 $this->response([
                     'status' => true,
