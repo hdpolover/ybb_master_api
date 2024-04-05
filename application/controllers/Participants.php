@@ -92,6 +92,24 @@ class Participants extends RestController
         }
     }
 
+    // SIGNIN
+    function signin_post()
+    {
+        $id_login = $this->mCore->do_signin_participant($this->post('email'), $this->post('password'), $this->post('program_category_id'));
+        if ($id_login) {
+            $sql = $this->mCore->get_data('participants', ['user_id' => $id_login])->result_array();
+            $this->response([
+                'status' => true,
+                'data' => $sql,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Email/Password are Incorrect!'
+            ], 404);
+        }
+    }
+
     //UPDATE DATA
     function update_put()
     {
@@ -389,5 +407,4 @@ class Participants extends RestController
             ], 404);
         }
     }
-    
 }

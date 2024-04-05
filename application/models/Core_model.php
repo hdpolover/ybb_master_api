@@ -237,8 +237,8 @@ class Core_model extends CI_Model
             return false;
         }
     }
-    
-    public function do_login_user($email = '', $password = '')
+
+    public function do_signin_user($email = '', $password = '')
     {
         $this->db->where('email', $email);
         $user = $this->db->get('users');
@@ -258,5 +258,25 @@ class Core_model extends CI_Model
             return false;
         }
     }
+
+    public function do_signin_participant($email = '', $password = '', $program_category_id)
+    {
+        $this->db->where('email', $email);
+        $user = $this->db->get('users');
+
+        if ($user->num_rows() == 1) {
+            if ($user->row_array()['is_active'] == 1) {
+                $isSignin = $this->get_data('users', ['password' => md5($password), 'program_category_id' => $program_category_id])->num_rows();
+                if ($isSignin) {
+                    return $user->row_array()['id'];
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
-?>

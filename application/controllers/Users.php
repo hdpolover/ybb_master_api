@@ -51,44 +51,60 @@ class Users extends RestController
     //SIMPAN DATA
     function save_post()
     {
-        $data = array(
-            'full_name' => $this->post('full_name'),
-            'email' => $this->post('email'),
-            'password' => md5($this->post('password')),
-            'program_category_id' => $this->post('program_category_id'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
+        $opt = array(
+            'select' => 'participants.*',
+            'table' => 'users',
+            'join' => ['participants', 'participants.id = participants.user_id'],
+            'where' =>  ['email' => $this->post('email'), 'program_id' => $this->post('program_id')]
         );
-        $sql = $this->mCore->save_data('users', $data);
-        if ($sql) {
-            $last_id = $this->mCore->get_lastid('users', 'id');
+
+        $check_data = $this->mCore->join_table($opt)->num_rows();
+        if ($check_data) {
+            $this->response([
+                'status' => false,
+                'message' => "You are already registered as a participant. Please sign in to continue."
+            ], 404);
             
-            //insert data participants
-            $ref_code = NULL;
-            if ($this->post('ref_code')) {
-                $ref_code = $this->post('ref_code');
-            }
-            $participants = array(
-                'user_id' => $last_id,
-                'account_id' => uniqid($last_id),
-                'full_name' => $data['full_name'],
-                'ref_code_ambassador' => $ref_code,
-                'program_id' => $this->post('program_id'),
+        } else {
+            $data = array(
+                'full_name' => $this->post('full_name'),
+                'email' => $this->post('email'),
+                'password' => md5($this->post('password')),
+                'program_category_id' => $this->post('program_category_id'),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             );
-            $this->mCore->save_data('participants', $participants);
-            
-            $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
-            $this->response([
-                'status' => true,
-                'data' => $last_data
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to save'
-            ], 404);
+            $sql = $this->mCore->save_data('users', $data);
+            if ($sql) {
+                $last_id = $this->mCore->get_lastid('users', 'id');
+
+                //insert data participants
+                $ref_code = NULL;
+                if ($this->post('ref_code')) {
+                    $ref_code = $this->post('ref_code');
+                }
+                $participants = array(
+                    'user_id' => $last_id,
+                    'account_id' => uniqid($last_id),
+                    'full_name' => $data['full_name'],
+                    'ref_code_ambassador' => $ref_code,
+                    'program_id' => $this->post('program_id'),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                );
+                $this->mCore->save_data('participants', $participants);
+
+                $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
+                $this->response([
+                    'status' => true,
+                    'data' => $last_data
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Sorry, failed to save'
+                ], 404);
+            }
         }
     }
 
@@ -111,14 +127,14 @@ class Users extends RestController
         }
     }
 
-    // LOGIN
-    function login_post()
+    // SIGNIN
+    function signin_post()
     {
-        $id_login = $this->mCore->do_login_user($this->post('email'), $this->post('password'));
+        $id_login = $this->mCore->do_signin_user($this->post('email'), $this->post('password'));
         if ($id_login) {
             $sql = $this->mCore->get_data('users', ['id' => $id_login])->row_array();
             $this->response([
-                'status' => false,
+                'status' => true,
                 'data' => $sql,
             ], 200);
         } else {
@@ -128,6 +144,7 @@ class Users extends RestController
             ], 404);
         }
     }
+
     //UPDATE DATA
     function update_put()
     {
