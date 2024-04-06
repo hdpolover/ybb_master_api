@@ -137,7 +137,7 @@ class Ambassadors extends RestController
         if($check_data->num_rows() > 0){
             $this->response([
                 'status' => true,
-                'message' => 'Login successfully'
+                'message' => $check_data->result()
             ], 200);
         }else{
             $this->response([
