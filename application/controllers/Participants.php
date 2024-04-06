@@ -50,6 +50,25 @@ class Participants extends RestController
     }
 
     //LIST AMBASSADOR
+    function participant_user_get()
+    {
+        $user_id = $this->get('user_id');
+        $participants = $this->mCore->get_data('participants', ['user_id' => $user_id])->result_array();
+        if ($participants) {
+            $this->response([
+                'status' => true,
+                'data' => $participants
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
+
+    //LIST AMBASSADOR
     function list_ambassador_get()
     {
         $ref_code = $this->get('ref_code');
@@ -144,7 +163,16 @@ class Participants extends RestController
         );
         $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
         if ($sql) {
-            $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
+            if (!empty($_FILES['picture_url']['name'])) {
+                $upload_file = $this->upload_picture('picture_url', $id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
+            $last_data = $this->mCore->get_data('participants', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data

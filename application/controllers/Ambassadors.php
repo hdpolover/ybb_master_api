@@ -141,9 +141,9 @@ class Ambassadors extends RestController
             ], 200);
         }else{
             $this->response([
-                'status' => true,
+                'status' => false,
                 'message' => 'Login failed'
-            ], 200);
+            ], 404);
         }
     }
 }
