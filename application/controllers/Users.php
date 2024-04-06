@@ -51,10 +51,11 @@ class Users extends RestController
     //SIMPAN DATA
     function save_post()
     {
+        // cek data jika sudah terdaftar di program itu
         $opt = array(
             'select' => 'participants.*',
             'table' => 'users',
-            'join' => ['participants', 'participants.id = participants.user_id'],
+            'join' => ['participants'=> 'users.id = participants.user_id'],
             'where' =>  ['email' => $this->post('email'), 'program_id' => $this->post('program_id')]
         );
 

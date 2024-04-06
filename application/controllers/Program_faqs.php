@@ -48,6 +48,24 @@ class Program_faqs extends RestController
         }
     }
 
+    //LIST PROGRAM
+    function list_program_get()
+    {
+        $program_id = $this->get('program_id');
+        $program_faqs = $this->mCore->get_data('program_faqs', ['program_id' => $program_id])->result_array();
+        if ($program_faqs) {
+            $this->response([
+                'status' => true,
+                'data' => $program_faqs
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     function save_post()
     {

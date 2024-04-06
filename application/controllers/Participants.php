@@ -49,6 +49,24 @@ class Participants extends RestController
         }
     }
 
+    //LIST AMBASSADOR
+    function list_ambassador_get()
+    {
+        $ref_code = $this->get('ref_code');
+        $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code])->result_array();
+        if ($participants) {
+            $this->response([
+                'status' => true,
+                'data' => $participants
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     function save_post($ref_code = NULL)
     {
