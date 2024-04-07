@@ -86,21 +86,56 @@ class Participants extends RestController
         }
     }
 
+    //CHECK AMBASSADOR
+    function validate_ref_code_post()
+    {
+        $ref_code = $this->post('ref_code');
+        $ambassadors = $this->mCore->get_data('ambassadors', ['ref_code' => $ref_code])->row();
+        if ($ambassadors) {
+            $this->response([
+                'status' => true,
+                'data' => $ambassadors
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'The referral code you entered is invalid. Please try again.'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
-    function save_post($ref_code = NULL)
+    function save_post()
     {
         $data = array(
             'user_id' => $this->post('user_id'),
             'account_id' => uniqid($this->post('user_id')),
             'full_name' => $this->post('full_name'),
-            'ref_code_ambassador' => $ref_code,
             'birthdate' => $this->post('birthdate'),
-            'nationality' => $this->post('nationality'),
-            'gender' => $this->post('gender'),
-            'phone_number' => $this->post('phone_number'),
-            'country_code' => $this->post('country_code'),
-            'picture_url' => NULL,
+            'ref_code_ambassador' => $this->post('ref_code_ambassador'),
             'program_id' => $this->post('program_id'),
+            'gender' => $this->post('gender'),
+            'origin_address' => $this->post('origin_address'),
+            'current_address' => $this->post('current_address'),
+            'nationality' => $this->post('nationality'),
+            'occupation' => $this->post('occupation'),
+            'institution' => $this->post('institution'),
+            'organizations' => $this->post('organizations'),
+            'country_code' => $this->post('country_code'),
+            'phone_number' => $this->post('phone_number'),
+            'picture_url' => NULL,
+            'instagram_account' => $this->post('instagram_account'),
+            'emergency_account' => $this->post('emergency_account'),
+            'contact_relation' => $this->post('contact_relation'),
+            'disease_history' => $this->post('disease_history'),
+            'tshirt_size' => $this->post('tshirt_size'),
+            'experiences' => $this->post('experiences'),
+            'achievements' => $this->post('achievements'),
+            'resume_url' => NULL,
+            'knowledge_source' => $this->post('knowledge_source'),
+            'source_account_name' => $this->post('source_account_name'),
+            'twibbon_link' => $this->post('twibbon_link'),
+            'requirement_link' => $this->post('requirement_link'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -109,6 +144,15 @@ class Participants extends RestController
             $last_id = $this->mCore->get_lastid('participants', 'id');
             if (!empty($_FILES['picture_url']['name'])) {
                 $upload_file = $this->upload_picture('picture_url', $last_id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
+            if (!empty($_FILES['resume_url']['name'])) {
+                $upload_file = $this->upload_resume('resume_url', $last_id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -154,17 +198,43 @@ class Participants extends RestController
         $data = array(
             'full_name' => $this->put('full_name'),
             'birthdate' => $this->put('birthdate'),
-            'nationality' => $this->put('nationality'),
-            'gender' => $this->put('gender'),
-            'phone_number' => $this->put('phone_number'),
-            'country_code' => $this->put('country_code'),
+            'ref_code_ambassador' => $this->put('ref_code_ambassador'),
             'program_id' => $this->put('program_id'),
+            'gender' => $this->put('gender'),
+            'origin_address' => $this->put('origin_address'),
+            'current_address' => $this->put('current_address'),
+            'nationality' => $this->put('nationality'),
+            'occupation' => $this->put('occupation'),
+            'institution' => $this->put('institution'),
+            'organizations' => $this->put('organizations'),
+            'country_code' => $this->put('country_code'),
+            'phone_number' => $this->put('phone_number'),
+            'instagram_account' => $this->put('instagram_account'),
+            'emergency_account' => $this->put('emergency_account'),
+            'contact_relation' => $this->put('contact_relation'),
+            'disease_history' => $this->put('disease_history'),
+            'tshirt_size' => $this->put('tshirt_size'),
+            'experiences' => $this->put('experiences'),
+            'achievements' => $this->put('achievements'),
+            'knowledge_source' => $this->put('knowledge_source'),
+            'source_account_name' => $this->put('source_account_name'),
+            'twibbon_link' => $this->put('twibbon_link'),
+            'requirement_link' => $this->put('requirement_link'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
         if ($sql) {
             if (!empty($_FILES['picture_url']['name'])) {
                 $upload_file = $this->upload_picture('picture_url', $id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
+            if (!empty($_FILES['resume_url']['name'])) {
+                $upload_file = $this->upload_resume('resume_url', $id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -228,7 +298,7 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['uid'] . '/' . $temp_img);
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -256,11 +326,11 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName;
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -269,7 +339,7 @@ class Participants extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $data['status'] = 1;
@@ -308,7 +378,7 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['uid'] . '/' . $temp_img);
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -336,11 +406,11 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName;
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -349,7 +419,7 @@ class Participants extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/pictures/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([
@@ -370,32 +440,30 @@ class Participants extends RestController
         }
     }
 
-    // UPLOAD PICTURE DIRECT
-    public function do_upload_document_post()
+    // UPLOAD RESUME
+    public function upload_resume($resume_url, $id)
     {
 
         $this->load->library('ftp');
 
-        $id = $this->post('id');
-
         $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
-        // if ($data['img_url'] != '') {
-        //     $exp = (explode('/', $data['img_url']));
-        //     $temp_img = end($exp);
+        if ($data['resume_url'] != '') {
+            $exp = (explode('/', $data['resume_url']));
+            $temp_img = end($exp);
 
-        //     //FTP configuration
-        //     $ftp_config['hostname'] = config_item('hostname_upload');
-        //     $ftp_config['username'] = config_item('username_upload');
-        //     $ftp_config['password'] = config_item('password_upload');
-        //     $ftp_config['port'] = config_item('port_upload');
-        //     $ftp_config['debug'] = TRUE;
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
 
-        //     $this->ftp->connect($ftp_config);
+            $this->ftp->connect($ftp_config);
 
-        //     $this->ftp->delete_file('participants/' . $program_id . '/' . $temp_img);
+            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
 
-        //     $this->ftp->close();
-        // }
+            $this->ftp->close();
+        }
 
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = '*';
@@ -404,7 +472,7 @@ class Participants extends RestController
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
-        if ($this->upload->do_upload("document")) {
+        if ($this->upload->do_upload($resume_url)) {
 
             $upload_data = $this->upload->data();
             $fileName = $upload_data['file_name'];
@@ -420,11 +488,11 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/', DIR_WRITE_MODE);
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
             }
 
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/' . $fileName;
+            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -433,24 +501,20 @@ class Participants extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('participants', ['document_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['account_id'] . '/documents/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participants', ['resume_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
-                $this->response([
-                    'status' => true,
-                    'message' => 'Document saved successfully'
-                ], 200);
+                $data['status'] = 1;
+                $data['message'] = 'Image saved successfully';
             } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Sorry, failed to update'
-                ], 404);
+                $data['status'] = 0;
+                $data['message'] = 'Sorry, failed to update';
             }
         } else {
-            $this->response([
-                'status' => false,
-                'message' => $this->upload->display_errors()
-            ], 404);
+            $data['status'] = 0;
+            $data['message'] = $this->upload->display_errors();
         }
+
+        return $data;
     }
 }

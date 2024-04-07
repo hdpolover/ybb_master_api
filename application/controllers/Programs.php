@@ -33,7 +33,7 @@ class Programs extends RestController
                 ], 404);
             }
         } else {
-            $programs = $this->mCore->get_data('programs', ['id' => $id])->row_array();
+            $programs = $this->mCore->get_data('programs', ['id' => $id])->row();
             if ($programs) {
                 $this->response([
                     'status' => true,
@@ -45,6 +45,24 @@ class Programs extends RestController
                     'message' => 'No result were found'
                 ], 404);
             }
+        }
+    }
+
+    function program_category_get()
+    {
+        $program_category_id = $this->get('id');
+
+        $programs = $this->mCore->get_data('programs', ['program_category_id' => $program_category_id])->result_array();
+        if ($programs) {
+            $this->response([
+                'status' => true,
+                'data' => $programs
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
         }
     }
 
@@ -64,6 +82,8 @@ class Programs extends RestController
             'sponsor_canva_url' => $this->post('sponsor_canva_url'),
             'theme' => $this->post('theme'),
             'sub_themes' => $this->post('sub_themes'),
+            'share_desc' => $this->post('share_desc'),
+            'confirmation_desc' => $this->post('confirmation_desc'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
@@ -72,7 +92,6 @@ class Programs extends RestController
             $last_id = $this->mCore->get_lastid('programs', 'id');
             if (!empty($_FILES['logo_url']['name'])) {
                 $upload_file = $this->upload_logo('logo_url', $last_id);
-                
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -98,7 +117,6 @@ class Programs extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'program_category_id' => $this->put('program_category_id'),
             'name' => $this->put('name'),
             'description' => $this->put('description'),
             'guideline' => $this->put('guideline'),
@@ -107,10 +125,23 @@ class Programs extends RestController
             'end_date' => $this->put('end_date'),
             'registration_video_url' => $this->put('registration_video_url'),
             'sponsor_canva_url' => $this->put('sponsor_canva_url'),
+            'theme' => $this->put('theme'),
+            'sub_themes' => $this->put('sub_themes'),
+            'share_desc' => $this->put('share_desc'),
+            'confirmation_desc' => $this->put('confirmation_desc'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('programs', $data, true, ['id' => $id]);
         if ($sql) {
+            if (!empty($_FILES['logo_url']['name'])) {
+                $upload_file = $this->upload_logo('logo_url', $id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
             $last_data = $this->mCore->get_data('programs', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,

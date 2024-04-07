@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Ambassadors extends RestController
+class Participant_subthemes extends RestController
 {
 
     function __construct()
@@ -18,13 +18,21 @@ class Ambassadors extends RestController
 
     function index_get()
     {
-        $id = $this->get('id');
-        if ($id == '') {
-            $data = $this->mCore->list_data('ambassadors')->result_array();
-            if ($data) {
+        $participant_id = $this->get('participant_id');
+        if ($participant_id == '') {
+            $option = array(
+                'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
+                'table' => 'participant_subthemes',
+                'join' => [
+                    'program_subthemes' => 'participant_subthemes.program_essay_id = program_subthemes.id',
+                    'programs' => 'program_subthemes.program_id = programs.id'
+                ],
+            );
+            $participant_subthemes = $this->mCore->join_table($option)->result_array();
+            if ($participant_subthemes) {
                 $this->response([
                     'status' => true,
-                    'data' => $data
+                    'data' => $participant_subthemes
                 ], 200);
             } else {
                 $this->response([
@@ -33,11 +41,20 @@ class Ambassadors extends RestController
                 ], 404);
             }
         } else {
-            $data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
-            if ($data) {
+            $option = array(
+                'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
+                'table' => 'participant_subthemes',
+                'join' => [
+                    'program_subthemes' => 'participant_subthemes.program_essay_id = program_subthemes.id',
+                    'programs' => 'program_subthemes.program_id = programs.id'
+                ],
+                'where' => 'participant_id = ' . $participant_id
+            );
+            $participant_subthemes = $this->mCore->join_table($option)->row_array();
+            if ($participant_subthemes) {
                 $this->response([
                     'status' => true,
-                    'data' => $data
+                    'data' => $participant_subthemes
                 ], 200);
             } else {
                 $this->response([
@@ -52,20 +69,15 @@ class Ambassadors extends RestController
     function save_post()
     {
         $data = array(
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
-            'program_id' => $this->post('program_id'),
-            'institution' => $this->post('institution'),
-            'gender' => $this->post('gender'),
+            'program_subtheme_id' => $this->post('program_subtheme_id'),
+            'participant_id' => $this->post('participant_id'),
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('ambassadors', $data);
+        $sql = $this->mCore->save_data('participant_subthemes', $data);
         if ($sql) {
-            $last_id = $this->mCore->get_lastid('ambassadors', 'id');
-            $this->mCore->save_data('ambassadors', ['ref_code' => strtoupper(substr(str_replace(' ', '',$this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
-            
-            $last_data = $this->mCore->get_data('ambassadors', ['id' => $last_id])->row_array();
+            $last_id = $this->mCore->get_lastid('participant_subthemes', 'id');
+            $last_data = $this->mCore->get_data('participant_subthemes', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -83,16 +95,13 @@ class Ambassadors extends RestController
     {
         $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'email' => $this->put('email'),
-            'program_id' => $this->put('program_id'),
-            'institution' => $this->put('institution'),
-            'gender' => $this->put('gender'),
+            'program_subtheme_id' => $this->put('program_subtheme_id'),
+            'participant_id' => $this->put('participant_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_subthemes', $data, true, ['id' => $id]);
         if ($sql) {
-            $last_data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
+            $last_data = $this->mCore->get_data('participant_subthemes', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -114,7 +123,7 @@ class Ambassadors extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_subthemes', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
@@ -127,24 +136,4 @@ class Ambassadors extends RestController
             ], 404);
         }
     }
-
-    function login_post()
-    {
-        $email = $this->post('email');
-        $ref_code = $this->post('ref_code');
-
-        $check_data = $this->mCore->get_data('ambassadors', ['email' => $email, 'ref_code' => $ref_code]);
-        if($check_data->num_rows() > 0){
-            $this->response([
-                'status' => true,
-                'data' => $check_data->row()
-            ], 200);
-        }else{
-            $this->response([
-                'status' => false,
-                'message' => 'Login failed'
-            ], 404);
-        }
-    }
 }
-?>

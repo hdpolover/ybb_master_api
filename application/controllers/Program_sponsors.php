@@ -95,6 +95,15 @@ class Program_sponsors extends RestController
         );
         $sql = $this->mCore->save_data('program_sponsors', $data, true, ['id' => $id]);
         if ($sql) {
+            if (!empty($_FILES['img_url']['name'])) {
+                $upload_file = $this->upload_image('img_url', $id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message']
+                    ], 404);
+                }
+            }
             $last_data = $this->mCore->get_data('program_sponsors', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
