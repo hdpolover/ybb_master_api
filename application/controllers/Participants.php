@@ -11,510 +11,509 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 
 class Participants extends RestController
 {
+  function __construct()
+  {
+    parent::__construct();
+  }
 
-    function __construct()
-    {
-        parent::__construct();
+  function index_get()
+  {
+    $id = $this->get('id');
+    if ($id == '') {
+      $participants = $this->mCore->list_data('participants')->result_array();
+      if ($participants) {
+        $this->response([
+          'status' => true,
+          'data' => $participants
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'No result were found'
+        ], 404);
+      }
+    } else {
+      $participants = $this->mCore->get_data('participants', ['id' => $id])->row_array();
+      if ($participants) {
+        $this->response([
+          'status' => true,
+          'data' => $participants
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'No result were found'
+        ], 404);
+      }
+    }
+  }
+
+  //LIST AMBASSADOR
+  function participant_user_get()
+  {
+    $user_id = $this->get('user_id');
+    $participants = $this->mCore->get_data('participants', ['user_id' => $user_id])->result_array();
+    if ($participants) {
+      $this->response([
+        'status' => true,
+        'data' => $participants
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'No result were found'
+      ], 404);
+    }
+  }
+
+
+  //LIST AMBASSADOR
+  function list_ambassador_get()
+  {
+    $ref_code = $this->get('ref_code');
+    $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code])->result_array();
+    if ($participants) {
+      $this->response([
+        'status' => true,
+        'data' => $participants
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'No result were found'
+      ], 404);
+    }
+  }
+
+  //CHECK AMBASSADOR
+  function validate_ref_code_post()
+  {
+    $ref_code = $this->post('ref_code');
+    $ambassadors = $this->mCore->get_data('ambassadors', ['ref_code' => $ref_code])->row();
+    if ($ambassadors) {
+      $this->response([
+        'status' => true,
+        'data' => $ambassadors
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'The referral code you entered is invalid. Please try again.'
+      ], 404);
+    }
+  }
+
+  //SIMPAN DATA
+  function save_post()
+  {
+    $data = array(
+      'user_id' => $this->post('user_id'),
+      'account_id' => uniqid($this->post('user_id')),
+      'full_name' => $this->post('full_name'),
+      'birthdate' => $this->post('birthdate'),
+      'ref_code_ambassador' => $this->post('ref_code_ambassador'),
+      'program_id' => $this->post('program_id'),
+      'gender' => $this->post('gender'),
+      'origin_address' => $this->post('origin_address'),
+      'current_address' => $this->post('current_address'),
+      'nationality' => $this->post('nationality'),
+      'occupation' => $this->post('occupation'),
+      'institution' => $this->post('institution'),
+      'organizations' => $this->post('organizations'),
+      'country_code' => $this->post('country_code'),
+      'phone_number' => $this->post('phone_number'),
+      'picture_url' => NULL,
+      'instagram_account' => $this->post('instagram_account'),
+      'emergency_account' => $this->post('emergency_account'),
+      'contact_relation' => $this->post('contact_relation'),
+      'disease_history' => $this->post('disease_history'),
+      'tshirt_size' => $this->post('tshirt_size'),
+      'experiences' => $this->post('experiences'),
+      'achievements' => $this->post('achievements'),
+      'resume_url' => NULL,
+      'knowledge_source' => $this->post('knowledge_source'),
+      'source_account_name' => $this->post('source_account_name'),
+      'twibbon_link' => $this->post('twibbon_link'),
+      'requirement_link' => $this->post('requirement_link'),
+      'created_at' => date('Y-m-d H:i:s'),
+      'updated_at' => date('Y-m-d H:i:s'),
+    );
+    $sql = $this->mCore->save_data('participants', $data);
+    if ($sql) {
+      $last_id = $this->mCore->get_lastid('participants', 'id');
+      if (!empty($_FILES['picture_url']['name'])) {
+        $upload_file = $this->upload_picture('picture_url', $last_id);
+        if ($upload_file['status'] == 0) {
+          $this->response([
+            'status' => false,
+            'message' => $upload_file['message']
+          ], 404);
+        }
+      }
+      if (!empty($_FILES['resume_url']['name'])) {
+        $upload_file = $this->upload_resume('resume_url', $last_id);
+        if ($upload_file['status'] == 0) {
+          $this->response([
+            'status' => false,
+            'message' => $upload_file['message']
+          ], 404);
+        }
+      }
+      $last_data = $this->mCore->get_data('participants', ['id' => $last_id])->row_array();
+      $this->response([
+        'status' => true,
+        'data' => $last_data
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to save'
+      ], 404);
+    }
+  }
+
+  // SIGNIN
+  function signin_post()
+  {
+    $id_login = $this->mCore->do_signin_participant($this->post('email'), $this->post('password'), $this->post('program_category_id'));
+    if ($id_login) {
+      $sql = $this->mCore->get_data('participants', ['user_id' => $id_login])->result_array();
+      $this->response([
+        'status' => true,
+        'data' => $sql,
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Email/Password are Incorrect!'
+      ], 404);
+    }
+  }
+
+  //UPDATE DATA
+  function update_put()
+  {
+    $id = $this->put('id');
+    $data = array(
+      'full_name' => $this->put('full_name'),
+      'birthdate' => $this->put('birthdate'),
+      'ref_code_ambassador' => $this->put('ref_code_ambassador'),
+      'program_id' => $this->put('program_id'),
+      'gender' => $this->put('gender'),
+      'origin_address' => $this->put('origin_address'),
+      'current_address' => $this->put('current_address'),
+      'nationality' => $this->put('nationality'),
+      'occupation' => $this->put('occupation'),
+      'institution' => $this->put('institution'),
+      'organizations' => $this->put('organizations'),
+      'country_code' => $this->put('country_code'),
+      'phone_number' => $this->put('phone_number'),
+      'instagram_account' => $this->put('instagram_account'),
+      'emergency_account' => $this->put('emergency_account'),
+      'contact_relation' => $this->put('contact_relation'),
+      'disease_history' => $this->put('disease_history'),
+      'tshirt_size' => $this->put('tshirt_size'),
+      'experiences' => $this->put('experiences'),
+      'achievements' => $this->put('achievements'),
+      'knowledge_source' => $this->put('knowledge_source'),
+      'source_account_name' => $this->put('source_account_name'),
+      'twibbon_link' => $this->put('twibbon_link'),
+      'requirement_link' => $this->put('requirement_link'),
+      'updated_at' => date('Y-m-d H:i:s'),
+    );
+    $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
+    if ($sql) {
+      if (!empty($_FILES['picture_url']['name'])) {
+        $upload_file = $this->upload_picture('picture_url', $id);
+        if ($upload_file['status'] == 0) {
+          $this->response([
+            'status' => false,
+            'message' => $upload_file['message']
+          ], 404);
+        }
+      }
+      if (!empty($_FILES['resume_url']['name'])) {
+        $upload_file = $this->upload_resume('resume_url', $id);
+        if ($upload_file['status'] == 0) {
+          $this->response([
+            'status' => false,
+            'message' => $upload_file['message']
+          ], 404);
+        }
+      }
+      $last_data = $this->mCore->get_data('participants', ['id' => $id])->row_array();
+      $this->response([
+        'status' => true,
+        'data' => $last_data
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to update'
+      ], 404);
+    }
+  }
+
+  //DELETE DATA
+  function delete_get()
+  {
+    $id = $this->get('id');
+    $data = array(
+      'is_active' => 0,
+      'is_deleted' => 1
+      // 'updated_at' => date('Y-m-d H:i:s')
+    );
+    $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
+    if ($sql) {
+      $this->response([
+        'status' => true,
+        'message' => 'Data deleted successfully'
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to delete'
+      ], 404);
+    }
+  }
+
+  // UPLOAD PICTURE
+  private function upload_picture($picture_url, $id)
+  {
+
+    $this->load->library('ftp');
+
+    $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
+    if ($data['picture_url'] != '') {
+      $exp = (explode('/', $data['picture_url']));
+      $temp_img = end($exp);
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
+
+      $this->ftp->close();
     }
 
-    function index_get()
-    {
-        $id = $this->get('id');
-        if ($id == '') {
-            $participants = $this->mCore->list_data('participants')->result_array();
-            if ($participants) {
-                $this->response([
-                    'status' => true,
-                    'data' => $participants
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No result were found'
-                ], 404);
-            }
-        } else {
-            $participants = $this->mCore->get_data('participants', ['id' => $id])->row_array();
-            if ($participants) {
-                $this->response([
-                    'status' => true,
-                    'data' => $participants
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No result were found'
-                ], 404);
-            }
-        }
+    $config['upload_path'] = './uploads';
+    $config['allowed_types'] = 'gif|jpg|png|jpeg';
+    $config['max_size'] = 5000;
+    $config['file_name'] = time();
+
+    $this->load->library('upload', $config);
+    $this->upload->initialize($config);
+    if ($this->upload->do_upload($picture_url)) {
+
+      $upload_data = $this->upload->data();
+      $fileName = $upload_data['file_name'];
+
+      $source = './uploads/' . $fileName;
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+        $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
+      }
+
+      $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
+
+      $this->ftp->upload($source, $destination);
+
+      $this->ftp->close();
+
+      //Delete file from local server
+      @unlink($source);
+
+      $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
+
+      if ($sql) {
+        $data['status'] = 1;
+        $data['message'] = 'Image saved successfully';
+      } else {
+        $data['status'] = 0;
+        $data['message'] = 'Sorry, failed to update';
+      }
+    } else {
+      $data['status'] = 0;
+      $data['message'] = $this->upload->display_errors();
     }
 
-    //LIST AMBASSADOR
-    function participant_user_get()
-    {
-        $user_id = $this->get('user_id');
-        $participants = $this->mCore->get_data('participants', ['user_id' => $user_id])->result_array();
-        if ($participants) {
-            $this->response([
-                'status' => true,
-                'data' => $participants
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'No result were found'
-            ], 404);
-        }
+    return $data;
+  }
+
+  // UPLOAD PICTURE DIRECT
+  public function do_upload_picture_post()
+  {
+
+    $this->load->library('ftp');
+
+    $id = $this->post('id');
+
+    $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
+    if ($data['picture_url'] != '') {
+      $exp = (explode('/', $data['picture_url']));
+      $temp_img = end($exp);
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
+
+      $this->ftp->close();
     }
 
+    $config['upload_path'] = './uploads';
+    $config['allowed_types'] = 'gif|jpg|png|jpeg';
+    $config['max_size'] = 5000;
+    $config['file_name'] = time();
 
-    //LIST AMBASSADOR
-    function list_ambassador_get()
-    {
-        $ref_code = $this->get('ref_code');
-        $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code])->result_array();
-        if ($participants) {
-            $this->response([
-                'status' => true,
-                'data' => $participants
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'No result were found'
-            ], 404);
-        }
+    $this->load->library('upload', $config);
+    $this->upload->initialize($config);
+    if ($this->upload->do_upload("picture")) {
+
+      $upload_data = $this->upload->data();
+      $fileName = $upload_data['file_name'];
+
+      $source = './uploads/' . $fileName;
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+        $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
+      }
+
+      $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
+
+      $this->ftp->upload($source, $destination);
+
+      $this->ftp->close();
+
+      //Delete file from local server
+      @unlink($source);
+
+      $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
+
+      if ($sql) {
+        $this->response([
+          'status' => true,
+          'message' => 'Picture saved successfully'
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'Sorry, failed to update'
+        ], 404);
+      }
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => $this->upload->display_errors()
+      ], 404);
+    }
+  }
+
+  // UPLOAD RESUME
+  public function upload_resume($resume_url, $id)
+  {
+
+    $this->load->library('ftp');
+
+    $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
+    if ($data['resume_url'] != '') {
+      $exp = (explode('/', $data['resume_url']));
+      $temp_img = end($exp);
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
+
+      $this->ftp->close();
     }
 
-    //CHECK AMBASSADOR
-    function validate_ref_code_post()
-    {
-        $ref_code = $this->post('ref_code');
-        $ambassadors = $this->mCore->get_data('ambassadors', ['ref_code' => $ref_code])->row();
-        if ($ambassadors) {
-            $this->response([
-                'status' => true,
-                'data' => $ambassadors
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'The referral code you entered is invalid. Please try again.'
-            ], 404);
-        }
+    $config['upload_path'] = './uploads';
+    $config['allowed_types'] = '*';
+    $config['max_size'] = 5000;
+    $config['file_name'] = time();
+
+    $this->load->library('upload', $config);
+    $this->upload->initialize($config);
+    if ($this->upload->do_upload($resume_url)) {
+
+      $upload_data = $this->upload->data();
+      $fileName = $upload_data['file_name'];
+
+      $source = './uploads/' . $fileName;
+
+      //FTP configuration
+      $ftp_config['hostname'] = config_item('hostname_upload');
+      $ftp_config['username'] = config_item('username_upload');
+      $ftp_config['password'] = config_item('password_upload');
+      $ftp_config['port'] = config_item('port_upload');
+      $ftp_config['debug'] = TRUE;
+
+      $this->ftp->connect($ftp_config);
+
+      if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
+        $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
+      }
+
+      $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
+
+      $this->ftp->upload($source, $destination);
+
+      $this->ftp->close();
+
+      //Delete file from local server
+      @unlink($source);
+
+      $sql = $this->mCore->save_data('participants', ['resume_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
+
+      if ($sql) {
+        $data['status'] = 1;
+        $data['message'] = 'Image saved successfully';
+      } else {
+        $data['status'] = 0;
+        $data['message'] = 'Sorry, failed to update';
+      }
+    } else {
+      $data['status'] = 0;
+      $data['message'] = $this->upload->display_errors();
     }
 
-    //SIMPAN DATA
-    function save_post()
-    {
-        $data = array(
-            'user_id' => $this->post('user_id'),
-            'account_id' => uniqid($this->post('user_id')),
-            'full_name' => $this->post('full_name'),
-            'birthdate' => $this->post('birthdate'),
-            'ref_code_ambassador' => $this->post('ref_code_ambassador'),
-            'program_id' => $this->post('program_id'),
-            'gender' => $this->post('gender'),
-            'origin_address' => $this->post('origin_address'),
-            'current_address' => $this->post('current_address'),
-            'nationality' => $this->post('nationality'),
-            'occupation' => $this->post('occupation'),
-            'institution' => $this->post('institution'),
-            'organizations' => $this->post('organizations'),
-            'country_code' => $this->post('country_code'),
-            'phone_number' => $this->post('phone_number'),
-            'picture_url' => NULL,
-            'instagram_account' => $this->post('instagram_account'),
-            'emergency_account' => $this->post('emergency_account'),
-            'contact_relation' => $this->post('contact_relation'),
-            'disease_history' => $this->post('disease_history'),
-            'tshirt_size' => $this->post('tshirt_size'),
-            'experiences' => $this->post('experiences'),
-            'achievements' => $this->post('achievements'),
-            'resume_url' => NULL,
-            'knowledge_source' => $this->post('knowledge_source'),
-            'source_account_name' => $this->post('source_account_name'),
-            'twibbon_link' => $this->post('twibbon_link'),
-            'requirement_link' => $this->post('requirement_link'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('participants', $data);
-        if ($sql) {
-            $last_id = $this->mCore->get_lastid('participants', 'id');
-            if (!empty($_FILES['picture_url']['name'])) {
-                $upload_file = $this->upload_picture('picture_url', $last_id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message']
-                    ], 404);
-                }
-            }
-            if (!empty($_FILES['resume_url']['name'])) {
-                $upload_file = $this->upload_resume('resume_url', $last_id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message']
-                    ], 404);
-                }
-            }
-            $last_data = $this->mCore->get_data('participants', ['id' => $last_id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to save'
-            ], 404);
-        }
-    }
-
-    // SIGNIN
-    function signin_post()
-    {
-        $id_login = $this->mCore->do_signin_participant($this->post('email'), $this->post('password'), $this->post('program_category_id'));
-        if ($id_login) {
-            $sql = $this->mCore->get_data('participants', ['user_id' => $id_login])->result_array();
-            $this->response([
-                'status' => true,
-                'data' => $sql,
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Email/Password are Incorrect!'
-            ], 404);
-        }
-    }
-
-    //UPDATE DATA
-    function update_put()
-    {
-        $id = $this->put('id');
-        $data = array(
-            'full_name' => $this->put('full_name'),
-            'birthdate' => $this->put('birthdate'),
-            'ref_code_ambassador' => $this->put('ref_code_ambassador'),
-            'program_id' => $this->put('program_id'),
-            'gender' => $this->put('gender'),
-            'origin_address' => $this->put('origin_address'),
-            'current_address' => $this->put('current_address'),
-            'nationality' => $this->put('nationality'),
-            'occupation' => $this->put('occupation'),
-            'institution' => $this->put('institution'),
-            'organizations' => $this->put('organizations'),
-            'country_code' => $this->put('country_code'),
-            'phone_number' => $this->put('phone_number'),
-            'instagram_account' => $this->put('instagram_account'),
-            'emergency_account' => $this->put('emergency_account'),
-            'contact_relation' => $this->put('contact_relation'),
-            'disease_history' => $this->put('disease_history'),
-            'tshirt_size' => $this->put('tshirt_size'),
-            'experiences' => $this->put('experiences'),
-            'achievements' => $this->put('achievements'),
-            'knowledge_source' => $this->put('knowledge_source'),
-            'source_account_name' => $this->put('source_account_name'),
-            'twibbon_link' => $this->put('twibbon_link'),
-            'requirement_link' => $this->put('requirement_link'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
-        if ($sql) {
-            if (!empty($_FILES['picture_url']['name'])) {
-                $upload_file = $this->upload_picture('picture_url', $id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message']
-                    ], 404);
-                }
-            }
-            if (!empty($_FILES['resume_url']['name'])) {
-                $upload_file = $this->upload_resume('resume_url', $id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message']
-                    ], 404);
-                }
-            }
-            $last_data = $this->mCore->get_data('participants', ['id' => $id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to update'
-            ], 404);
-        }
-    }
-
-    //DELETE DATA
-    function delete_get()
-    {
-        $id = $this->get('id');
-        $data = array(
-            'is_active' => 0,
-            'is_deleted' => 1
-            // 'updated_at' => date('Y-m-d H:i:s')
-        );
-        $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
-        if ($sql) {
-            $this->response([
-                'status' => true,
-                'message' => 'Data deleted successfully'
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to delete'
-            ], 404);
-        }
-    }
-
-    // UPLOAD PICTURE
-    private function upload_picture($picture_url, $id)
-    {
-
-        $this->load->library('ftp');
-
-        $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
-        if ($data['picture_url'] != '') {
-            $exp = (explode('/', $data['picture_url']));
-            $temp_img = end($exp);
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
-
-            $this->ftp->close();
-        }
-
-        $config['upload_path'] = './uploads';
-        $config['allowed_types'] = 'gif|jpg|png|jpeg';
-        $config['max_size'] = 5000;
-        $config['file_name'] = time();
-
-        $this->load->library('upload', $config);
-        $this->upload->initialize($config);
-        if ($this->upload->do_upload($picture_url)) {
-
-            $upload_data = $this->upload->data();
-            $fileName = $upload_data['file_name'];
-
-            $source = './uploads/' . $fileName;
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
-            }
-
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
-
-            $this->ftp->upload($source, $destination);
-
-            $this->ftp->close();
-
-            //Delete file from local server
-            @unlink($source);
-
-            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
-
-            if ($sql) {
-                $data['status'] = 1;
-                $data['message'] = 'Image saved successfully';
-            } else {
-                $data['status'] = 0;
-                $data['message'] = 'Sorry, failed to update';
-            }
-        } else {
-            $data['status'] = 0;
-            $data['message'] = $this->upload->display_errors();
-        }
-
-        return $data;
-    }
-
-    // UPLOAD PICTURE DIRECT
-    public function do_upload_picture_post()
-    {
-
-        $this->load->library('ftp');
-
-        $id = $this->post('id');
-
-        $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
-        if ($data['picture_url'] != '') {
-            $exp = (explode('/', $data['picture_url']));
-            $temp_img = end($exp);
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
-
-            $this->ftp->close();
-        }
-
-        $config['upload_path'] = './uploads';
-        $config['allowed_types'] = 'gif|jpg|png|jpeg';
-        $config['max_size'] = 5000;
-        $config['file_name'] = time();
-
-        $this->load->library('upload', $config);
-        $this->upload->initialize($config);
-        if ($this->upload->do_upload("picture")) {
-
-            $upload_data = $this->upload->data();
-            $fileName = $upload_data['file_name'];
-
-            $source = './uploads/' . $fileName;
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
-            }
-
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
-
-            $this->ftp->upload($source, $destination);
-
-            $this->ftp->close();
-
-            //Delete file from local server
-            @unlink($source);
-
-            $sql = $this->mCore->save_data('participants', ['picture_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
-
-            if ($sql) {
-                $this->response([
-                    'status' => true,
-                    'message' => 'Picture saved successfully'
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Sorry, failed to update'
-                ], 404);
-            }
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => $this->upload->display_errors()
-            ], 404);
-        }
-    }
-
-    // UPLOAD RESUME
-    public function upload_resume($resume_url, $id)
-    {
-
-        $this->load->library('ftp');
-
-        $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
-        if ($data['resume_url'] != '') {
-            $exp = (explode('/', $data['resume_url']));
-            $temp_img = end($exp);
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            $this->ftp->delete_file('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $temp_img);
-
-            $this->ftp->close();
-        }
-
-        $config['upload_path'] = './uploads';
-        $config['allowed_types'] = '*';
-        $config['max_size'] = 5000;
-        $config['file_name'] = time();
-
-        $this->load->library('upload', $config);
-        $this->upload->initialize($config);
-        if ($this->upload->do_upload($resume_url)) {
-
-            $upload_data = $this->upload->data();
-            $fileName = $upload_data['file_name'];
-
-            $source = './uploads/' . $fileName;
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == FALSE) {
-                $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
-            }
-
-            $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
-
-            $this->ftp->upload($source, $destination);
-
-            $this->ftp->close();
-
-            //Delete file from local server
-            @unlink($source);
-
-            $sql = $this->mCore->save_data('participants', ['resume_url' => config_item('dir_upload') . 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName], true, array('id' => $id));
-
-            if ($sql) {
-                $data['status'] = 1;
-                $data['message'] = 'Image saved successfully';
-            } else {
-                $data['status'] = 0;
-                $data['message'] = 'Sorry, failed to update';
-            }
-        } else {
-            $data['status'] = 0;
-            $data['message'] = $this->upload->display_errors();
-        }
-
-        return $data;
-    }
+    return $data;
+  }
 }
