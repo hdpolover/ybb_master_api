@@ -72,7 +72,7 @@ class Web_setting_home extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('web_setting_home', $data);
+        $sql = $this->mCore->save_data('web_setting_home', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('web_setting_home', 'id');
             if (!empty($_FILES['banner1_img_url']['name'])) {
@@ -125,25 +125,24 @@ class Web_setting_home extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'page_name' => $this->put('page_name'),
-            'menu_path' => $this->put('menu_path'),
-            'banner1_title' => $this->put('banner1_title'),
-            'banner1_description' => $this->put('banner1_description'),
-            'banner1_date' => $this->put('banner1_date'),
-            'banner2_title' => $this->put('banner2_title'),
-            'banner2_description' => $this->put('banner2_description'),
-            'banner2_date' => $this->put('banner2_date'),
-            'summary' => $this->put('summary'),
-            'reason' => $this->put('reason'),
-            'agenda' => $this->put('agenda'),
-            'introduction' => $this->put('introduction'),
+            'page_name' => $this->post('page_name'),
+            'menu_path' => $this->post('menu_path'),
+            'banner1_title' => $this->post('banner1_title'),
+            'banner1_description' => $this->post('banner1_description'),
+            'banner1_date' => $this->post('banner1_date'),
+            'banner2_title' => $this->post('banner2_title'),
+            'banner2_description' => $this->post('banner2_description'),
+            'banner2_date' => $this->post('banner2_date'),
+            'summary' => $this->post('summary'),
+            'reason' => $this->post('reason'),
+            'agenda' => $this->post('agenda'),
+            'introduction' => $this->post('introduction'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('web_setting_home', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('web_setting_home', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('web_setting_home', ['id' => $id])->row_array();
             $this->response([

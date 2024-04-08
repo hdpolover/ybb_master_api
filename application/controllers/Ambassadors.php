@@ -60,7 +60,7 @@ class Ambassadors extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('ambassadors', $data);
+        $sql = $this->mCore->save_data('ambassadors', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('ambassadors', 'id');
             $this->mCore->save_data('ambassadors', ['ref_code' => strtoupper(substr(str_replace(' ', '',$this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
@@ -79,18 +79,17 @@ class Ambassadors extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'email' => $this->put('email'),
-            'program_id' => $this->put('program_id'),
-            'institution' => $this->put('institution'),
-            'gender' => $this->put('gender'),
+            'name' => $this->post('name'),
+            'email' => $this->post('email'),
+            'program_id' => $this->post('program_id'),
+            'institution' => $this->post('institution'),
+            'gender' => $this->post('gender'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('ambassadors', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('ambassadors', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
             $this->response([

@@ -95,7 +95,7 @@ class Program_categories extends RestController
             'telegram' => $this->post('telegram'),
             'created_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_categories', $data);
+        $sql = $this->mCore->save_data('program_categories', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_categories', 'id');
             $last_data = $this->mCore->get_data('program_categories', ['id' => $last_id])->row_array();
@@ -112,23 +112,22 @@ class Program_categories extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_put($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'description' => $this->put('description'),
-            'web_url' => $this->put('web_url'),
-            'contact' => $this->put('contact'),
-            'location' => $this->put('location'),
-            'email' => $this->put('email'),
-            'instagram' => $this->put('instagram'),
-            'titktok' => $this->put('titktok'),
-            'youtube' => $this->put('youtube'),
-            'telegram' => $this->put('telegram'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'web_url' => $this->post('web_url'),
+            'contact' => $this->post('contact'),
+            'location' => $this->post('location'),
+            'email' => $this->post('email'),
+            'instagram' => $this->post('instagram'),
+            'titktok' => $this->post('titktok'),
+            'youtube' => $this->post('youtube'),
+            'telegram' => $this->post('telegram'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_categories', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_categories', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_categories', ['id' => $id])->row_array();
             $this->response([

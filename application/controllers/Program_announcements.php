@@ -59,7 +59,7 @@ class Program_announcements extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_announcements', $data);
+        $sql = $this->mCore->save_data('program_announcements', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_announcements', 'id');
             if (!empty($_FILES['img_url']['name'])) {
@@ -85,15 +85,14 @@ class Program_announcements extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'title' => $this->put('title'),
-            'description' => $this->put('description'),
+            'title' => $this->post('title'),
+            'description' => $this->post('description'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_announcements', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_announcements', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_announcements', ['id' => $id])->row_array();
             $this->response([

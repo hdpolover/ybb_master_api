@@ -69,7 +69,7 @@ class Participant_essays extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_essays', $data);
+        $sql = $this->mCore->save_data('participant_essays', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('participant_essays', 'id');
             $last_data = $this->mCore->get_data('participant_essays', ['id' => $last_id])->row_array();
@@ -86,16 +86,15 @@ class Participant_essays extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'participant_id' => $this->put('participant_id'),
-            'program_essay_id' => $this->put('program_essay_id'),
-            'answer' => $this->put('answer'),
+            'participant_id' => $this->post('participant_id'),
+            'program_essay_id' => $this->post('program_essay_id'),
+            'answer' => $this->post('answer'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_essays', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_essays', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('participant_essays', ['id' => $id])->row_array();
             $this->response([

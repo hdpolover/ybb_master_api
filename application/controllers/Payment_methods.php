@@ -59,7 +59,7 @@ class Payment_methods extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('payment_methods', $data);
+        $sql = $this->mCore->save_data('payment_methods', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('payment_methods', 'id');
             $last_data = $this->mCore->get_data('payment_methods', ['id' => $last_id])->row_array();
@@ -76,15 +76,14 @@ class Payment_methods extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'description' => $this->put('description'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('payment_methods', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
             $this->response([

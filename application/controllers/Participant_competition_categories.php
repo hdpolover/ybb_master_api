@@ -21,7 +21,7 @@ class Participant_competition_categories extends RestController
         $participant_id = $this->get('participant_id');
         if ($participant_id == '') {
             $option = array(
-                'select' => 'participant_essays.*, competition_categories.category,competition_categories.desc',
+                'select' => 'participant_competition_categories.*, competition_categories.category,competition_categories.desc',
                 'table' => 'participant_competition_categories',
                 'join' => [
                     'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id',
@@ -42,7 +42,7 @@ class Participant_competition_categories extends RestController
             }
         } else {
             $option = array(
-                'select' => 'participant_essays.*, competition_categories.category,competition_categories.desc',
+                'select' => 'participant_competition_categories.*, competition_categories.category,competition_categories.desc',
                 'table' => 'participant_competition_categories',
                 'join' => [
                     'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id',
@@ -74,7 +74,7 @@ class Participant_competition_categories extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_competition_categories', $data);
+        $sql = $this->mCore->save_data('participant_competition_categories', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('participant_competition_categories', 'id');
             $last_data = $this->mCore->get_data('participant_competition_categories', ['id' => $last_id])->row_array();
@@ -91,15 +91,14 @@ class Participant_competition_categories extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'participant_id' => $this->put('participant_id'),
-            'competition_category_id' => $this->put('competition_category_id'),
+            'participant_id' => $this->post('participant_id'),
+            'competition_category_id' => $this->post('competition_category_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_competition_categories', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_competition_categories', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('participant_competition_categories', ['id' => $id])->row_array();
             $this->response([

@@ -77,7 +77,7 @@ class Program_faqs extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_faqs', $data);
+        $sql = $this->mCore->save_data('program_faqs', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_faqs', 'id');
             $last_data = $this->mCore->get_data('program_faqs', ['id' => $last_id])->row_array();
@@ -94,16 +94,15 @@ class Program_faqs extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'question' => $this->put('question'),
-            'answer' => $this->put('answer'),
-            'faq_category' => $this->put('faq_category'),
+            'question' => $this->post('question'),
+            'answer' => $this->post('answer'),
+            'faq_category' => $this->post('faq_category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_faqs', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_faqs', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_faqs', ['id' => $id])->row_array();
             $this->response([

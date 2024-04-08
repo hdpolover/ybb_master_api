@@ -61,7 +61,7 @@ class Admins extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('admins', $data);
+        $sql = $this->mCore->save_data('admins', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('admins', 'id');
             if (!empty($_FILES['profile_url']['name'])) {
@@ -87,9 +87,8 @@ class Admins extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         if($id == ''){
             $this->response([
                 'status' => false,
@@ -97,15 +96,15 @@ class Admins extends RestController
             ], 404);
         }
         $data = array(
-            'name' => $this->put('name'),
-            'email' => $this->put('email'),
+            'name' => $this->post('name'),
+            'email' => $this->post('email'),
             // 'password' => $this->post('password'),
-            'program_id' => $this->put('program_id'),
+            'program_id' => $this->post('program_id'),
             // 'role' => $this->post('role'),
-            'is_active' => $this->put('is_active'),
+            'is_active' => $this->post('is_active'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('admins', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             if (!empty($_FILES['profile_url']['name'])) {
                 $this->upload_profile('profile_url', $id);

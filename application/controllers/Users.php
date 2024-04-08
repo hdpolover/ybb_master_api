@@ -127,16 +127,15 @@ class Users extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'full_name' => $this->put('full_name'),
-            'email' => $this->put('email'),
+            'full_name' => $this->post('full_name'),
+            'email' => $this->post('email'),
             // 'program_category_id' => $this->put('program_category_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('users', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
             $this->response([

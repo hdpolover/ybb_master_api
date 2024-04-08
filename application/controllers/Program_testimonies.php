@@ -78,7 +78,7 @@ class Program_testimonies extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_testimonies', $data);
+        $sql = $this->mCore->save_data('program_testimonies', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_testimonies', 'id');
             if (!empty($_FILES['img_url']['name'])) {
@@ -104,16 +104,15 @@ class Program_testimonies extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'person_name' => $this->put('person_name'),
-            'testimony' => $this->put('testimony'),
-            'occupation' => $this->put('occupation'),
+            'person_name' => $this->post('person_name'),
+            'testimony' => $this->post('testimony'),
+            'occupation' => $this->post('occupation'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_testimonies', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_testimonies', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             if (!empty($_FILES['img_url']['name'])) {
                 $upload_file = $this->upload_image('img_url', $id);

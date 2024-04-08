@@ -75,7 +75,7 @@ class Program_essays extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_essays', $data);
+        $sql = $this->mCore->save_data('program_essays', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_essays', 'id');
             $last_data = $this->mCore->get_data('program_essays', ['id' => $last_id])->row_array();
@@ -92,14 +92,13 @@ class Program_essays extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
             'questions' => $this->post('questions'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_essays', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_essays', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_essays', ['id' => $id])->row_array();
             $this->response([

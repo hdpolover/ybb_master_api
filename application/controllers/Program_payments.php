@@ -64,7 +64,7 @@ class Program_payments extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_payments', $data);
+        $sql = $this->mCore->save_data('program_payments', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_payments', 'id');
             $last_data = $this->mCore->get_data('program_payments', ['id' => $last_id])->row_array();
@@ -81,21 +81,20 @@ class Program_payments extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'description' => $this->put('description'),
-            'start_date' => $this->put('start_date'),
-            'end_date' => $this->put('end_date'),
-            'order_number' => $this->put('order_number'),
-            'idr_amount' => $this->put('idr_amount'),
-            'usd_amount' => $this->put('usd_amount'),
-            'category' => $this->put('category'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'start_date' => $this->post('start_date'),
+            'end_date' => $this->post('end_date'),
+            'order_number' => $this->post('order_number'),
+            'idr_amount' => $this->post('idr_amount'),
+            'usd_amount' => $this->post('usd_amount'),
+            'category' => $this->post('category'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_payments', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_payments', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_payments', ['id' => $id])->row_array();
             $this->response([

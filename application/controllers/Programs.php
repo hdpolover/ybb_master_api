@@ -87,7 +87,7 @@ class Programs extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('programs', $data);
+        $sql = $this->mCore->save_data('programs', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('programs', 'id');
             if (!empty($_FILES['logo_url']['name'])) {
@@ -113,25 +113,24 @@ class Programs extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'description' => $this->put('description'),
-            'guideline' => $this->put('guideline'),
-            'twibbon' => $this->put('twibbon'),
-            'start_date' => $this->put('start_date'),
-            'end_date' => $this->put('end_date'),
-            'registration_video_url' => $this->put('registration_video_url'),
-            'sponsor_canva_url' => $this->put('sponsor_canva_url'),
-            'theme' => $this->put('theme'),
-            'sub_themes' => $this->put('sub_themes'),
-            'share_desc' => $this->put('share_desc'),
-            'confirmation_desc' => $this->put('confirmation_desc'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'guideline' => $this->post('guideline'),
+            'twibbon' => $this->post('twibbon'),
+            'start_date' => $this->post('start_date'),
+            'end_date' => $this->post('end_date'),
+            'registration_video_url' => $this->post('registration_video_url'),
+            'sponsor_canva_url' => $this->post('sponsor_canva_url'),
+            'theme' => $this->post('theme'),
+            'sub_themes' => $this->post('sub_themes'),
+            'share_desc' => $this->post('share_desc'),
+            'confirmation_desc' => $this->post('confirmation_desc'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('programs', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('programs', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             if (!empty($_FILES['logo_url']['name'])) {
                 $upload_file = $this->upload_logo('logo_url', $id);

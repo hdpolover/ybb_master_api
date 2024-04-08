@@ -24,7 +24,7 @@ class Participant_subthemes extends RestController
                 'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
                 'table' => 'participant_subthemes',
                 'join' => [
-                    'program_subthemes' => 'participant_subthemes.program_essay_id = program_subthemes.id',
+                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id',
                     'programs' => 'program_subthemes.program_id = programs.id'
                 ],
             );
@@ -45,7 +45,7 @@ class Participant_subthemes extends RestController
                 'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
                 'table' => 'participant_subthemes',
                 'join' => [
-                    'program_subthemes' => 'participant_subthemes.program_essay_id = program_subthemes.id',
+                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id',
                     'programs' => 'program_subthemes.program_id = programs.id'
                 ],
                 'where' => 'participant_id = ' . $participant_id
@@ -74,7 +74,7 @@ class Participant_subthemes extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_subthemes', $data);
+        $sql = $this->mCore->save_data('participant_subthemes', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('participant_subthemes', 'id');
             $last_data = $this->mCore->get_data('participant_subthemes', ['id' => $last_id])->row_array();
@@ -91,15 +91,14 @@ class Participant_subthemes extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'program_subtheme_id' => $this->put('program_subtheme_id'),
-            'participant_id' => $this->put('participant_id'),
+            'program_subtheme_id' => $this->post('program_subtheme_id'),
+            'participant_id' => $this->post('participant_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('participant_subthemes', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_subthemes', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('participant_subthemes', ['id' => $id])->row_array();
             $this->response([

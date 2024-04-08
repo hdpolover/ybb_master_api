@@ -61,7 +61,7 @@ class Program_schedules	extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_schedules', $data);
+        $sql = $this->mCore->save_data('program_schedules', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('program_schedules', 'id');
             $last_data = $this->mCore->get_data('program_schedules', ['id' => $last_id])->row_array();
@@ -78,18 +78,17 @@ class Program_schedules	extends RestController
     }
 
     //UPDATE DATA
-    function update_put()
+    function update_post($id)
     {
-        $id = $this->put('id');
         $data = array(
-            'name' => $this->put('name'),
-            'description' => $this->put('description'),
-            'start_date' => $this->put('start_date'),
-            'end_date' => $this->put('end_date'),
-            'order_number' => $this->put('order_number'),
+            'name' => $this->post('name'),
+            'description' => $this->post('description'),
+            'start_date' => $this->post('start_date'),
+            'end_date' => $this->post('end_date'),
+            'order_number' => $this->post('order_number'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('program_schedules', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('program_schedules', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('program_schedules', ['id' => $id])->row_array();
             $this->response([

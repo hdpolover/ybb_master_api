@@ -138,7 +138,7 @@ class Participants extends RestController
       'created_at' => date('Y-m-d H:i:s'),
       'updated_at' => date('Y-m-d H:i:s'),
     );
-    $sql = $this->mCore->save_data('participants', $data);
+    $sql = $this->mCore->save_data('participants', array_filter($data));
     if ($sql) {
       $last_id = $this->mCore->get_lastid('participants', 'id');
       if (!empty($_FILES['picture_url']['name'])) {
@@ -191,37 +191,36 @@ class Participants extends RestController
   }
 
   //UPDATE DATA
-  function update_put()
+  function update_post($id)
   {
-    $id = $this->put('id');
     $data = array(
-      'full_name' => $this->put('full_name'),
-      'birthdate' => $this->put('birthdate'),
-      'ref_code_ambassador' => $this->put('ref_code_ambassador'),
-      'program_id' => $this->put('program_id'),
-      'gender' => $this->put('gender'),
-      'origin_address' => $this->put('origin_address'),
-      'current_address' => $this->put('current_address'),
-      'nationality' => $this->put('nationality'),
-      'occupation' => $this->put('occupation'),
-      'institution' => $this->put('institution'),
-      'organizations' => $this->put('organizations'),
-      'country_code' => $this->put('country_code'),
-      'phone_number' => $this->put('phone_number'),
-      'instagram_account' => $this->put('instagram_account'),
-      'emergency_account' => $this->put('emergency_account'),
-      'contact_relation' => $this->put('contact_relation'),
-      'disease_history' => $this->put('disease_history'),
-      'tshirt_size' => $this->put('tshirt_size'),
-      'experiences' => $this->put('experiences'),
-      'achievements' => $this->put('achievements'),
-      'knowledge_source' => $this->put('knowledge_source'),
-      'source_account_name' => $this->put('source_account_name'),
-      'twibbon_link' => $this->put('twibbon_link'),
-      'requirement_link' => $this->put('requirement_link'),
+      'full_name' => $this->post('full_name'),
+      'birthdate' => $this->post('birthdate'),
+      'ref_code_ambassador' => $this->post('ref_code_ambassador'),
+      'program_id' => $this->post('program_id'),
+      'gender' => $this->post('gender'),
+      'origin_address' => $this->post('origin_address'),
+      'current_address' => $this->post('current_address'),
+      'nationality' => $this->post('nationality'),
+      'occupation' => $this->post('occupation'),
+      'institution' => $this->post('institution'),
+      'organizations' => $this->post('organizations'),
+      'country_code' => $this->post('country_code'),
+      'phone_number' => $this->post('phone_number'),
+      'instagram_account' => $this->post('instagram_account'),
+      'emergency_account' => $this->post('emergency_account'),
+      'contact_relation' => $this->post('contact_relation'),
+      'disease_history' => $this->post('disease_history'),
+      'tshirt_size' => $this->post('tshirt_size'),
+      'experiences' => $this->post('experiences'),
+      'achievements' => $this->post('achievements'),
+      'knowledge_source' => $this->post('knowledge_source'),
+      'source_account_name' => $this->post('source_account_name'),
+      'twibbon_link' => $this->post('twibbon_link'),
+      'requirement_link' => $this->post('requirement_link'),
       'updated_at' => date('Y-m-d H:i:s'),
     );
-    $sql = $this->mCore->save_data('participants', $data, true, ['id' => $id]);
+    $sql = $this->mCore->save_data('participants', array_filter($data), true, ['id' => $id]);
     if ($sql) {
       if (!empty($_FILES['picture_url']['name'])) {
         $upload_file = $this->upload_picture('picture_url', $id);
