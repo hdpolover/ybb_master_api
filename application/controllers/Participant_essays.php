@@ -44,7 +44,7 @@ class Participant_essays extends RestController
                 'join' => ['program_essays' => 'participant_essays.program_essay_id = program_essays.id'],
                 'where' => 'participant_id = ' . $participant_id
             );
-            $participant_essays = $this->mCore->join_table($option)->row_array();
+            $participant_essays = $this->mCore->join_table($option)->result_array();
             if ($participant_essays) {
                 $this->response([
                     'status' => true,

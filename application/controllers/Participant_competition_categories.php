@@ -48,9 +48,9 @@ class Participant_competition_categories extends RestController
                     'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id',
                     'program_categories' => 'competition_categories.program_category_id = program_categories.id'
                 ],
-                'where' => 'participant_competition_categories = ' . $participant_id
+                'where' => 'participant_competition_categories.participant_id = ' . $participant_id
             );
-            $participant_competition_categories = $this->mCore->join_table($option)->result_array();
+            $participant_competition_categories = $this->mCore->join_table($option)->row();
             if ($participant_competition_categories) {
                 $this->response([
                     'status' => true,

@@ -50,7 +50,7 @@ class Participant_subthemes extends RestController
                 ],
                 'where' => 'participant_id = ' . $participant_id
             );
-            $participant_subthemes = $this->mCore->join_table($option)->row_array();
+            $participant_subthemes = $this->mCore->join_table($option)->row();
             if ($participant_subthemes) {
                 $this->response([
                     'status' => true,
