@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Payment_methods extends RestController
+class Participant_participant_program_documents extends RestController
 {
 
     function __construct()
@@ -20,11 +20,11 @@ class Payment_methods extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $payment_methods = $this->mCore->list_data('payment_methods')->result_array();
-            if ($payment_methods) {
+            $participant_program_documents = $this->mCore->list_data('participant_program_documents')->result_array();
+            if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
-                    'data' => $payment_methods
+                    'data' => $participant_program_documents
                 ], 200);
             } else {
                 $this->response([
@@ -33,11 +33,11 @@ class Payment_methods extends RestController
                 ], 404);
             }
         } else {
-            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
-            if ($payment_methods) {
+            $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['id' => $id])->row();
+            if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
-                    'data' => $payment_methods
+                    'data' => $participant_program_documents
                 ], 200);
             } else {
                 $this->response([
@@ -48,22 +48,39 @@ class Payment_methods extends RestController
         }
     }
 
+    function list_part_get()
+    {
+        $participant_id = $this->get('participant_id');
+
+        $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['participant_id' => $participant_id])->result_array();
+        if ($participant_program_documents) {
+            $this->response([
+                'status' => true,
+                'data' => $participant_program_documents
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     function save_post()
     {
         $data = array(
-            'program_id' => $this->post('program_id'),
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'img_url' => NULL,
+            'participant_id' => $this->post('participant_id'),
+            'program_document_id' => $this->post('program_document_id'),
+            'file_url' => NULL,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('payment_methods', array_filter($data));
+        $sql = $this->mCore->save_data('participant_program_documents', array_filter($data));
         if ($sql) {
-            $last_id = $this->mCore->get_lastid('payment_methods', 'id');
-            if (!empty($_FILES['img_url']['name'])) {
-                $upload_file = $this->upload_image('img_url', $last_id);
+            $last_id = $this->mCore->get_lastid('participant_program_documents', 'id');
+            if (!empty($_FILES['file_url']['name'])) {
+                $upload_file = $this->upload_file('file_url', $last_id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -71,7 +88,7 @@ class Payment_methods extends RestController
                     ], 404);
                 }
             }
-            $last_data = $this->mCore->get_data('payment_methods', ['id' => $last_id])->row_array();
+            $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -88,15 +105,15 @@ class Payment_methods extends RestController
     function update_post($id)
     {
         $data = array(
-            'name' => $this->post('name'),
-            'description' => $this->post('description'),
-            'img_url' => NULL,
+            'participant_id' => $this->post('participant_id'),
+            'program_document_id' => $this->post('program_document_id'),
+            'file_url' => NULL,
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('payment_methods', array_filter($data), true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_program_documents', array_filter($data), true, ['id' => $id]);
         if ($sql) {
-            if (!empty($_FILES['img_url']['name'])) {
-                $upload_file = $this->upload_image('img_url', $id);
+            if (!empty($_FILES['file_url']['name'])) {
+                $upload_file = $this->upload_file('file_url', $id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -104,7 +121,7 @@ class Payment_methods extends RestController
                     ], 404);
                 }
             }
-            $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
+            $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -126,7 +143,7 @@ class Payment_methods extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('participant_program_documents', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
@@ -140,14 +157,15 @@ class Payment_methods extends RestController
         }
     }
 
-    // UPLOAD IMAGE
-    public function upload_image($img_url, $id)
+    // UPLOAD FILE
+    public function upload_file($file_url, $id)
     {
+
         $this->load->library('ftp');
 
-        $data = $this->mCore->get_data('payment_methods', 'id = ' . $id)->row_array();
-        if ($data['img_url'] != '') {
-            $exp = (explode('/', $data['img_url']));
+        $data = $this->mCore->get_data('participant_program_documents', 'id = ' . $id)->row_array();
+        if ($data['file_url'] != '') {
+            $exp = (explode('/', $data['file_url']));
             $temp_img = end($exp);
 
             //FTP configuration
@@ -159,7 +177,7 @@ class Payment_methods extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('payment-methods/' . $temp_img);
+            $this->ftp->delete_file('participant_program_documents/' . $id . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -167,11 +185,11 @@ class Payment_methods extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = $id;
+        $config['file_name'] = time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
-        if ($this->upload->do_upload($img_url)) {
+        if ($this->upload->do_upload($file_url)) {
 
             $upload_data = $this->upload->data();
             $fileName = $upload_data['file_name'];
@@ -187,7 +205,11 @@ class Payment_methods extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $destination = 'payment-methods/' . $fileName;
+            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == FALSE) {
+                $this->ftp->mkdir('participant_program_documents/' . $id . '/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'participant_program_documents/' . $id . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -196,7 +218,7 @@ class Payment_methods extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('payment_methods', ['img_url' => config_item('dir_upload') . 'payment-methods/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participant_program_documents', ['file_url' => config_item('dir_upload') . 'participant_program_documents/' . $id . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $data['status'] = 1;
@@ -213,16 +235,17 @@ class Payment_methods extends RestController
         return $data;
     }
 
-    // UPLOAD IMAGE DIRECT
-    public function do_upload_image_post()
+    // UPLOAD FILE DIRECT
+    public function do_upload_file_post()
     {
+
         $this->load->library('ftp');
 
         $id = $this->post('id');
 
-        $data = $this->mCore->get_data('payment_methods', 'id = ' . $id)->row_array();
-        if ($data['img_url'] != '') {
-            $exp = (explode('/', $data['img_url']));
+        $data = $this->mCore->get_data('participant_program_documents', 'id = ' . $id)->row_array();
+        if ($data['file_url'] != '') {
+            $exp = (explode('/', $data['file_url']));
             $temp_img = end($exp);
 
             //FTP configuration
@@ -234,7 +257,7 @@ class Payment_methods extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('payment-methods/' . $temp_img);
+            $this->ftp->delete_file('participant_program_documents/' . $id . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -242,11 +265,11 @@ class Payment_methods extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = $id;
+        $config['file_name'] = time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
-        if ($this->upload->do_upload("image")) {
+        if ($this->upload->do_upload("logo")) {
 
             $upload_data = $this->upload->data();
             $fileName = $upload_data['file_name'];
@@ -262,7 +285,11 @@ class Payment_methods extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $destination = 'payment-methods/' . $fileName;
+            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == FALSE) {
+                $this->ftp->mkdir('participant_program_documents/' . $id . '/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'participant_program_documents/' . $id . '/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -271,7 +298,7 @@ class Payment_methods extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('payment_methods', ['img_url' => config_item('dir_upload') . 'payment-methods/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('participant_program_documents', ['file_url' => config_item('dir_upload') . 'participant_program_documents/' . $id . '/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $this->response([

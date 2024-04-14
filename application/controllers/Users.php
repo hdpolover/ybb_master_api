@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Users extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Users extends RestController
             if ($users) {
                 $this->response([
                     'status' => true,
-                    'data' => $users
+                    'data' => $users,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,33 +37,33 @@ class Users extends RestController
             if ($users) {
                 $this->response([
                     'status' => true,
-                    'data' => $users
+                    'data' => $users,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         // cek data jika sudah terdaftar di program itu
         $opt = array(
             'select' => 'participants.*',
             'table' => 'users',
             'join' => ['participants' => 'users.id = participants.user_id'],
-            'where' =>  ['email' => $this->post('email'), 'program_id' => $this->post('program_id')]
+            'where' => ['email' => $this->post('email'), 'program_id' => $this->post('program_id')],
         );
 
         $check_data = $this->mCore->join_table($opt)->num_rows();
         if ($check_data) {
             $this->response([
                 'status' => false,
-                'message' => "You are already registered as a participant. Please sign in to continue."
+                'message' => "You are already registered as a participant. Please sign in to continue.",
             ], 404);
         } else {
             $data = array(
@@ -79,7 +79,7 @@ class Users extends RestController
                 $last_id = $this->mCore->get_lastid('users', 'id');
 
                 //insert data participants
-                $ref_code = NULL;
+                $ref_code = null;
                 if ($this->post('ref_code')) {
                     $ref_code = $this->post('ref_code');
                 }
@@ -93,23 +93,36 @@ class Users extends RestController
                     'updated_at' => date('Y-m-d H:i:s'),
                 );
                 $this->mCore->save_data('participants', $participants);
+                $last_participant_id = $this->mCore->get_lastid('participants', 'id');
+
+                // participant statues
+                $participant_statuses = array(
+                    'participant_id' => $last_participant_id,
+                    'general_status' => 0,
+                    'form_status' => 0,
+                    'document_status' => 0,
+                    'payment_status' => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                );
+                $this->mCore->save_data('participant_statuses', $participant_statuses);
 
                 $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
                 $this->response([
                     'status' => true,
-                    'data' => $last_data
+                    'data' => $last_data,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'Sorry, failed to save'
+                    'message' => 'Sorry, failed to save',
                 ], 404);
             }
         }
     }
 
     // SIGNIN
-    function signin_post()
+    public function signin_post()
     {
         $id_login = $this->mCore->do_signin_user($this->post('email'), $this->post('password'));
         if ($id_login) {
@@ -121,13 +134,13 @@ class Users extends RestController
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Email/Password are Incorrect!'
+                'message' => 'Email/Password are Incorrect!',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
         $data = array(
             'full_name' => $this->post('full_name'),
@@ -140,25 +153,25 @@ class Users extends RestController
             $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_password_put()
+    public function update_password_put()
     {
         $new_password = $this->put('password');
         $new_password_confirm = $this->put('password_confirm');
         if ($new_password != $new_password_confirm) {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, the password is not the same'
+                'message' => 'Sorry, the password is not the same',
             ], 404);
         }
 
@@ -172,35 +185,35 @@ class Users extends RestController
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data saved successfully'
+                'message' => 'Data saved successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
@@ -214,9 +227,9 @@ class Users extends RestController
             'join' => [
                 'participants' => 'participants.user_id = users.id',
                 'programs' => 'participants.program_id = programs.id',
-                'program_categories' => 'programs.program_category_id = program_categories.id'
+                'program_categories' => 'programs.program_category_id = program_categories.id',
             ],
-            'where' => 'users.id = ' . $this->post('id')
+            'where' => 'users.id = ' . $this->post('id'),
         );
         $data = $this->mCore->join_table($opt)->row_array();
 
@@ -228,7 +241,7 @@ class Users extends RestController
             'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
             'mailtype' => 'html',
             'charset' => 'iso-8859-1',
-            'wordwrap' => TRUE
+            'wordwrap' => true,
         );
 
         $message = ('
@@ -772,39 +785,39 @@ class Users extends RestController
         if ($this->email->send()) {
             $this->response([
                 'status' => true,
-                'message' => 'The verification email has been successfully sent, check your inbox or spam.'
+                'message' => 'The verification email has been successfully sent, check your inbox or spam.',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => $this->email->print_debugger()
+                'message' => $this->email->print_debugger(),
             ], 404);
         }
     }
 
     //VERIF DATA
-    function verif_get()
+    public function verif_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_verified' => 1,
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
         if ($sql) {
             // $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => 'Email verification successfully'
+                'data' => 'Email verification successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to verification'
+                'message' => 'Sorry, failed to verification',
             ], 404);
         }
     }
-    
+
     // RESET PASSWORD
     public function email_reset_password_post()
     {
@@ -814,9 +827,9 @@ class Users extends RestController
             'join' => [
                 'participants' => 'participants.user_id = users.id',
                 'programs' => 'participants.program_id = programs.id',
-                'program_categories' => 'programs.program_category_id = program_categories.id'
+                'program_categories' => 'programs.program_category_id = program_categories.id',
             ],
-            'where' => 'users.id = ' . $this->post('id')
+            'where' => 'users.id = ' . $this->post('id'),
         );
         $data = $this->mCore->join_table($opt)->row_array();
 
@@ -828,7 +841,7 @@ class Users extends RestController
             'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
             'mailtype' => 'html',
             'charset' => 'iso-8859-1',
-            'wordwrap' => TRUE
+            'wordwrap' => true,
         );
 
         $message = ('
@@ -1373,14 +1386,13 @@ class Users extends RestController
         if ($this->email->send()) {
             $this->response([
                 'status' => true,
-                'message' => 'The reset password has been successfully sent, check your inbox or spam.'
+                'message' => 'The reset password has been successfully sent, check your inbox or spam.',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => $this->email->print_debugger()
+                'message' => $this->email->print_debugger(),
             ], 404);
         }
     }
-
 }
