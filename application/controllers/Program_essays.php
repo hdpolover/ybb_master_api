@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Program_essays extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Program_essays extends RestController
             if ($program_essays) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_essays
+                    'data' => $program_essays,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,37 +37,37 @@ class Program_essays extends RestController
             if ($program_essays) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_essays
+                    'data' => $program_essays,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
     //LIST PROGRAM
-    function list_get()
+    public function list_get()
     {
         $program_id = $this->get('program_id');
         $program_essays = $this->mCore->get_data('program_essays', ['program_id' => $program_id])->result_array();
         if ($program_essays) {
             $this->response([
                 'status' => true,
-                'data' => $program_essays
+                'data' => $program_essays,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         $data = array(
             'program_id' => $this->post('program_id'),
@@ -81,18 +81,18 @@ class Program_essays extends RestController
             $last_data = $this->mCore->get_data('program_essays', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
         $data = array(
             'questions' => $this->post('questions'),
@@ -103,37 +103,36 @@ class Program_essays extends RestController
             $last_data = $this->mCore->get_data('program_essays', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('program_essays', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
 }
-?>

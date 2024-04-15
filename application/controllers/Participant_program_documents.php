@@ -8,15 +8,15 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Participant_participant_program_documents extends RestController
+class Participant_program_documents extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Participant_participant_program_documents extends RestController
             if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
-                    'data' => $participant_program_documents
+                    'data' => $participant_program_documents,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,18 +37,18 @@ class Participant_participant_program_documents extends RestController
             if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
-                    'data' => $participant_program_documents
+                    'data' => $participant_program_documents,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
-    function list_part_get()
+    public function list_part_get()
     {
         $participant_id = $this->get('participant_id');
 
@@ -56,58 +56,75 @@ class Participant_participant_program_documents extends RestController
         if ($participant_program_documents) {
             $this->response([
                 'status' => true,
-                'data' => $participant_program_documents
+                'data' => $participant_program_documents,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
-        $data = array(
-            'participant_id' => $this->post('participant_id'),
-            'program_document_id' => $this->post('program_document_id'),
-            'file_url' => NULL,
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
-        );
-        $sql = $this->mCore->save_data('participant_program_documents', array_filter($data));
-        if ($sql) {
+        $participant_id = $this->post('participant_id');
+        $program_document_id = $this->post('program_document_id');
+        $check_program_document = $this->mCore->get_data('participant_program_documents', ['participant_id' => $participant_id, 'program_document_id' => $program_document_id]);
+        // exists or not
+        if ($check_program_document->num_rows() > 0) {
+            // update
+            $data = array(
+                'participant_id' => $this->post('participant_id'),
+                'program_document_id' => $this->post('program_document_id'),
+                'file_url' => null,
+                'updated_at' => date('Y-m-d H:i:s'),
+            );
+            $sql = $this->mCore->save_data('participant_program_documents', array_filter($data), true, ['id' => $check_program_document->row_array()['id']]);
+            $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $check_program_document->row_array()['id']])->row_array();
+        } else {
+            // insert
+            $data = array(
+                'participant_id' => $this->post('participant_id'),
+                'program_document_id' => $this->post('program_document_id'),
+                'file_url' => null,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            );
+            $sql = $this->mCore->save_data('participant_program_documents', array_filter($data));
             $last_id = $this->mCore->get_lastid('participant_program_documents', 'id');
+            $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $last_id])->row_array();
+        }
+        if ($sql) {
             if (!empty($_FILES['file_url']['name'])) {
                 $upload_file = $this->upload_file('file_url', $last_id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
-            $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
         $data = array(
             'participant_id' => $this->post('participant_id'),
             'program_document_id' => $this->post('program_document_id'),
-            'file_url' => NULL,
+            'file_url' => null,
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('participant_program_documents', array_filter($data), true, ['id' => $id]);
@@ -117,42 +134,42 @@ class Participant_participant_program_documents extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('participant_program_documents', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('participant_program_documents', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
@@ -173,7 +190,7 @@ class Participant_participant_program_documents extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -201,11 +218,11 @@ class Participant_participant_program_documents extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == FALSE) {
+            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == false) {
                 $this->ftp->mkdir('participant_program_documents/' . $id . '/', DIR_WRITE_MODE);
             }
 
@@ -253,7 +270,7 @@ class Participant_participant_program_documents extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -281,11 +298,11 @@ class Participant_participant_program_documents extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == FALSE) {
+            if ($this->ftp->list_files('participant_program_documents/' . $id . '/') == false) {
                 $this->ftp->mkdir('participant_program_documents/' . $id . '/', DIR_WRITE_MODE);
             }
 
@@ -303,18 +320,18 @@ class Participant_participant_program_documents extends RestController
             if ($sql) {
                 $this->response([
                     'status' => true,
-                    'message' => 'Image saved successfully'
+                    'message' => 'Image saved successfully',
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'Sorry, failed to update'
+                    'message' => 'Sorry, failed to update',
                 ], 404);
             }
         } else {
             $this->response([
                 'status' => false,
-                'message' => $this->upload->display_errors()
+                'message' => $this->upload->display_errors(),
             ], 404);
         }
     }
