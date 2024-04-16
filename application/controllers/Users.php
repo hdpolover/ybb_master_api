@@ -127,6 +127,7 @@ class Users extends RestController
         $id_login = $this->mCore->do_signin_user($this->post('email'), $this->post('password'));
         if ($id_login) {
             $sql = $this->mCore->get_data('users', ['id' => $id_login])->row_array();
+            unset($sql['password']);
             $this->response([
                 'status' => true,
                 'data' => $sql,
