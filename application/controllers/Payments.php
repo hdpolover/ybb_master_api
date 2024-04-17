@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class payments extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class payments extends RestController
             if ($payments) {
                 $this->response([
                     'status' => true,
-                    'data' => $payments
+                    'data' => $payments,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,18 +37,18 @@ class payments extends RestController
             if ($payments) {
                 $this->response([
                     'status' => true,
-                    'data' => $payments
+                    'data' => $payments,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
-    function list_get()
+    public function list_get()
     {
         $participant_id = $this->get('participant_id');
 
@@ -56,17 +56,17 @@ class payments extends RestController
         if ($payments) {
             $this->response([
                 'status' => true,
-                'data' => $payments
+                'data' => $payments,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
-    function list_payment_get()
+    public function list_payment_get()
     {
         $program_payment_id = $this->get('program_payment_id');
 
@@ -74,17 +74,17 @@ class payments extends RestController
         if ($payments) {
             $this->response([
                 'status' => true,
-                'data' => $payments
+                'data' => $payments,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
-    function list_method_get()
+    public function list_method_get()
     {
         $payment_method_id = $this->get('payment_method_id');
 
@@ -92,29 +92,30 @@ class payments extends RestController
         if ($payments) {
             $this->response([
                 'status' => true,
-                'data' => $payments
+                'data' => $payments,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         $data = array(
             'participant_id' => $this->post('participant_id'),
             'program_payment_id' => $this->post('program_payment_id'),
             'payment_method_id' => $this->post('payment_method_id'),
             'status' => $this->post('status'),
-            'proof_url' => NULL,
+            'proof_url' => null,
             'account_name' => $this->post('account_name'),
             'amount' => $this->post('amount'),
+            'source_name' => $this->post('source_name'),
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('payments', array_filter($data));
         if ($sql) {
@@ -124,34 +125,35 @@ class payments extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('payments', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
         $data = array(
             'participant_id' => $this->post('participant_id'),
             'program_payment_id' => $this->post('program_payment_id'),
             'payment_method_id' => $this->post('payment_method_id'),
             'status' => $this->post('status'),
-            'proof_url' => NULL,
+            'proof_url' => null,
             'account_name' => $this->post('account_name'),
             'amount' => $this->post('amount'),
+            'source_name' => $this->post('source_name'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('payments', array_filter($data), true, ['id' => $id]);
@@ -161,46 +163,64 @@ class payments extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('payments', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('payments', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
 
+    // UPDATE STATUS
+    public function update_status_post($id)
+    {
+        $status = $this->get('status');
+        $sql = $this->mCore->save_data('payments', ['status' => $status], true, ['id' => $id]);
+        if ($sql) {
+            $this->response([
+                'status' => true,
+                'message' => 'Data update successfully',
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Sorry, failed to update',
+            ], 404);
+        }
+
+    }
     // UPLOAD IMAGE
     public function upload_image($proof_url, $id)
     {
@@ -210,7 +230,7 @@ class payments extends RestController
             'select' => 'payments.*, payment_methods.program_id',
             'table' => 'payments',
             'join' => ['payment_methods' => 'payments.payment_method_id = payment_methods.id'],
-            'where' => 'payments.id = ' . $id
+            'where' => 'payments.id = ' . $id,
         );
 
         $data = $this->mCore->join_table($opt)->row_array();
@@ -224,7 +244,7 @@ class payments extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -252,11 +272,11 @@ class payments extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/') == FALSE) {
+            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/') == false) {
                 $this->ftp->mkdir('payments/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
                 $this->ftp->mkdir('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/', DIR_WRITE_MODE, true);
             }

@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Payment_methods extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Payment_methods extends RestController
             if ($payment_methods) {
                 $this->response([
                     'status' => true,
-                    'data' => $payment_methods
+                    'data' => $payment_methods,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,27 +37,46 @@ class Payment_methods extends RestController
             if ($payment_methods) {
                 $this->response([
                     'status' => true,
-                    'data' => $payment_methods
+                    'data' => $payment_methods,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
+    public function list_get()
+    {
+        $program_id = $this->get('program_id');
+
+        $payment_methods = $this->mCore->get_data('payment_methods', ['program_id' => $program_id])->result_array();
+        if ($payment_methods) {
+            $this->response([
+                'status' => true,
+                'data' => $payment_methods,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         $data = array(
             'program_id' => $this->post('program_id'),
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'img_url' => NULL,
+            'type' => $this->post('type'),
+            'img_url' => null,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('payment_methods', array_filter($data));
         if ($sql) {
@@ -67,30 +86,31 @@ class Payment_methods extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('payment_methods', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
         $data = array(
             'name' => $this->post('name'),
             'description' => $this->post('description'),
-            'img_url' => NULL,
+            'type' => $this->post('type'),
+            'img_url' => null,
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('payment_methods', array_filter($data), true, ['id' => $id]);
@@ -100,42 +120,42 @@ class Payment_methods extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('payment_methods', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
@@ -155,7 +175,7 @@ class Payment_methods extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -167,7 +187,7 @@ class Payment_methods extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = $id;
+        $config['file_name'] = time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
@@ -183,7 +203,7 @@ class Payment_methods extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -230,7 +250,7 @@ class Payment_methods extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -258,7 +278,7 @@ class Payment_methods extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -276,18 +296,18 @@ class Payment_methods extends RestController
             if ($sql) {
                 $this->response([
                     'status' => true,
-                    'message' => 'Image saved successfully'
+                    'message' => 'Image saved successfully',
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'Sorry, failed to update'
+                    'message' => 'Sorry, failed to update',
                 ], 404);
             }
         } else {
             $this->response([
                 'status' => false,
-                'message' => $this->upload->display_errors()
+                'message' => $this->upload->display_errors(),
             ], 404);
         }
     }
