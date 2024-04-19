@@ -123,26 +123,33 @@ class Core_model extends CI_Model
 
         extract($options);
 
-        if ($select != false)
+        if ($select != false) {
             $this->db->select($select);
+        }
 
-        if ($table != false)
+        if ($table != false) {
             $this->db->from($table);
+        }
 
-        if ($where != false)
+        if ($where != false) {
             $this->db->where($where);
+        }
 
         if ($where_in != false) {
             foreach ($where_in as $key => $value) {
-                if (count($value) > 0)
+                if (count($value) > 0) {
                     $this->db->where_in($key, $value);
+                }
+
             }
         }
 
         if ($where_not_in != false) {
             foreach ($where_not_in as $key => $value) {
-                if (count($value) > 0)
+                if (count($value) > 0) {
                     $this->db->where_not_in($key, $value);
+                }
+
             }
         }
 
@@ -168,7 +175,6 @@ class Core_model extends CI_Model
                 }
             }
         }
-
 
         if ($order != false) {
 
