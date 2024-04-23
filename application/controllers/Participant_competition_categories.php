@@ -70,7 +70,7 @@ class Participant_competition_categories extends RestController
     {
         $participant_id = $this->post('participant_id');
         $competition_category_id = $this->post('competition_category_id');
-        $check_competition_category = $this->mCore->get_data('participant_essays', ['participant_id' => $participant_id, 'competition_category_id' => $competition_category_id]);
+        $check_competition_category = $this->mCore->get_data('participant_competition_categories', ['participant_id' => $participant_id, 'competition_category_id' => $competition_category_id]);
         // exists or not
         if ($check_competition_category->num_rows() > 0) {
             // update
