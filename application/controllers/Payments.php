@@ -3,6 +3,8 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
+use Xendit\Configuration;
+use Xendit\Invoice\InvoiceApi;
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
@@ -221,6 +223,81 @@ class payments extends RestController
         }
 
     }
+
+    // pembayaran
+    public function pay_post()
+    {
+        // "external_id": "invoice-{{$timestamp}}",
+        // "amount": 1800000,
+        // "payer_email": "customer@domain.com",
+        // "description": "Invoice Demo #123"
+
+        Configuration::setXenditKey(config_item('xendit'));
+
+        $apiInstance = new InvoiceApi();
+        $create_invoice_request = new Xendit\Invoice\CreateInvoiceRequest([
+            'external_id' => time() . rand(0, 100) . '',
+            'description' => $this->input->post('description'),
+            'payer_email' => $this->input->post('payer_email'),
+            'amount' => $this->input->post('amount'),
+            'invoice_duration' => 3600,
+            'currency' => 'IDR',
+            'reminder_time' => 1,
+            'success_redirect_url' => base_url('Payments/invoice_get'),
+            'failure_redirect_url' => base_url('Payments/failure_pay'),
+        ]); // \Xendit\Invoice\CreateInvoiceRequest
+
+        try {
+            $result = $apiInstance->createInvoice($create_invoice_request);
+            // print_r($result);
+
+            $payment_url = $result['id'];
+            $this->response([
+                'status' => true,
+                'data' => 'https://checkout-staging.xendit.co/v2/' . $payment_url,
+            ], 200);
+
+        } catch (\Xendit\XenditSdkException $e) {
+            $this->response([
+                'status' => false,
+                'message' => 'Exception when calling InvoiceApi->createInvoice: ', $e->getMessage(), PHP_EOL,
+            ], 404);
+            // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
+    }
+
+    // cek
+    public function invoice_get($invoice_id)
+    {
+        Configuration::setXenditKey(config_item('xendit'));
+
+        $apiInstance = new InvoiceApi();
+        try {
+            $result = $apiInstance->getInvoiceById($invoice_id);
+            // print_r($result);
+            $this->response([
+                'status' => true,
+                'data' => $result,
+            ], 200);
+        } catch (\Xendit\XenditSdkException $e) {
+            $this->response([
+                'status' => false,
+                'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
+            ], 404);
+            // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
+    }
+
+    public function success_pay()
+    {
+        echo "Selamat";
+    }
+
+    public function failure_pay()
+    {
+        echo "Gagal yuah";
+    }
+
     // UPLOAD IMAGE
     public function upload_image($proof_url, $id)
     {

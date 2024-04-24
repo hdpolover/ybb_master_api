@@ -13,7 +13,8 @@
 	"require": {
 		"php": ">=5.3.7",
 		"chriskacerguis/codeigniter-restserver": "*",
-		"ramsey/uuid": "*"
+		"ramsey/uuid": "*",
+		"xendit/xendit-php": "*"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
