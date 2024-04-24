@@ -69,8 +69,8 @@ class Participant_subthemes extends RestController
     public function save_post()
     {
         $participant_id = $this->post('participant_id');
-        $program_subtheme_id = $this->post('program_subtheme_id');
-        $check_subtheme = $this->mCore->get_data('participant_subthemes', ['participant_id' => $participant_id, 'program_subtheme_id' => $program_subtheme_id]);
+        // $program_subtheme_id = $this->post('program_subtheme_id');
+        $check_subtheme = $this->mCore->get_data('participant_subthemes', ['participant_id' => $participant_id]);
         // exists or not
         if ($check_subtheme->num_rows() > 0) {
             // update
