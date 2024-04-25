@@ -293,7 +293,7 @@ class payments extends RestController
         }
     }
 
-    public function success_pay()
+    public function success_pay_get()
     {
         $this->response([
             'status' => true,
@@ -301,7 +301,7 @@ class payments extends RestController
         ], 200);
     }
 
-    public function failure_pay()
+    public function failure_pay_get()
     {
         $this->response([
             'status' => false,
