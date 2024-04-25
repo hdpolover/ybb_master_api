@@ -227,6 +227,12 @@ class payments extends RestController
     // pembayaran
     public function pay_post()
     {
+
+        // $this->response([
+        //     'status' => true,
+        //     'data' => 'https://checkout-staging.xendit.co/v2/662a45f0a3e7774c82ecb88f',
+        // ], 200);
+
         // "external_id": "invoice-{{$timestamp}}",
         // "amount": 1800000,
         // "payer_email": "customer@domain.com",
@@ -243,14 +249,13 @@ class payments extends RestController
             'invoice_duration' => 3600,
             'currency' => 'IDR',
             'reminder_time' => 1,
-            'success_redirect_url' => base_url('Payments/invoice_get'),
+            'success_redirect_url' => base_url('Payments/success_pay'),
             'failure_redirect_url' => base_url('Payments/failure_pay'),
         ]); // \Xendit\Invoice\CreateInvoiceRequest
 
         try {
             $result = $apiInstance->createInvoice($create_invoice_request);
             // print_r($result);
-
             $payment_url = $result['id'];
             $this->response([
                 'status' => true,
@@ -290,12 +295,18 @@ class payments extends RestController
 
     public function success_pay()
     {
-        echo "Selamat";
+        $this->response([
+            'status' => true,
+            'message' => 'Successful payment!',
+        ], 200);
     }
 
     public function failure_pay()
     {
-        echo "Gagal yuah";
+        $this->response([
+            'status' => false,
+            'message' => 'Payment failed!',
+        ], 404);
     }
 
     // UPLOAD IMAGE
