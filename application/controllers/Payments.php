@@ -5,6 +5,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 use chriskacerguis\RestServer\RestController;
 use Xendit\Configuration;
 use Xendit\Invoice\InvoiceApi;
+use Xendit\PaymentMethod\PaymentMethodApi;
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
@@ -227,39 +228,48 @@ class payments extends RestController
     // pembayaran
     public function pay_post()
     {
-
-        // $this->response([
-        //     'status' => true,
-        //     'data' => 'https://checkout-staging.xendit.co/v2/662a45f0a3e7774c82ecb88f',
-        // ], 200);
-
-        // "external_id": "invoice-{{$timestamp}}",
-        // "amount": 1800000,
-        // "payer_email": "customer@domain.com",
-        // "description": "Invoice Demo #123"
-
         Configuration::setXenditKey(config_item('xendit'));
 
+        $external_id = time() . rand(0, 100);
         $apiInstance = new InvoiceApi();
         $create_invoice_request = new Xendit\Invoice\CreateInvoiceRequest([
-            'external_id' => time() . rand(0, 100) . '',
+            'external_id' => $external_id,
             'description' => $this->input->post('description'),
             'payer_email' => $this->input->post('payer_email'),
             'amount' => $this->input->post('amount'),
             'invoice_duration' => 3600,
-            'currency' => 'IDR',
+            // 'currency' => 'IDR',
             'reminder_time' => 1,
-            'success_redirect_url' => base_url('Payments/success_pay'),
-            'failure_redirect_url' => base_url('Payments/failure_pay'),
+            'success_redirect_url' => base_url() . 'Payments/success_pay?external_id=' . $external_id,
+            'failure_redirect_url' => base_url() . 'Payments/failure_pay?external_id=' . $external_id,
         ]); // \Xendit\Invoice\CreateInvoiceRequest
 
         try {
             $result = $apiInstance->createInvoice($create_invoice_request);
-            // print_r($result);
-            $payment_url = $result['id'];
+
+            $data = array(
+                'participant_id' => $this->post('participant_id'),
+                'program_id' => $this->post('program_id'),
+                'description' => $result['description'],
+                'amount' => $result['amount'],
+                'email' => $result['payer_email'],
+                'external_id' => $result['external_id'],
+                'currency' => $result['currency'],
+                'id_xendit' => $result['id'],
+                'user_id_xendit' => $result['user_id'],
+                'url_xendit' => $result['invoice_url'],
+                'status' => $result['status'],
+                'merchant_name' => $result['merchant_name'],
+                'expired_at' => date_format($result['expiry_date'], 'Y-m-d H:i:s'),
+                'created_at' => date_format($result['created'], 'Y-m-d H:i:s'),
+                'updated_at' => date_format($result['updated'], 'Y-m-d H:i:s'),
+            );
+
+            $this->mCore->save_data('xendit_payment', $data);
+
             $this->response([
                 'status' => true,
-                'data' => 'https://checkout-staging.xendit.co/v2/' . $payment_url,
+                'data' => $result['invoice_url'],
             ], 200);
 
         } catch (\Xendit\XenditSdkException $e) {
@@ -272,8 +282,10 @@ class payments extends RestController
     }
 
     // cek
-    public function invoice_get($invoice_id)
+    public function invoice_get()
     {
+        $invoice_id = $this->get('id');
+
         Configuration::setXenditKey(config_item('xendit'));
 
         $apiInstance = new InvoiceApi();
@@ -293,12 +305,849 @@ class payments extends RestController
         }
     }
 
+    public function callback_get()
+    {
+
+// Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
+        // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
+        // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
+        $xenditXCallbackToken = 'xnd_public_development_Gvveev_B6FA99XN6OkEfysjQYw4zrVaMy0Tf6eMcmyrF2AYBKq0TM_WINMQJWtfa';
+
+// Bagian ini untuk mendapatkan Token callback dari permintaan header,
+        // yang kemudian akan dibandingkan dengan token verifikasi callback Xendit
+        $reqHeaders = getallheaders();
+        $xIncomingCallbackTokenHeader = isset($reqHeaders['x-callback-token']) ? $reqHeaders['x-callback-token'] : "";
+
+// Untuk memastikan permintaan datang dari Xendit
+        // Anda harus membandingkan token yang masuk sama dengan token verifikasi callback Anda
+        // Ini untuk memastikan permintaan datang dari Xendit dan bukan dari pihak ketiga lainnya.
+        if ($xIncomingCallbackTokenHeader === $xenditXCallbackToken) {
+            // Permintaan masuk diverifikasi berasal dari Xendit
+
+            // Baris ini untuk mendapatkan semua input pesan dalam format JSON teks mentah
+            $rawRequestInput = file_get_contents("php://input");
+            // Baris ini melakukan format input mentah menjadi array asosiatif
+            $arrRequestInput = json_decode($rawRequestInput, true);
+            print_r($arrRequestInput);
+
+            $_id = $arrRequestInput['id'];
+            $_externalId = $arrRequestInput['external_id'];
+            $_userId = $arrRequestInput['user_id'];
+            $_status = $arrRequestInput['status'];
+            $_paidAmount = $arrRequestInput['paid_amount'];
+            $_paidAt = $arrRequestInput['paid_at'];
+            $_paymentChannel = $arrRequestInput['payment_channel'];
+            $_paymentDestination = $arrRequestInput['payment_destination'];
+
+            // Kamu bisa menggunakan array objek diatas sebagai informasi callback yang dapat digunaka untuk melakukan pengecekan atau aktivas tertentu di aplikasi atau sistem kamu.
+
+        } else {
+            // Permintaan bukan dari Xendit, tolak dan buang pesan dengan HTTP status 403
+            http_response_code(403);
+        }
+
+    }
+
     public function success_pay_get()
     {
-        $this->response([
-            'status' => true,
-            'message' => 'Successful payment!',
-        ], 200);
+
+        $option = array(
+            'select' => 'xendit_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,program_categories.contact,program_categories.email email_program_category',
+            'table' => 'xendit_payment',
+            'join' => [
+                'participants' => 'participants.id = xendit_payment.participant_id',
+                'users' => 'participants.user_id = users.id',
+                'programs' => 'xendit_payment.program_id = programs.id',
+                'program_categories' => 'programs.program_category_id = program_categories.id',
+            ],
+            'where' => 'xendit_payment.external_id = ' . $this->get('external_id'),
+        );
+        $data = $this->mCore->join_table($option)->row_array();
+
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'ssl://smtp.googlemail.com',
+            'smtp_port' => 465,
+            'smtp_user' => 'notifikasi.rspn@gmail.com', // change it to yours
+            'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
+            'mailtype' => 'html',
+            'charset' => 'iso-8859-1',
+            'wordwrap' => true,
+        );
+
+        $message = ('
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Order confirmation</title>
+<meta name="robots" content="noindex,nofollow" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0;" />
+<style type="text/css">
+	@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+	body {
+		margin: 0;
+		padding: 0;
+		background: #e1e1e1;
+	}
+
+	div,
+	p,
+	a,
+	li,
+	td {
+		-webkit-text-size-adjust: none;
+	}
+
+	.ReadMsgBody {
+		width: 100%;
+		background-color: #ffffff;
+	}
+
+	.ExternalClass {
+		width: 100%;
+		background-color: #ffffff;
+	}
+
+	body {
+		width: 100%;
+		height: 100%;
+		background-color: #e1e1e1;
+		margin: 0;
+		padding: 0;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	html {
+		width: 100%;
+	}
+
+	p {
+		padding: 0 !important;
+		margin-top: 0 !important;
+		margin-right: 0 !important;
+		margin-bottom: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	.visibleMobile {
+		display: none;
+	}
+
+	.hiddenMobile {
+		display: block;
+	}
+
+	.rotateWm {
+		transform: rotate(-45deg);
+	}
+
+	@media only screen and (max-width: 600px) {
+		body {
+			width: auto !important;
+		}
+
+		table[class="fullTable"] {
+			width: 96% !important;
+			clear: both;
+		}
+
+		table[class="fullPadding"] {
+			width: 85% !important;
+			clear: both;
+		}
+
+		table[class="col"] {
+			width: 45% !important;
+		}
+
+		.erase {
+			display: none;
+		}
+	}
+
+	@media only screen and (max-width: 420px) {
+		table[class="fullTable"] {
+			width: 100% !important;
+			clear: both;
+		}
+
+		table[class="fullPadding"] {
+			width: 85% !important;
+			clear: both;
+		}
+
+		table[class="col"] {
+			width: 100% !important;
+			clear: both;
+		}
+
+		table[class="col"] td {
+			text-align: left !important;
+		}
+
+		.erase {
+			display: none;
+			font-size: 0;
+			max-height: 0;
+			line-height: 0;
+			padding: 0;
+		}
+
+		.visibleMobile {
+			display: block !important;
+		}
+
+		.hiddenMobile {
+			display: none !important;
+		}
+	}
+
+</style>
+
+<!-- Header -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tr>
+		<td height="20"></td>
+	</tr>
+	<tr>
+		<td>
+			<table
+				width="600"
+				border="0"
+				cellpadding="0"
+				cellspacing="0"
+				align="center"
+				class="fullTable"
+				bgcolor="#ffffff"
+				style="border-radius: 10px 10px 0 0"
+			>
+				<tr class="hiddenMobile">
+					<td height="40"></td>
+				</tr>
+				<tr class="visibleMobile">
+					<td height="30"></td>
+				</tr>
+				<tr>
+					<td>
+						<table
+							width="480"
+							border="0"
+							cellpadding="0"
+							cellspacing="0"
+							align="center"
+							class="fullPadding"
+						>
+							<tbody>
+								<tr>
+									<td>
+										<table
+											width="220"
+											border="0"
+											cellpadding="0"
+											cellspacing="0"
+											align="left"
+											class="col"
+										>
+											<tbody>
+												<tr>
+													<td align="left">
+														<img
+															src=' . $data['logo_url'] . '
+															width="120"
+															alt="logo"
+															border="0"
+														/>
+													</td>
+												</tr>
+												<!-- <tr class="hiddenMobile">
+                                                    <td height="40"></td>
+                                                </tr> -->
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td
+														style="
+															font-size: 12px;
+															color: #5b5b5b;
+															font-family: Open Sans, sans-serif;
+															line-height: 18px;
+															vertical-align: top;
+															text-align: left;
+														"
+													>
+														Hello, ' . $data['full_name'] . '
+														<br />
+														Thank you for participating in our program and for
+														your payment
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										<table
+											width="220"
+											border="0"
+											cellpadding="0"
+											cellspacing="0"
+											align="right"
+											class="col"
+										>
+											<tbody>
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td height="5"></td>
+												</tr>
+												<tr>
+													<td style="text-align: right">
+														<span
+															style="
+																display: inline-block;
+																font-size: 21px;
+																color: #fff;
+																letter-spacing: -1px;
+																font-family: Open Sans, sans-serif;
+																line-height: 1;
+																vertical-align: middle;
+																background-color: #377dff;
+																border-color: #377dff;
+																padding: 6px 20px;
+																border-radius: 20px;
+															"
+															>Receipt</span
+														>
+													</td>
+												</tr>
+												<tr></tr>
+												<tr class="hiddenMobile">
+													<td height="50"></td>
+												</tr>
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td
+														style="
+															font-size: 12px;
+															color: #5b5b5b;
+															font-family: Open Sans, sans-serif;
+															line-height: 18px;
+															vertical-align: top;
+															text-align: right;
+														"
+													>
+														<small>ORDER</small> #' . $data['external_id'] . '<br />
+														<small>' . date('D, d M Y H:i:s', strtotime($data['created_at'])) . ' (GMT+0)</small>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<!-- /Header -->
+<!-- Order Details -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr></tr>
+						<tr class="hiddenMobile">
+							<td height="60"></td>
+						</tr>
+						<tr>
+							<td>
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td
+												colspan="3"
+												style="
+													font-size: 14px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 10px 12px 0;
+												"
+											>
+												Payment Details
+											</td>
+										</tr>
+										<tr>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 10px 7px 0;
+												"
+												width="52%"
+												align="left"
+											>
+												Product
+											</th>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 0 7px;
+												"
+												align="center"
+											>
+												Quantity
+											</th>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 0 7px;
+												"
+												align="right"
+											>
+												Subtotal
+											</th>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												style="background: #bebebe"
+												colspan="4"
+											></td>
+										</tr>
+										<tr>
+											<td height="10" colspan="4"></td>
+										</tr>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												class="article"
+											>
+												' . $data['description'] . '
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												align="center"
+											>
+												1
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												align="right"
+											>
+												' . $data['currency'] . ' ' . number_format($data['amount']) . '
+											</td>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												colspan="4"
+												style="border-bottom: 1px solid #e4e4e4"
+											></td>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												colspan="4"
+												style="border-bottom: 1px solid #e4e4e4"
+											></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td height="20"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Order Details -->
+<!-- Total -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr>
+							<td>
+								<!-- Table Total -->
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #646a6e;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												Subtotal
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #646a6e;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+													white-space: nowrap;
+												"
+												width="80"
+											>
+                                            ' . $data['currency'] . ' ' . number_format($data['amount']) . '
+											</td>
+										</tr>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #000;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												<strong>TOTAL</strong>
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #000;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												<strong>' . $data['currency'] . ' ' . number_format($data['amount']) . '</strong>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<!-- /Table Total -->
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Total -->
+<!-- Information -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr></tr>
+						<tr class="visibleMobile">
+							<td height="40"></td>
+						</tr>
+						<tr>
+							<td>
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td>
+												<table
+													width="220"
+													border="0"
+													cellpadding="0"
+													cellspacing="0"
+													align="left"
+													class="col"
+												>
+													<tbody>
+														<tr class="visibleMobile">
+															<td height="20"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 11px;
+																	font-family: Open Sans, sans-serif;
+																	color: #5b5b5b;
+																	line-height: 1;
+																	vertical-align: top;
+																"
+															>
+																<strong>Payment time and method</strong>
+															</td>
+														</tr>
+														<tr>
+															<td width="100%" height="10"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 12px;
+																	font-family: Open Sans, sans-serif;
+																	color: #5b5b5b;
+																	line-height: 20px;
+																	vertical-align: top;
+																"
+															>
+																' . $data['payment_method'] . '<br />
+																<span
+																	style="color: #5b5b5b"
+																	>' . date('D, d M Y H:i:s', strtotime($data['updated_at'])) . ' (GMT+0)</span
+																>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr class="hiddenMobile">
+							<td height="60"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Information -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tr>
+		<td>
+			<table
+				width="600"
+				border="0"
+				cellpadding="0"
+				cellspacing="0"
+				align="center"
+				class="fullTable"
+				bgcolor="#ffffff"
+				style="border-radius: 0 0 10px 10px"
+			>
+				<tr>
+					<td>
+						<table
+							width="480"
+							border="0"
+							cellpadding="0"
+							cellspacing="0"
+							align="center"
+							class="fullPadding"
+						>
+							<tbody>
+								<tr>
+									<td
+										style="
+											font-size: 10px;
+											color: #5b5b5b;
+											font-family: Open Sans, sans-serif;
+											line-height: 18px;
+											vertical-align: top;
+											text-align: center;
+										"
+									>
+										<strong>' . $data['name'] . ' - ' . $data['web_url'] . '</strong> -
+										' . $data['email_program_category'] . ' (' . $data['contact'] . ')
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr class="spacer">
+					<td height="50"></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="20"></td>
+	</tr>
+</table>');
+
+        $this->load->library('email', $config);
+        $this->email->set_mailtype("html");
+        $this->email->set_newline("\r\n");
+        $this->email->set_crlf("\r\n");
+        $this->email->from('notifikasi.rspn@gmail.com');
+        $this->email->to($data['email']);
+        $this->email->subject('Thank you for participating in ' . $data['name']);
+        $this->email->message($message);
+
+        if ($this->email->send()) {
+            Configuration::setXenditKey(config_item('xendit'));
+            $apiInstance = new InvoiceApi();
+            try {
+
+                $result = $apiInstance->getInvoiceById($data['id_xendit']);
+                // print_r($result);
+
+                $upd = array(
+                    'status' => $result['status'],
+                    'payment_method' => $result['payment_method'],
+                    'updated_at' => date_format($result['updated'], 'Y-m-d H:i:s'),
+                );
+                $this->mCore->save_data('xendit_payment', $upd, true, ['id_xendit' => $data['id_xendit']]);
+
+                $this->response([
+                    'status' => true,
+                    'message' => 'Successful payment!',
+                    'data' => $result,
+                ], 200);
+
+            } catch (\Xendit\XenditSdkException $e) {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
+                ], 404);
+                // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Payment error!',
+            ], 404);
+        }
     }
 
     public function failure_pay_get()
@@ -307,6 +1156,21 @@ class payments extends RestController
             'status' => false,
             'message' => 'Payment failed!',
         ], 404);
+    }
+
+    //list
+    public function xendit_list_get()
+    {
+        Configuration::setXenditKey(config_item('xendit'));
+
+        $apiInstance = new PaymentMethodApi();
+        try {
+            $result = $apiInstance->getAllPaymentMethods();
+            print_r($result);
+        } catch (\Xendit\XenditSdkException $e) {
+            echo 'Exception when calling PaymentMethodApi->getAllPaymentMethods: ', $e->getMessage(), PHP_EOL;
+            echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
     }
 
     // UPLOAD IMAGE
