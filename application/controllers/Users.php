@@ -238,8 +238,8 @@ class Users extends RestController
             'protocol' => 'smtp',
             'smtp_host' => 'ssl://smtp.googlemail.com',
             'smtp_port' => 465,
-            'smtp_user' => 'notifikasi.rspn@gmail.com', // change it to yours
-            'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
+            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
+            'smtp_pass' => 'ergwhprslxrpkxts', // change it to yours
             'mailtype' => 'html',
             'charset' => 'iso-8859-1',
             'wordwrap' => true,
@@ -779,7 +779,7 @@ class Users extends RestController
         $this->email->set_mailtype("html");
         $this->email->set_newline("\r\n");
         $this->email->set_crlf("\r\n");
-        $this->email->from('notifikasi.rspn@gmail.com');
+        $this->email->from('paywithalla@gmail.com');
         $this->email->to($data['email']);
         $this->email->subject('Verify Your Email Address for ' . $data['name']);
         $this->email->message($message);
@@ -838,8 +838,8 @@ class Users extends RestController
             'protocol' => 'smtp',
             'smtp_host' => 'ssl://smtp.googlemail.com',
             'smtp_port' => 465,
-            'smtp_user' => 'notifikasi.rspn@gmail.com', // change it to yours
-            'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
+            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
+            'smtp_pass' => 'ergwhprslxrpkxts', // change it to yours
             'mailtype' => 'html',
             'charset' => 'iso-8859-1',
             'wordwrap' => true,

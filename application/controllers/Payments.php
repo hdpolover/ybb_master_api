@@ -247,8 +247,43 @@ class payments extends RestController
         try {
             $result = $apiInstance->createInvoice($create_invoice_request);
 
+            // $invoice_callback = new InvoiceCallback([
+            //     'id' => $result['id'],
+            //     'external_id' => $result['external_id'],
+            //     'user_id' => $result['user_id'],
+            //     'merchant_name' => 'Xendit',
+            //     'amount' => $result['amount'],
+            //     'created' => $result['created'],
+            //     'updated' => $result['updated'],
+            //     'currency' => $result['IDR'],
+            // ]);
+
+            // function simulateInvoiceCallback(InvoiceCallback $invoice_callback)
+            // {
+            //     echo $invoice_callback->getId();
+            //     // do things here with the callback
+            // }
+            // tabel payment
+            $data_payment = array(
+                'participant_id' => $this->post('participant_id'),
+                'program_payment_id' => $this->post('program_payment_id'),
+                'payment_method_id' => $this->post('payment_method_id'),
+                'status' => 1,
+                'account_name' => $this->post('account_name'),
+                'amount' => $this->input->post('amount'),
+                'source_name' => $result['payer_email'],
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            );
+
+            $this->mCore->save_data('payments', $data_payment);
+
+            $last_id = $this->mCore->get_lastid('payments', 'id');
+
+            // tabel pembantu
             $data = array(
                 'participant_id' => $this->post('participant_id'),
+                'payment_id' => $last_id,
                 'program_id' => $this->post('program_id'),
                 'description' => $result['description'],
                 'amount' => $result['amount'],
@@ -289,63 +324,37 @@ class payments extends RestController
         Configuration::setXenditKey(config_item('xendit'));
 
         $apiInstance = new InvoiceApi();
-        try {
-            $result = $apiInstance->getInvoiceById($invoice_id);
-            // print_r($result);
-            $this->response([
-                'status' => true,
-                'data' => $result,
-            ], 200);
-        } catch (\Xendit\XenditSdkException $e) {
-            $this->response([
-                'status' => false,
-                'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
-            ], 404);
-            // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
-        }
-    }
+        if ($invoice_id) {
+            try {
+                $result = $apiInstance->getInvoiceById($invoice_id);
 
-    public function callback_get()
-    {
-
-// Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
-        // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
-        // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
-        $xenditXCallbackToken = 'xnd_public_development_Gvveev_B6FA99XN6OkEfysjQYw4zrVaMy0Tf6eMcmyrF2AYBKq0TM_WINMQJWtfa';
-
-// Bagian ini untuk mendapatkan Token callback dari permintaan header,
-        // yang kemudian akan dibandingkan dengan token verifikasi callback Xendit
-        $reqHeaders = getallheaders();
-        $xIncomingCallbackTokenHeader = isset($reqHeaders['x-callback-token']) ? $reqHeaders['x-callback-token'] : "";
-
-// Untuk memastikan permintaan datang dari Xendit
-        // Anda harus membandingkan token yang masuk sama dengan token verifikasi callback Anda
-        // Ini untuk memastikan permintaan datang dari Xendit dan bukan dari pihak ketiga lainnya.
-        if ($xIncomingCallbackTokenHeader === $xenditXCallbackToken) {
-            // Permintaan masuk diverifikasi berasal dari Xendit
-
-            // Baris ini untuk mendapatkan semua input pesan dalam format JSON teks mentah
-            $rawRequestInput = file_get_contents("php://input");
-            // Baris ini melakukan format input mentah menjadi array asosiatif
-            $arrRequestInput = json_decode($rawRequestInput, true);
-            print_r($arrRequestInput);
-
-            $_id = $arrRequestInput['id'];
-            $_externalId = $arrRequestInput['external_id'];
-            $_userId = $arrRequestInput['user_id'];
-            $_status = $arrRequestInput['status'];
-            $_paidAmount = $arrRequestInput['paid_amount'];
-            $_paidAt = $arrRequestInput['paid_at'];
-            $_paymentChannel = $arrRequestInput['payment_channel'];
-            $_paymentDestination = $arrRequestInput['payment_destination'];
-
-            // Kamu bisa menggunakan array objek diatas sebagai informasi callback yang dapat digunaka untuk melakukan pengecekan atau aktivas tertentu di aplikasi atau sistem kamu.
-
+                $this->response([
+                    'status' => true,
+                    'data' => $result,
+                ], 200);
+            } catch (\Xendit\XenditSdkException $e) {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
+                ], 404);
+                // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+            }
         } else {
-            // Permintaan bukan dari Xendit, tolak dan buang pesan dengan HTTP status 403
-            http_response_code(403);
-        }
+            try {
+                $result = $apiInstance->getInvoices();
 
+                $this->response([
+                    'status' => true,
+                    'data' => $result,
+                ], 200);
+            } catch (\Xendit\XenditSdkException $e) {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Exception when calling InvoiceApi->getInvoices: ', $e->getMessage(), PHP_EOL,
+                ], 404);
+                // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+            }
+        }
     }
 
     public function success_pay_get()
@@ -364,12 +373,31 @@ class payments extends RestController
         );
         $data = $this->mCore->join_table($option)->row_array();
 
+        // get invoice
+        Configuration::setXenditKey(config_item('xendit'));
+        $apiInstance = new InvoiceApi();
+
+        $result = $apiInstance->getInvoiceById($data['id_xendit']);
+        // print_r($result);
+
+        // TABEL PEMBANTU
+        $upd = array(
+            'status' => $result['status'],
+            'payment_method' => $result['payment_method'],
+            'updated_at' => date_format($result['updated'], 'Y-m-d H:i:s'),
+        );
+        $this->mCore->save_data('xendit_payment', $upd, true, ['id_xendit' => $data['id_xendit']]);
+
+        // diambil lagi
+        $data = $this->mCore->join_table($option)->row_array();
+
+        // email
         $config = array(
             'protocol' => 'smtp',
             'smtp_host' => 'ssl://smtp.googlemail.com',
             'smtp_port' => 465,
-            'smtp_user' => 'notifikasi.rspn@gmail.com', // change it to yours
-            'smtp_pass' => 'pjslezyhlehdeqvr', // change it to yours
+            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
+            'smtp_pass' => 'ergwhprslxrpkxts ', // change it to yours
             'mailtype' => 'html',
             'charset' => 'iso-8859-1',
             'wordwrap' => true,
@@ -617,10 +645,7 @@ class payments extends RestController
 																font-family: Open Sans, sans-serif;
 																line-height: 1;
 																vertical-align: middle;
-																background-color: #377dff;
-																border-color: #377dff;
-																padding: 6px 20px;
-																border-radius: 20px;
+																color: #377dff;
 															"
 															>Receipt</span
 														>
@@ -1025,6 +1050,22 @@ class payments extends RestController
 																>
 															</td>
 														</tr>
+														<tr>
+															<td width="100%" height="10"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 18px;
+																	font-family: Open Sans, sans-serif;
+																	color: #198754;
+																	line-height: 20px;
+																	vertical-align: top;
+																"
+															>
+																PAID
+															</td>
+														</tr>
 													</tbody>
 												</table>
 											</td>
@@ -1109,25 +1150,20 @@ class payments extends RestController
         $this->email->set_mailtype("html");
         $this->email->set_newline("\r\n");
         $this->email->set_crlf("\r\n");
-        $this->email->from('notifikasi.rspn@gmail.com');
+        $this->email->from('paywithalla@gmail.com');
         $this->email->to($data['email']);
         $this->email->subject('Thank you for participating in ' . $data['name']);
         $this->email->message($message);
 
         if ($this->email->send()) {
-            Configuration::setXenditKey(config_item('xendit'));
-            $apiInstance = new InvoiceApi();
             try {
 
-                $result = $apiInstance->getInvoiceById($data['id_xendit']);
-                // print_r($result);
-
-                $upd = array(
-                    'status' => $result['status'],
-                    'payment_method' => $result['payment_method'],
-                    'updated_at' => date_format($result['updated'], 'Y-m-d H:i:s'),
+                // PAYMENT
+                $upd_payment = array(
+                    'status' => 2,
+                    'updated_at' => date('Y-m-d H:i:s'),
                 );
-                $this->mCore->save_data('xendit_payment', $upd, true, ['id_xendit' => $data['id_xendit']]);
+                $this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
 
                 $this->response([
                     'status' => true,
@@ -1143,15 +1179,30 @@ class payments extends RestController
                 // echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
             }
         } else {
+
             $this->response([
                 'status' => false,
-                'message' => 'Payment error!',
+                'message' => $this->email->print_debugger(),
             ], 404);
+            // $this->response([
+            //     'status' => false,
+            //     'message' => 'Payment error!',
+            // ], 404);
         }
     }
 
     public function failure_pay_get()
     {
+
+        $data = $this->mCore->get_data('payments', ['external_id' => $this->get('external_id')])->row();
+
+        // PAYMENT
+        $upd_payment = array(
+            'status' => 3,
+            'updated_at' => date('Y-m-d H:i:s'),
+        );
+        $this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
+
         $this->response([
             'status' => false,
             'message' => 'Payment failed!',
