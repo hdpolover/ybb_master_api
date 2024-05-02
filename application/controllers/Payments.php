@@ -1279,8 +1279,13 @@ class payments extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/') == false) {
+            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/') == false) {
                 $this->ftp->mkdir('payments/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
+                // $this->ftp->mkdir('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/', DIR_WRITE_MODE, true);
+            }
+
+            if ($this->ftp->list_files('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/') == false) {
+                // $this->ftp->mkdir('payments/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
                 $this->ftp->mkdir('payments/' . $data['program_id'] . '/' . $data['program_payment_id'] . '/', DIR_WRITE_MODE, true);
             }
 

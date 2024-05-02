@@ -324,11 +324,18 @@ class Participants extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == false) {
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/') == false) {
                 // $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
                 $this->ftp->mkdir('participants/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
+                // $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE, true);
+            }
+            
+            if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == false) {
+                // $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
+                // $this->ftp->mkdir('participants/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
                 $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE, true);
             }
+
 
             $destination = 'participants/' . $data['program_id'] . '/' . $data['user_id'] . '/' . $fileName;
 
