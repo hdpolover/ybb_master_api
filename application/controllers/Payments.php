@@ -6,6 +6,7 @@ use chriskacerguis\RestServer\RestController;
 use Xendit\Configuration;
 use Xendit\Invoice\InvoiceApi;
 use Xendit\PaymentMethod\PaymentMethodApi;
+use Xendit\PaymentRequest\PaymentRequestApi;
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
@@ -225,6 +226,69 @@ class payments extends RestController
 
     }
 
+    public function list_method_xendit_filter_get()
+    {
+        Configuration::setXenditKey(config_item('xendit'));
+        $apiInstance = new PaymentMethodApi();
+        // $payment_method_id = "pm-1fdaf346-dd2e-4b6c-b938-124c7167a822"; // string
+        // $for_user_id = "660ed435c296c084e7badb36"; // string
+
+        try {
+            $result = $apiInstance->getPaymentMethodByID();
+            print_r($result);
+        } catch (\Xendit\XenditSdkException $e) {
+            echo 'Exception when calling PaymentMethodApi->getPaymentMethodByID: ', $e->getMessage(), PHP_EOL;
+            echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
+    }
+
+    public function list_method_xendit_get()
+    {
+        Configuration::setXenditKey(config_item('xendit'));
+
+        $apiInstance = new PaymentMethodApi();
+        $for_user_id = "660ed435c296c084e7badb36"; // string
+        $id = array('id_example'); // string[]
+        $type = array('type_example'); // string[]
+        $status = array(new \Xendit\PaymentMethod\PaymentMethodStatus()); // \PaymentMethod\PaymentMethodStatus[]
+        $reusability = new \Xendit\PaymentMethod\PaymentMethodReusability(); // PaymentMethodReusability
+        $customer_id = "'customer_id_example'"; // string
+        $reference_id = "'reference_id_example'"; // string
+        $after_id = "'after_id_example'"; // string
+        $before_id = "'before_id_example'"; // string
+        $limit = 56; // int
+
+        try {
+            $result = $apiInstance->getAllPaymentMethods();
+            print_r($result['data']);
+        } catch (\Xendit\XenditSdkException $e) {
+            echo 'Exception when calling PaymentMethodApi->getAllPaymentMethods: ', $e->getMessage(), PHP_EOL;
+            echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
+    }
+
+    // list e request
+    public function list_request_xendit_get()
+    {
+        Configuration::setXenditKey(config_item('xendit'));
+
+        $apiInstance = new PaymentRequestApi();
+// $for_user_id = "5f9a3fbd571a1c4068aa40cf"; // string
+        // $reference_id = array('reference_id_example'); // string[]
+        // $id = array('id_example'); // string[]
+        // $customer_id = array('customer_id_example'); // string[]
+        // $limit = 56; // int
+        // $before_id = "'before_id_example'"; // string
+        // $after_id = "'after_id_example'"; // string
+
+        try {
+            $result = $apiInstance->getAllPaymentRequests();
+            print_r($result['data']);
+        } catch (\Xendit\XenditSdkException $e) {
+            echo 'Exception when calling PaymentRequestApi->getAllPaymentRequests: ', $e->getMessage(), PHP_EOL;
+            echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
+        }
+    }
     // pembayaran
     public function pay_post()
     {
@@ -1207,6 +1271,810 @@ class payments extends RestController
             'status' => false,
             'message' => 'Payment failed!',
         ], 404);
+    }
+
+    // email manual
+    public function invoice_send_get()
+    {
+
+        $option = array(
+            'select' => 'payments.*, "IDR" as currency, program_payments.name program_payment_name, users.full_name, users.email email_user, programs.name, programs.logo_url, payment_methods.name payment_method_name,
+				program_categories.web_url,program_categories.contact,program_categories.email email_program_category',
+            'table' => 'payments',
+            'join' => [
+                'program_payments' => 'program_payments.id = payments.program_payment_id',
+                'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+                'participants' => 'participants.id = payments.participant_id',
+                'users' => 'participants.user_id = users.id',
+                'programs' => 'participants.program_id = programs.id',
+                'program_categories' => 'programs.program_category_id = program_categories.id',
+            ],
+            'where' => 'payments.id = ' . $this->get('id'),
+        );
+        $data = $this->mCore->join_table($option)->row_array();
+
+        // print_r($data);
+        // die();
+
+        // email
+        $config = array(
+            'protocol' => 'smtp',
+            'smtp_host' => 'ssl://smtp.googlemail.com',
+            'smtp_port' => 465,
+            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
+            'smtp_pass' => 'ergwhprslxrpkxts ', // change it to yours
+            'mailtype' => 'html',
+            'charset' => 'iso-8859-1',
+            'wordwrap' => true,
+        );
+
+        $message = ('
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Order confirmation</title>
+<meta name="robots" content="noindex,nofollow" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0;" />
+<style type="text/css">
+	@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+	body {
+		margin: 0;
+		padding: 0;
+		background: #e1e1e1;
+	}
+
+	div,
+	p,
+	a,
+	li,
+	td {
+		-webkit-text-size-adjust: none;
+	}
+
+	.ReadMsgBody {
+		width: 100%;
+		background-color: #ffffff;
+	}
+
+	.ExternalClass {
+		width: 100%;
+		background-color: #ffffff;
+	}
+
+	body {
+		width: 100%;
+		height: 100%;
+		background-color: #e1e1e1;
+		margin: 0;
+		padding: 0;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	html {
+		width: 100%;
+	}
+
+	p {
+		padding: 0 !important;
+		margin-top: 0 !important;
+		margin-right: 0 !important;
+		margin-bottom: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	.visibleMobile {
+		display: none;
+	}
+
+	.hiddenMobile {
+		display: block;
+	}
+
+	.rotateWm {
+		transform: rotate(-45deg);
+	}
+
+	@media only screen and (max-width: 600px) {
+		body {
+			width: auto !important;
+		}
+
+		table[class="fullTable"] {
+			width: 96% !important;
+			clear: both;
+		}
+
+		table[class="fullPadding"] {
+			width: 85% !important;
+			clear: both;
+		}
+
+		table[class="col"] {
+			width: 45% !important;
+		}
+
+		.erase {
+			display: none;
+		}
+	}
+
+	@media only screen and (max-width: 420px) {
+		table[class="fullTable"] {
+			width: 100% !important;
+			clear: both;
+		}
+
+		table[class="fullPadding"] {
+			width: 85% !important;
+			clear: both;
+		}
+
+		table[class="col"] {
+			width: 100% !important;
+			clear: both;
+		}
+
+		table[class="col"] td {
+			text-align: left !important;
+		}
+
+		.erase {
+			display: none;
+			font-size: 0;
+			max-height: 0;
+			line-height: 0;
+			padding: 0;
+		}
+
+		.visibleMobile {
+			display: block !important;
+		}
+
+		.hiddenMobile {
+			display: none !important;
+		}
+	}
+
+</style>
+
+<!-- Header -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tr>
+		<td height="20"></td>
+	</tr>
+	<tr>
+		<td>
+			<table
+				width="600"
+				border="0"
+				cellpadding="0"
+				cellspacing="0"
+				align="center"
+				class="fullTable"
+				bgcolor="#ffffff"
+				style="border-radius: 10px 10px 0 0"
+			>
+				<tr class="hiddenMobile">
+					<td height="40"></td>
+				</tr>
+				<tr class="visibleMobile">
+					<td height="30"></td>
+				</tr>
+				<tr>
+					<td>
+						<table
+							width="480"
+							border="0"
+							cellpadding="0"
+							cellspacing="0"
+							align="center"
+							class="fullPadding"
+						>
+							<tbody>
+								<tr>
+									<td>
+										<table
+											width="220"
+											border="0"
+											cellpadding="0"
+											cellspacing="0"
+											align="left"
+											class="col"
+										>
+											<tbody>
+												<tr>
+													<td align="left">
+														<img
+															src=' . $data['logo_url'] . '
+															width="120"
+															alt="logo"
+															border="0"
+														/>
+													</td>
+												</tr>
+												<!-- <tr class="hiddenMobile">
+                                                    <td height="40"></td>
+                                                </tr> -->
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td
+														style="
+															font-size: 12px;
+															color: #5b5b5b;
+															font-family: Open Sans, sans-serif;
+															line-height: 18px;
+															vertical-align: top;
+															text-align: left;
+														"
+													>
+														Hello, ' . $data['full_name'] . '
+														<br />
+														Thank you for participating in our program and for
+														your payment
+													</td>
+												</tr>
+											</tbody>
+										</table>
+										<table
+											width="220"
+											border="0"
+											cellpadding="0"
+											cellspacing="0"
+											align="right"
+											class="col"
+										>
+											<tbody>
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td height="5"></td>
+												</tr>
+												<tr>
+													<td style="text-align: right">
+														<span
+															style="
+																display: inline-block;
+																font-size: 21px;
+																color: #fff;
+																letter-spacing: -1px;
+																font-family: Open Sans, sans-serif;
+																line-height: 1;
+																vertical-align: middle;
+																color: #377dff;
+															"
+															>Receipt</span
+														>
+													</td>
+												</tr>
+												<tr></tr>
+												<tr class="hiddenMobile">
+													<td height="50"></td>
+												</tr>
+												<tr class="visibleMobile">
+													<td height="20"></td>
+												</tr>
+												<tr>
+													<td
+														style="
+															font-size: 12px;
+															color: #5b5b5b;
+															font-family: Open Sans, sans-serif;
+															line-height: 18px;
+															vertical-align: top;
+															text-align: right;
+														"
+													>
+														<small>ORDER</small> #' . strtotime($data['created_at']) . $data['id'] . '<br />
+														<small>' . date('D, d M Y H:i:s', strtotime($data['created_at'])) . ' (GMT+0)</small>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<!-- /Header -->
+<!-- Order Details -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr></tr>
+						<tr class="hiddenMobile">
+							<td height="60"></td>
+						</tr>
+						<tr>
+							<td>
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td
+												colspan="3"
+												style="
+													font-size: 14px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 10px 12px 0;
+												"
+											>
+												Payment Details
+											</td>
+										</tr>
+										<tr>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 10px 7px 0;
+												"
+												width="52%"
+												align="left"
+											>
+												Product
+											</th>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #5b5b5b;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 0 7px;
+												"
+												align="center"
+											>
+												Quantity
+											</th>
+											<th
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													font-weight: normal;
+													line-height: 1;
+													vertical-align: top;
+													padding: 0 0 7px;
+												"
+												align="right"
+											>
+												Subtotal
+											</th>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												style="background: #bebebe"
+												colspan="4"
+											></td>
+										</tr>
+										<tr>
+											<td height="10" colspan="4"></td>
+										</tr>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												class="article"
+											>
+												' . $data['program_payment_name'] . '
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												align="center"
+											>
+												1
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #1e2b33;
+													line-height: 18px;
+													vertical-align: top;
+													padding: 10px 0;
+												"
+												align="right"
+											>
+												' . $data['currency'] . ' ' . number_format($data['amount']) . '
+											</td>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												colspan="4"
+												style="border-bottom: 1px solid #e4e4e4"
+											></td>
+										</tr>
+										<tr>
+											<td
+												height="1"
+												colspan="4"
+												style="border-bottom: 1px solid #e4e4e4"
+											></td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td height="20"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Order Details -->
+<!-- Total -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr>
+							<td>
+								<!-- Table Total -->
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #646a6e;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												Subtotal
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #646a6e;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+													white-space: nowrap;
+												"
+												width="80"
+											>
+                                            ' . $data['currency'] . ' ' . number_format($data['amount']) . '
+											</td>
+										</tr>
+										<tr>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #000;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												<strong>TOTAL</strong>
+											</td>
+											<td
+												style="
+													font-size: 12px;
+													font-family: Open Sans, sans-serif;
+													color: #000;
+													line-height: 22px;
+													vertical-align: top;
+													text-align: right;
+												"
+											>
+												<strong> ' . $data['currency'] . ' ' . number_format($data['amount']) . '</strong>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+								<!-- /Table Total -->
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Total -->
+<!-- Information -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tbody>
+		<tr>
+			<td>
+				<table
+					width="600"
+					border="0"
+					cellpadding="0"
+					cellspacing="0"
+					align="center"
+					class="fullTable"
+					bgcolor="#ffffff"
+				>
+					<tbody>
+						<tr></tr>
+						<tr class="visibleMobile">
+							<td height="40"></td>
+						</tr>
+						<tr>
+							<td>
+								<table
+									width="480"
+									border="0"
+									cellpadding="0"
+									cellspacing="0"
+									align="center"
+									class="fullPadding"
+								>
+									<tbody>
+										<tr>
+											<td>
+												<table
+													width="220"
+													border="0"
+													cellpadding="0"
+													cellspacing="0"
+													align="left"
+													class="col"
+												>
+													<tbody>
+														<tr class="visibleMobile">
+															<td height="20"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 11px;
+																	font-family: Open Sans, sans-serif;
+																	color: #5b5b5b;
+																	line-height: 1;
+																	vertical-align: top;
+																"
+															>
+																<strong>Payment time and method</strong>
+															</td>
+														</tr>
+														<tr>
+															<td width="100%" height="10"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 12px;
+																	font-family: Open Sans, sans-serif;
+																	color: #5b5b5b;
+																	line-height: 20px;
+																	vertical-align: top;
+																"
+															>
+																' . $data['payment_method_name'] . '<br />
+																<span
+																	style="color: #5b5b5b"
+																	>' . date('D, d M Y H:i:s', strtotime($data['updated_at'])) . ' (GMT+0)</span
+																>
+															</td>
+														</tr>
+														<tr>
+															<td width="100%" height="10"></td>
+														</tr>
+														<tr>
+															<td
+																style="
+																	font-size: 18px;
+																	font-family: Open Sans, sans-serif;
+																	color: #198754;
+																	line-height: 20px;
+																	vertical-align: top;
+																"
+															>
+																PAID
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+						<tr class="hiddenMobile">
+							<td height="60"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<!-- /Information -->
+<table
+	width="100%"
+	border="0"
+	cellpadding="0"
+	cellspacing="0"
+	align="center"
+	class="fullTable"
+	bgcolor="#e1e1e1"
+>
+	<tr>
+		<td>
+			<table
+				width="600"
+				border="0"
+				cellpadding="0"
+				cellspacing="0"
+				align="center"
+				class="fullTable"
+				bgcolor="#ffffff"
+				style="border-radius: 0 0 10px 10px"
+			>
+				<tr>
+					<td>
+						<table
+							width="480"
+							border="0"
+							cellpadding="0"
+							cellspacing="0"
+							align="center"
+							class="fullPadding"
+						>
+							<tbody>
+								<tr>
+									<td
+										style="
+											font-size: 10px;
+											color: #5b5b5b;
+											font-family: Open Sans, sans-serif;
+											line-height: 18px;
+											vertical-align: top;
+											text-align: center;
+										"
+									>
+										<strong>' . $data['name'] . ' - ' . $data['web_url'] . '</strong> -
+										' . $data['email_program_category'] . ' (' . $data['contact'] . ')
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr class="spacer">
+					<td height="50"></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td height="20"></td>
+	</tr>
+</table>');
+
+        $this->load->library('email', $config);
+        $this->email->set_mailtype("html");
+        $this->email->set_newline("\r\n");
+        $this->email->set_crlf("\r\n");
+        $this->email->from('paywithalla@gmail.com');
+        $this->email->to($data['source_name']);
+        $this->email->subject('Thank you for participating in ' . $data['name']);
+        $this->email->message($message);
+
+        if ($this->email->send()) {
+            $this->response([
+                'status' => true,
+                'message' => 'Email sent successfully!',
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->email->print_debugger(),
+            ], 404);
+            // $this->response([
+            //     'status' => false,
+            //     'message' => 'Payment error!',
+            // ], 404);
+        }
     }
 
     //list

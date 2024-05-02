@@ -36,7 +36,7 @@ $config['port_upload'] = 21;
 
 // dev
 $config['xendit'] = 'xnd_development_VuBwx2oiZaljmKuoqa0e6aJN4Yzu80vYLNforpBsc6bTSMRi5IrhL4DiRUpvKc4';
-// $config['xendit'] = 'xnd_production_Q6mTes3Qr4tN2cw1z5YbYs8hGuvXF8lYYNh6hc2lhD5BblORnC2LisxckW9CDf';
+// $config['xendit'] = 'xnd_production_rHPkfZOSlfklD6iPeqCnjRlEYd6XJxZ8cpYih57FX6qo8ThUyfW89VjLhz09sL7';
 /*
 |--------------------------------------------------------------------------
 | Index File
