@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Admins extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Admins extends RestController
             if ($data) {
                 $this->response([
                     'status' => true,
-                    'data' => $data
+                    'data' => $data,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,19 +37,19 @@ class Admins extends RestController
             if ($data) {
                 $this->response([
                     'status' => true,
-                    'data' => $data
+                    'data' => $data,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         $data = array(
             'name' => $this->post('name'),
@@ -57,9 +57,9 @@ class Admins extends RestController
             'password' => md5($this->post('password')),
             'program_id' => $this->post('program_id'),
             'role' => $this->post('role'),
-            'profile_url' => NULL,
+            'profile_url' => null,
             'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('admins', array_filter($data));
         if ($sql) {
@@ -69,30 +69,30 @@ class Admins extends RestController
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
-                        'message' => $upload_file['message']
+                        'message' => $upload_file['message'],
                     ], 404);
                 }
             }
             $last_data = $this->mCore->get_data('admins', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_post($id)
+    public function update_post($id)
     {
-        if($id == ''){
+        if ($id == '') {
             $this->response([
                 'status' => false,
-                'message' => "Sorry, id doesn't exists"
+                'message' => "Sorry, id doesn't exists",
             ], 404);
         }
         $data = array(
@@ -102,7 +102,7 @@ class Admins extends RestController
             'program_id' => $this->post('program_id'),
             // 'role' => $this->post('role'),
             'is_active' => $this->post('is_active'),
-            'updated_at' => date('Y-m-d H:i:s')
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('admins', array_filter($data), true, ['id' => $id]);
         if ($sql) {
@@ -112,25 +112,25 @@ class Admins extends RestController
             $last_data = $this->mCore->get_data('admins', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_password_put()
+    public function update_password_put()
     {
         $new_password = $this->put('password');
         $new_password_confirm = $this->put('password_confirm');
         if ($new_password != $new_password_confirm) {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, the password is not the same'
+                'message' => 'Sorry, the password is not the same',
             ], 404);
         }
 
@@ -143,40 +143,40 @@ class Admins extends RestController
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data saved successfully'
+                'message' => 'Data saved successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('admins', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
 
-    function program_list_get()
+    public function program_list_get()
     {
         $program_id = $this->get('id');
 
@@ -186,13 +186,13 @@ class Admins extends RestController
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
     // LOGIN
-    function login_post()
+    public function login_post()
     {
         $id_login = $this->mCore->do_login($this->post('email'), $this->post('password'), $this->post('program_id'));
         if ($id_login) {
@@ -201,7 +201,7 @@ class Admins extends RestController
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Email/Password are Incorrect!'
+                'message' => 'Email/Password are Incorrect!',
             ], 404);
         }
     }
@@ -221,7 +221,7 @@ class Admins extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -251,7 +251,7 @@ class Admins extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -280,7 +280,7 @@ class Admins extends RestController
 
         return $data;
     }
-    
+
     // UPLOAD PROFILE
     public function do_upload_profile_post()
     {
@@ -298,15 +298,14 @@ class Admins extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('admins/' . $id . '/'. $temp_img);
+            $this->ftp->delete_file('admins/' . $id . '/' . $temp_img);
 
             $this->ftp->close();
         }
-        
 
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
@@ -329,7 +328,7 @@ class Admins extends RestController
             $ftp_config['username'] = config_item('username_upload');
             $ftp_config['password'] = config_item('password_upload');
             $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
+            $ftp_config['debug'] = true;
 
             $this->ftp->connect($ftp_config);
 
@@ -343,22 +342,22 @@ class Admins extends RestController
             @unlink($source);
 
             $sql = $this->mCore->save_data('admins', ['profile_url' => config_item('dir_upload') . 'admins/' . $fileName], true, array('id' => $id));
-            
+
             if ($sql) {
                 $this->response([
                     'status' => true,
-                    'message' => 'Profile saved successfully'
+                    'message' => 'Profile saved successfully',
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'Sorry, failed to update'
+                    'message' => 'Sorry, failed to update',
                 ], 404);
             }
         } else {
             $this->response([
                 'status' => false,
-                'message' => $this->upload->display_errors()
+                'message' => $this->upload->display_errors(),
             ], 404);
         }
     }
