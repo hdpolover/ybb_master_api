@@ -11,12 +11,12 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Program_categories extends RestController
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
 
-    function index_get()
+    public function index_get()
     {
         $id = $this->get('id');
         if ($id == '') {
@@ -24,12 +24,12 @@ class Program_categories extends RestController
             if ($program_categories) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_categories
+                    'data' => $program_categories,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
@@ -37,50 +37,50 @@ class Program_categories extends RestController
             if ($program_categories) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_categories
+                    'data' => $program_categories,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         }
     }
 
-    function web_get()
+    public function web_get()
     {
         $url = $this->get('url');
         if ($url) {
             $join = [
                 'select' => '*',
                 'table' => 'programs',
-                'join' => ['program_categories'=> 'program_categories.id = programs.program_category_id'],
+                'join' => ['program_categories' => 'program_categories.id = programs.program_category_id'],
                 'where' => ['program_categories.web_url' => $url, 'programs.is_active' => 1],
-                'order' => ['programs.id' => 'asc']
+                'order' => ['programs.id' => 'asc'],
             ];
             $web_url = $this->mCore->join_table($join)->row_array();
             if ($web_url) {
                 $this->response([
                     'status' => true,
-                    'data' => $web_url
+                    'data' => $web_url,
                 ], 200);
             } else {
                 $this->response([
                     'status' => false,
-                    'message' => 'No result were found'
+                    'message' => 'No result were found',
                 ], 404);
             }
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'No result were found'
+                'message' => 'No result were found',
             ], 404);
         }
     }
 
     //SIMPAN DATA
-    function save_post()
+    public function save_post()
     {
         $data = array(
             'name' => $this->post('name'),
@@ -94,6 +94,7 @@ class Program_categories extends RestController
             'youtube' => $this->post('youtube'),
             'telegram' => $this->post('telegram'),
             'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_categories', array_filter($data));
         if ($sql) {
@@ -101,18 +102,18 @@ class Program_categories extends RestController
             $last_data = $this->mCore->get_data('program_categories', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to save'
+                'message' => 'Sorry, failed to save',
             ], 404);
         }
     }
 
     //UPDATE DATA
-    function update_put($id)
+    public function update_post($id)
     {
         $data = array(
             'name' => $this->post('name'),
@@ -132,35 +133,35 @@ class Program_categories extends RestController
             $last_data = $this->mCore->get_data('program_categories', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
-                'data' => $last_data
+                'data' => $last_data,
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to update'
+                'message' => 'Sorry, failed to update',
             ], 404);
         }
     }
 
     //DELETE DATA
-    function delete_get()
+    public function delete_get()
     {
         $id = $this->get('id');
         $data = array(
             'is_active' => 0,
-            'is_deleted' => 1
+            'is_deleted' => 1,
             // 'updated_at' => date('Y-m-d H:i:s')
         );
         $sql = $this->mCore->save_data('program_categories', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
-                'message' => 'Data deleted successfully'
+                'message' => 'Data deleted successfully',
             ], 200);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Sorry, failed to delete'
+                'message' => 'Sorry, failed to delete',
             ], 404);
         }
     }
