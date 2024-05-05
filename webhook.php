@@ -3,7 +3,7 @@
 // Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
 // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
 // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
-$xenditXCallbackToken = 'pOFgGwP6LmtHwz35E18OSKscudgG5EiIGak62d8467I1A81x';
+$xenditXCallbackToken = config_item('token_callback');
 
 // Bagian ini untuk mendapatkan Token callback dari permintaan header,
 // yang kemudian akan dibandingkan dengan token verifikasi callback Xendit

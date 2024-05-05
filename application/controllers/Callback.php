@@ -7,17 +7,17 @@ class Callback extends CI_Controller
     public function index()
     {
 
-// Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
+        // Ini akan menjadi Token Verifikasi Callback Anda yang dapat Anda peroleh dari dasbor.
         // Pastikan untuk menjaga kerahasiaan token ini dan tidak mengungkapkannya kepada siapa pun.
         // Token ini akan digunakan untuk melakukan verfikasi pesan callback bahwa pengirim callback tersebut adalah Xendit
-        $xenditXCallbackToken = 'pOFgGwP6LmtHwz35E18OSKscudgG5EiIGak62d8467I1A81x';
+        $xenditXCallbackToken = config_item('token_callback');
 
-// Bagian ini untuk mendapatkan Token callback dari permintaan header,
+        // Bagian ini untuk mendapatkan Token callback dari permintaan header,
         // yang kemudian akan dibandingkan dengan token verifikasi callback Xendit
         $reqHeaders = getallheaders();
         $xIncomingCallbackTokenHeader = isset($reqHeaders['x-callback-token']) ? $reqHeaders['x-callback-token'] : "";
 
-// Untuk memastikan permintaan datang dari Xendit
+        // Untuk memastikan permintaan datang dari Xendit
         // Anda harus membandingkan token yang masuk sama dengan token verifikasi callback Anda
         // Ini untuk memastikan permintaan datang dari Xendit dan bukan dari pihak ketiga lainnya.
         if ($xIncomingCallbackTokenHeader === $xenditXCallbackToken) {
@@ -44,7 +44,6 @@ class Callback extends CI_Controller
             // Permintaan bukan dari Xendit, tolak dan buang pesan dengan HTTP status 403
             http_response_code(403);
         }
-
     }
 
     public function tes()
