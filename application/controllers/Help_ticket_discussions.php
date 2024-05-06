@@ -48,6 +48,60 @@ class Help_ticket_discussions extends RestController
         }
     }
 
+    public function list_get()
+    {
+        $help_ticket_id = $this->get('help_ticket_id');
+
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['help_ticket_id' => $help_ticket_id])->result_array();
+        if ($help_ticket_discussions) {
+            $this->response([
+                'status' => true,
+                'data' => $help_ticket_discussions,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
+    public function list_participant_get()
+    {
+        $participant_id = $this->get('participant_id');
+
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['participant_id' => $participant_id])->result_array();
+        if ($help_ticket_discussions) {
+            $this->response([
+                'status' => true,
+                'data' => $help_ticket_discussions,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
+    public function list_admin_get()
+    {
+        $admin_id = $this->get('admin_id');
+
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['admin_id' => $admin_id])->result_array();
+        if ($help_ticket_discussions) {
+            $this->response([
+                'status' => true,
+                'data' => $help_ticket_discussions,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     public function save_post()
     {

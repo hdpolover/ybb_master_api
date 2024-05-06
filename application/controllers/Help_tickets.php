@@ -48,6 +48,42 @@ class Help_tickets extends RestController
         }
     }
 
+    public function list_get()
+    {
+        $participant_id = $this->get('participant_id');
+
+        $help_tickets = $this->mCore->get_data('help_tickets', ['participant_id' => $participant_id])->result_array();
+        if ($help_tickets) {
+            $this->response([
+                'status' => true,
+                'data' => $help_tickets,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
+    public function list_admin_get()
+    {
+        $admin_id = $this->get('admin_id');
+
+        $help_tickets = $this->mCore->get_data('help_tickets', ['admin_id' => $admin_id])->result_array();
+        if ($help_tickets) {
+            $this->response([
+                'status' => true,
+                'data' => $help_tickets,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     public function save_post()
     {
