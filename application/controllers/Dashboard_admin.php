@@ -39,7 +39,6 @@ class Dashboard_admin extends RestController
 
     public function all_payment_get()
     {
-
         $email = $this->get('email');
         $status = $this->get('status');
         $start_date = $this->get('start_date');
@@ -71,6 +70,19 @@ class Dashboard_admin extends RestController
         );
 
         $data = $this->mCore->join_table($option)->result_array();
+
+        $this->response([
+            'status' => true,
+            'data' => $data,
+        ], 200);
+    }
+
+    public function participant_stats_get()
+    {
+
+        $param = $this->get('param');
+
+        $data = $this->mCore->query_data('SELECT ' . $param . ',count(*) jumlah FROM participants group by  ' . $param . ' order by jumlah desc')->result_array();
 
         $this->response([
             'status' => true,
