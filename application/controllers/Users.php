@@ -11,241 +11,241 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 class Users extends RestController
 {
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+  public function __construct()
+  {
+    parent::__construct();
+  }
 
-    public function index_get()
-    {
-        $id = $this->get('id');
-        if ($id == '') {
-            $users = $this->mCore->list_data('users')->result_array();
-            if ($users) {
-                $this->response([
-                    'status' => true,
-                    'data' => $users,
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No result were found',
-                ], 404);
-            }
-        } else {
-            $users = $this->mCore->get_data('users', ['id' => $id])->row_array();
-            if ($users) {
-                $this->response([
-                    'status' => true,
-                    'data' => $users,
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No result were found',
-                ], 404);
-            }
+  public function index_get()
+  {
+    $id = $this->get('id');
+    if ($id == '') {
+      $users = $this->mCore->list_data('users')->result_array();
+      if ($users) {
+        $this->response([
+          'status' => true,
+          'data' => $users,
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'No result were found',
+        ], 404);
+      }
+    } else {
+      $users = $this->mCore->get_data('users', ['id' => $id])->row_array();
+      if ($users) {
+        $this->response([
+          'status' => true,
+          'data' => $users,
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'No result were found',
+        ], 404);
+      }
+    }
+  }
+
+  //SIMPAN DATA
+  public function save_post()
+  {
+    // cek data jika sudah terdaftar di program itu
+    $opt = array(
+      'select' => 'participants.*',
+      'table' => 'users',
+      'join' => ['participants' => 'users.id = participants.user_id'],
+      'where' => ['email' => $this->post('email'), 'program_id' => $this->post('program_id')],
+    );
+
+    $check_data = $this->mCore->join_table($opt)->num_rows();
+    if ($check_data) {
+      $this->response([
+        'status' => false,
+        'message' => "You are already registered as a participant. Please sign in to continue.",
+      ], 404);
+    } else {
+      $data = array(
+        'full_name' => $this->post('full_name'),
+        'email' => $this->post('email'),
+        'password' => md5($this->post('password')),
+        'program_category_id' => $this->post('program_category_id'),
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+      );
+      $sql = $this->mCore->save_data('users', $data);
+      if ($sql) {
+        $last_id = $this->mCore->get_lastid('users', 'id');
+
+        //insert data participants
+        $ref_code = null;
+        if ($this->post('ref_code')) {
+          $ref_code = $this->post('ref_code');
         }
-    }
-
-    //SIMPAN DATA
-    public function save_post()
-    {
-        // cek data jika sudah terdaftar di program itu
-        $opt = array(
-            'select' => 'participants.*',
-            'table' => 'users',
-            'join' => ['participants' => 'users.id = participants.user_id'],
-            'where' => ['email' => $this->post('email'), 'program_id' => $this->post('program_id')],
+        $participants = array(
+          'user_id' => $last_id,
+          'account_id' => uniqid($last_id),
+          'full_name' => $data['full_name'],
+          'ref_code_ambassador' => $ref_code,
+          'program_id' => $this->post('program_id'),
+          'created_at' => date('Y-m-d H:i:s'),
+          'updated_at' => date('Y-m-d H:i:s'),
         );
+        $this->mCore->save_data('participants', $participants);
+        $last_participant_id = $this->mCore->get_lastid('participants', 'id');
 
-        $check_data = $this->mCore->join_table($opt)->num_rows();
-        if ($check_data) {
-            $this->response([
-                'status' => false,
-                'message' => "You are already registered as a participant. Please sign in to continue.",
-            ], 404);
-        } else {
-            $data = array(
-                'full_name' => $this->post('full_name'),
-                'email' => $this->post('email'),
-                'password' => md5($this->post('password')),
-                'program_category_id' => $this->post('program_category_id'),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            );
-            $sql = $this->mCore->save_data('users', $data);
-            if ($sql) {
-                $last_id = $this->mCore->get_lastid('users', 'id');
+        // participant statues
+        $participant_statuses = array(
+          'participant_id' => $last_participant_id,
+          'general_status' => 0,
+          'form_status' => 0,
+          'document_status' => 0,
+          'payment_status' => 0,
+          'created_at' => date('Y-m-d H:i:s'),
+          'updated_at' => date('Y-m-d H:i:s'),
+        );
+        $this->mCore->save_data('participant_statuses', $participant_statuses);
 
-                //insert data participants
-                $ref_code = null;
-                if ($this->post('ref_code')) {
-                    $ref_code = $this->post('ref_code');
-                }
-                $participants = array(
-                    'user_id' => $last_id,
-                    'account_id' => uniqid($last_id),
-                    'full_name' => $data['full_name'],
-                    'ref_code_ambassador' => $ref_code,
-                    'program_id' => $this->post('program_id'),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                );
-                $this->mCore->save_data('participants', $participants);
-                $last_participant_id = $this->mCore->get_lastid('participants', 'id');
+        $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
+        $this->response([
+          'status' => true,
+          'data' => $last_data,
+        ], 200);
+      } else {
+        $this->response([
+          'status' => false,
+          'message' => 'Sorry, failed to save',
+        ], 404);
+      }
+    }
+  }
 
-                // participant statues
-                $participant_statuses = array(
-                    'participant_id' => $last_participant_id,
-                    'general_status' => 0,
-                    'form_status' => 0,
-                    'document_status' => 0,
-                    'payment_status' => 0,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s'),
-                );
-                $this->mCore->save_data('participant_statuses', $participant_statuses);
+  // SIGNIN
+  public function signin_post()
+  {
+    $id_login = $this->mCore->do_signin_user($this->post('email'), $this->post('password'));
+    if ($id_login) {
+      $sql = $this->mCore->get_data('users', ['id' => $id_login])->row_array();
+      unset($sql['password']);
+      $this->response([
+        'status' => true,
+        'data' => $sql,
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Email/Password are Incorrect!',
+      ], 404);
+    }
+  }
 
-                $last_data = $this->mCore->get_data('users', ['id' => $last_id])->row();
-                $this->response([
-                    'status' => true,
-                    'data' => $last_data,
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Sorry, failed to save',
-                ], 404);
-            }
-        }
+  //UPDATE DATA
+  public function update_post($id)
+  {
+    $data = array(
+      'full_name' => $this->post('full_name'),
+      'email' => $this->post('email'),
+      // 'program_category_id' => $this->put('program_category_id'),
+      'updated_at' => date('Y-m-d H:i:s'),
+    );
+    $sql = $this->mCore->save_data('users', array_filter($data), true, ['id' => $id]);
+    if ($sql) {
+      $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
+      $this->response([
+        'status' => true,
+        'data' => $last_data,
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to update',
+      ], 404);
+    }
+  }
+
+  //UPDATE DATA
+  public function update_password_put()
+  {
+    $new_password = $this->put('password');
+    $new_password_confirm = $this->put('password_confirm');
+    if ($new_password != $new_password_confirm) {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, the password is not the same',
+      ], 404);
     }
 
-    // SIGNIN
-    public function signin_post()
-    {
-        $id_login = $this->mCore->do_signin_user($this->post('email'), $this->post('password'));
-        if ($id_login) {
-            $sql = $this->mCore->get_data('users', ['id' => $id_login])->row_array();
-            unset($sql['password']);
-            $this->response([
-                'status' => true,
-                'data' => $sql,
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Email/Password are Incorrect!',
-            ], 404);
-        }
+    $id = $this->put('id');
+
+    $data = array(
+      'password' => md5($this->put('password')),
+      'updated_at' => date('Y-m-d H:i:s'),
+    );
+    $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
+    if ($sql) {
+      $this->response([
+        'status' => true,
+        'message' => 'Data saved successfully',
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to update',
+      ], 404);
     }
+  }
 
-    //UPDATE DATA
-    public function update_post($id)
-    {
-        $data = array(
-            'full_name' => $this->post('full_name'),
-            'email' => $this->post('email'),
-            // 'program_category_id' => $this->put('program_category_id'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('users', array_filter($data), true, ['id' => $id]);
-        if ($sql) {
-            $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data,
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to update',
-            ], 404);
-        }
+  //DELETE DATA
+  public function delete_get()
+  {
+    $id = $this->get('id');
+    $data = array(
+      'is_active' => 0,
+      'is_deleted' => 1,
+      // 'updated_at' => date('Y-m-d H:i:s')
+    );
+    $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
+    if ($sql) {
+      $this->response([
+        'status' => true,
+        'message' => 'Data deleted successfully',
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to delete',
+      ], 404);
     }
+  }
 
-    //UPDATE DATA
-    public function update_password_put()
-    {
-        $new_password = $this->put('password');
-        $new_password_confirm = $this->put('password_confirm');
-        if ($new_password != $new_password_confirm) {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, the password is not the same',
-            ], 404);
-        }
+  // VERIF EMAIL
+  public function email_verif_post()
+  {
+    $opt = array(
+      'select' => 'users.id, users.full_name, users.email, programs.name, programs.logo_url, program_categories.web_url',
+      'table' => 'users',
+      'join' => [
+        'participants' => 'participants.user_id = users.id',
+        'programs' => 'participants.program_id = programs.id',
+        'program_categories' => 'programs.program_category_id = program_categories.id',
+      ],
+      'where' => 'users.id = ' . $this->post('id'),
+    );
+    $data = $this->mCore->join_table($opt)->row_array();
 
-        $id = $this->put('id');
+    $config = array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'ssl://smtp.googlemail.com',
+      'smtp_port' => 465,
+      'smtp_user' => config_item('user_email'),
+      'smtp_pass' => config_item('pass_email'),
+      'mailtype' => 'html',
+      'charset' => 'iso-8859-1',
+      'wordwrap' => true,
+    );
 
-        $data = array(
-            'password' => md5($this->put('password')),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
-        if ($sql) {
-            $this->response([
-                'status' => true,
-                'message' => 'Data saved successfully',
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to update',
-            ], 404);
-        }
-    }
-
-    //DELETE DATA
-    public function delete_get()
-    {
-        $id = $this->get('id');
-        $data = array(
-            'is_active' => 0,
-            'is_deleted' => 1,
-            // 'updated_at' => date('Y-m-d H:i:s')
-        );
-        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
-        if ($sql) {
-            $this->response([
-                'status' => true,
-                'message' => 'Data deleted successfully',
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to delete',
-            ], 404);
-        }
-    }
-
-    // VERIF EMAIL
-    public function email_verif_post()
-    {
-        $opt = array(
-            'select' => 'users.id, users.full_name, users.email, programs.name, programs.logo_url, program_categories.web_url',
-            'table' => 'users',
-            'join' => [
-                'participants' => 'participants.user_id = users.id',
-                'programs' => 'participants.program_id = programs.id',
-                'program_categories' => 'programs.program_category_id = program_categories.id',
-            ],
-            'where' => 'users.id = ' . $this->post('id'),
-        );
-        $data = $this->mCore->join_table($opt)->row_array();
-
-        $config = array(
-            'protocol' => 'smtp',
-            'smtp_host' => 'ssl://smtp.googlemail.com',
-            'smtp_port' => 465,
-            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
-            'smtp_pass' => 'ergwhprslxrpkxts', // change it to yours
-            'mailtype' => 'html',
-            'charset' => 'iso-8859-1',
-            'wordwrap' => true,
-        );
-
-        $message = ('
+    $message = ('
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 
@@ -775,77 +775,77 @@ class Users extends RestController
 </body>
 </html>');
 
-        $this->load->library('email', $config);
-        $this->email->set_mailtype("html");
-        $this->email->set_newline("\r\n");
-        $this->email->set_crlf("\r\n");
-        $this->email->from('paywithalla@gmail.com');
-        $this->email->to($data['email']);
-        $this->email->subject('Verify Your Email Address for ' . $data['name']);
-        $this->email->message($message);
-        if ($this->email->send()) {
-            $this->response([
-                'status' => true,
-                'message' => 'The verification email has been successfully sent, check your inbox or spam.',
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => $this->email->print_debugger(),
-            ], 404);
-        }
+    $this->load->library('email', $config);
+    $this->email->set_mailtype("html");
+    $this->email->set_newline("\r\n");
+    $this->email->set_crlf("\r\n");
+    $this->email->from('paywithalla@gmail.com');
+    $this->email->to($data['email']);
+    $this->email->subject('Verify Your Email Address for ' . $data['name']);
+    $this->email->message($message);
+    if ($this->email->send()) {
+      $this->response([
+        'status' => true,
+        'message' => 'The verification email has been successfully sent, check your inbox or spam.',
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => $this->email->print_debugger(),
+      ], 404);
     }
+  }
 
-    //VERIF DATA
-    public function verif_get()
-    {
-        $id = $this->get('id');
-        $data = array(
-            'is_verified' => 1,
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
-        if ($sql) {
-            // $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => 'Email verification successfully',
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to verification',
-            ], 404);
-        }
+  //VERIF DATA
+  public function verif_get()
+  {
+    $id = $this->get('id');
+    $data = array(
+      'is_verified' => 1,
+      'updated_at' => date('Y-m-d H:i:s'),
+    );
+    $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
+    if ($sql) {
+      // $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
+      $this->response([
+        'status' => true,
+        'data' => 'Email verification successfully',
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, failed to verification',
+      ], 404);
     }
+  }
 
-    // RESET PASSWORD
-    public function email_reset_password_post()
-    {
-        $opt = array(
-            'select' => 'users.id, users.full_name, users.email, programs.name, programs.logo_url, program_categories.web_url',
-            'table' => 'users',
-            'join' => [
-                'participants' => 'participants.user_id = users.id',
-                'programs' => 'participants.program_id = programs.id',
-                'program_categories' => 'programs.program_category_id = program_categories.id',
-            ],
-            'where' => 'users.id = ' . $this->post('id'),
-        );
-        $data = $this->mCore->join_table($opt)->row_array();
+  // RESET PASSWORD
+  public function email_reset_password_post()
+  {
+    $opt = array(
+      'select' => 'users.id, users.full_name, users.email, programs.name, programs.logo_url, program_categories.web_url',
+      'table' => 'users',
+      'join' => [
+        'participants' => 'participants.user_id = users.id',
+        'programs' => 'participants.program_id = programs.id',
+        'program_categories' => 'programs.program_category_id = program_categories.id',
+      ],
+      'where' => 'users.id = ' . $this->post('id'),
+    );
+    $data = $this->mCore->join_table($opt)->row_array();
 
-        $config = array(
-            'protocol' => 'smtp',
-            'smtp_host' => 'ssl://smtp.googlemail.com',
-            'smtp_port' => 465,
-            'smtp_user' => 'paywithalla@gmail.com', // change it to yours
-            'smtp_pass' => 'ergwhprslxrpkxts', // change it to yours
-            'mailtype' => 'html',
-            'charset' => 'iso-8859-1',
-            'wordwrap' => true,
-        );
+    $config = array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'ssl://smtp.googlemail.com',
+      'smtp_port' => 465,
+      'smtp_user' => config_item('user_email'),
+      'smtp_pass' => config_item('pass_email'),
+      'mailtype' => 'html',
+      'charset' => 'iso-8859-1',
+      'wordwrap' => true,
+    );
 
-        $message = ('
+    $message = ('
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 
@@ -1376,24 +1376,24 @@ class Users extends RestController
 </body>
 </html>');
 
-        $this->load->library('email', $config);
-        $this->email->set_mailtype("html");
-        $this->email->set_newline("\r\n");
-        $this->email->set_crlf("\r\n");
-        $this->email->from('notifikasi.rspn@gmail.com');
-        $this->email->to($data['email']);
-        $this->email->subject('Reset Your ' . $data['name'] . ' Account Password');
-        $this->email->message($message);
-        if ($this->email->send()) {
-            $this->response([
-                'status' => true,
-                'message' => 'The reset password has been successfully sent, check your inbox or spam.',
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => $this->email->print_debugger(),
-            ], 404);
-        }
+    $this->load->library('email', $config);
+    $this->email->set_mailtype("html");
+    $this->email->set_newline("\r\n");
+    $this->email->set_crlf("\r\n");
+    $this->email->from('paywithalla@gmail.com');
+    $this->email->to($data['email']);
+    $this->email->subject('Reset Your ' . $data['name'] . ' Account Password');
+    $this->email->message($message);
+    if ($this->email->send()) {
+      $this->response([
+        'status' => true,
+        'message' => 'The reset password has been successfully sent, check your inbox or spam.',
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => $this->email->print_debugger(),
+      ], 404);
     }
+  }
 }
