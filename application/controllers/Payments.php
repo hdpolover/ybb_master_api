@@ -137,6 +137,13 @@ class payments extends RestController
     //SIMPAN DATA
     public function save_post()
     {
+		if($this->post('amount') <= 0){
+            $this->response([
+                'status' => false,
+                'message' => 'Sorry, nominal must be more than 0',
+            ], 404);
+		}
+
 		$currency = 'USD';
 		if($this->post('amount') >= 1000){
 			$currency = 'IDR';
@@ -182,6 +189,13 @@ class payments extends RestController
     //UPDATE DATA
     public function update_post($id)
     {
+		if($this->post('amount') <= 0){
+            $this->response([
+                'status' => false,
+                'message' => 'Sorry, nominal must be more than 0',
+            ], 404);
+		}
+		
 		$currency = 'USD';
 		if($this->post('amount') >= 1000){
 			$currency = 'IDR';
