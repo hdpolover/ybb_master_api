@@ -133,108 +133,108 @@ class payments extends RestController
 			], 404);
 		}
 	}
-	
-    //SIMPAN DATA
-    public function save_post()
-    {
-		if($this->post('amount') <= 0){
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, nominal must be more than 0',
-            ], 404);
+
+	//SIMPAN DATA
+	public function save_post()
+	{
+		if ($this->post('amount') <= 0) {
+			$this->response([
+				'status' => false,
+				'message' => 'Sorry, nominal must be more than 0',
+			], 404);
 		}
 
 		$currency = 'USD';
-		if($this->post('amount') >= 1000){
+		if ($this->post('amount') >= 1000) {
 			$currency = 'IDR';
 		}
-        $data = array(
-            'participant_id' => $this->post('participant_id'),
-            'program_payment_id' => $this->post('program_payment_id'),
-            'payment_method_id' => $this->post('payment_method_id'),
-            'status' => $this->post('status'),
-            'proof_url' => null,
-            'account_name' => $this->post('account_name'),
-            'amount' => $this->post('amount'),
-            'currency' => $currency,
-            'source_name' => $this->post('source_name'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('payments', array_filter($data));
-        if ($sql) {
-            $last_id = $this->mCore->get_lastid('payments', 'id');
-            if (!empty($_FILES['proof_url']['name'])) {
-                $upload_file = $this->upload_image('proof_url', $last_id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message'],
-                    ], 404);
-                }
-            }
-            $last_data = $this->mCore->get_data('payments', ['id' => $last_id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data,
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to save',
-            ], 404);
-        }
-    }
+		$data = array(
+			'participant_id' => $this->post('participant_id'),
+			'program_payment_id' => $this->post('program_payment_id'),
+			'payment_method_id' => $this->post('payment_method_id'),
+			'status' => $this->post('status'),
+			'proof_url' => null,
+			'account_name' => $this->post('account_name'),
+			'amount' => $this->post('amount'),
+			'currency' => $currency,
+			'source_name' => $this->post('source_name'),
+			'created_at' => date('Y-m-d H:i:s'),
+			'updated_at' => date('Y-m-d H:i:s'),
+		);
+		$sql = $this->mCore->save_data('payments', array_filter($data));
+		if ($sql) {
+			$last_id = $this->mCore->get_lastid('payments', 'id');
+			if (!empty($_FILES['proof_url']['name'])) {
+				$upload_file = $this->upload_image('proof_url', $last_id);
+				if ($upload_file['status'] == 0) {
+					$this->response([
+						'status' => false,
+						'message' => $upload_file['message'],
+					], 404);
+				}
+			}
+			$last_data = $this->mCore->get_data('payments', ['id' => $last_id])->row_array();
+			$this->response([
+				'status' => true,
+				'data' => $last_data,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'Sorry, failed to save',
+			], 404);
+		}
+	}
 
-    //UPDATE DATA
-    public function update_post($id)
-    {
-		if($this->post('amount') <= 0){
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, nominal must be more than 0',
-            ], 404);
+	//UPDATE DATA
+	public function update_post($id)
+	{
+		if ($this->post('amount') <= 0) {
+			$this->response([
+				'status' => false,
+				'message' => 'Sorry, nominal must be more than 0',
+			], 404);
 		}
-		
+
 		$currency = 'USD';
-		if($this->post('amount') >= 1000){
+		if ($this->post('amount') >= 1000) {
 			$currency = 'IDR';
 		}
-        $data = array(
-            'participant_id' => $this->post('participant_id'),
-            'program_payment_id' => $this->post('program_payment_id'),
-            'payment_method_id' => $this->post('payment_method_id'),
-            'status' => $this->post('status'),
-            'proof_url' => null,
-            'account_name' => $this->post('account_name'),
-            'amount' => $this->post('amount'),
-            'currency' => $currency,
-            'source_name' => $this->post('source_name'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('payments', array_filter($data), true, ['id' => $id]);
-        if ($sql) {
-            if (!empty($_FILES['proof_url']['name'])) {
-                $upload_file = $this->upload_image('proof_url', $id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message'],
-                    ], 404);
-                }
-            }
-            $last_data = $this->mCore->get_data('payments', ['id' => $id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data,
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to update',
-            ], 404);
-        }
-    }
+		$data = array(
+			'participant_id' => $this->post('participant_id'),
+			'program_payment_id' => $this->post('program_payment_id'),
+			'payment_method_id' => $this->post('payment_method_id'),
+			'status' => $this->post('status'),
+			'proof_url' => null,
+			'account_name' => $this->post('account_name'),
+			'amount' => $this->post('amount'),
+			'currency' => $currency,
+			'source_name' => $this->post('source_name'),
+			'updated_at' => date('Y-m-d H:i:s'),
+		);
+		$sql = $this->mCore->save_data('payments', array_filter($data), true, ['id' => $id]);
+		if ($sql) {
+			if (!empty($_FILES['proof_url']['name'])) {
+				$upload_file = $this->upload_image('proof_url', $id);
+				if ($upload_file['status'] == 0) {
+					$this->response([
+						'status' => false,
+						'message' => $upload_file['message'],
+					], 404);
+				}
+			}
+			$last_data = $this->mCore->get_data('payments', ['id' => $id])->row_array();
+			$this->response([
+				'status' => true,
+				'data' => $last_data,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'Sorry, failed to update',
+			], 404);
+		}
+	}
 
 	//DELETE DATA
 	public function delete_get()
@@ -340,6 +340,7 @@ class payments extends RestController
 			echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
 		}
 	}
+
 	// pembayaran
 	public function pay_post()
 	{
@@ -1279,11 +1280,21 @@ class payments extends RestController
 				);
 				$this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
 
-				$this->response([
-					'status' => true,
-					'message' => 'Successful payment!',
-					'data' => $result,
-				], 200);
+				$data_view = array(
+					'logo_url' => $data['logo_url'],
+					'id' => $data['external_id'],
+					'date' => date('D, d M Y H:i:s', strtotime($data['updated_at'])),
+					'currency' => $data['currency'],
+					'amount' => number_format($data['amount'])
+				);
+
+				$this->load->view("success_pay", $data_view);
+
+				// $this->response([
+				// 	'status' => true,
+				// 	'message' => 'Successful payment!',
+				// 	'data' => $result,
+				// ], 200);
 			} catch (\Xendit\XenditSdkException $e) {
 				$this->response([
 					'status' => false,
@@ -1304,6 +1315,10 @@ class payments extends RestController
 		}
 	}
 
+	public function test_post()
+	{
+	}
+
 	public function failure_pay_get()
 	{
 
@@ -1322,12 +1337,12 @@ class payments extends RestController
 		], 404);
 	}
 
-    // email manual
-    public function invoice_send_post($id)
-    {
+	// email manual
+	public function invoice_send_post($id)
+	{
 
-        $option = array(
-            'select' => 'payments.*, program_payments.name program_payment_name, users.full_name, users.email email_user, programs.name, programs.logo_url, payment_methods.name payment_method_name,
+		$option = array(
+			'select' => 'payments.*, program_payments.name program_payment_name, users.full_name, users.email email_user, programs.name, programs.logo_url, payment_methods.name payment_method_name,
 				program_categories.web_url,program_categories.contact,program_categories.email email_program_category',
 			'table' => 'payments',
 			'join' => [
