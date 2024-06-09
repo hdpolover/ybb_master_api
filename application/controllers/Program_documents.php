@@ -66,6 +66,30 @@ class Program_documents extends RestController
         }
     }
 
+    function participant_get()
+    {
+        $id = $this->get('id');
+
+        $option = array(
+            'select' => 'program_documents.name, program_documents.file_url, program_documents.drive_url, program_documents.desc, program_documents.is_upload, program_documents.visibility',
+            'table' => 'program_documents',
+            'join' => ['participants' => 'participants.program_id = program_documents.program_id'],
+            'where' => 'participants.id = ' . $id,
+        );
+
+        $program_documents = $this->mCore->join_table($option)->result_array();
+        if ($program_documents) {
+            $this->response([
+                'status' => true,
+                'data' => $program_documents
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
     //SIMPAN DATA
     function save_post()
     {
@@ -241,5 +265,4 @@ class Program_documents extends RestController
 
         return $data;
     }
-
 }
