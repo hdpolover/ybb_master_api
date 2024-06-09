@@ -14,7 +14,8 @@
 		"php": ">=5.3.7",
 		"chriskacerguis/codeigniter-restserver": "*",
 		"ramsey/uuid": "*",
-		"xendit/xendit-php": "*"
+		"xendit/xendit-php": "*",
+		"dompdf/dompdf": "^2.0"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
