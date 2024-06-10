@@ -243,16 +243,19 @@ class Document_invitation extends RestController
         $option = array(
             'select' => 'participants.id, participants.full_name, participants.gender, users.email, 
                 programs.name, programs.logo_url, program_documents.name, program_documents.file_url, 
-                program_documents.drive_url,program_documents.is_upload, document_invitation.content, 
-                document_invitation.sincerely, document_invitation.sign_url',
+                program_documents.drive_url,program_documents.is_upload, program_categories.name name_categories,
+                program_categories.tagline, program_categories.logo_url logo_categories, program_categories.web_url web_categories, 
+                program_categories.email email_categories,program_categories.contact contact_categories,
+                document_invitation.content, document_invitation.sincerely, document_invitation.sign_url',
             'table' => 'participants',
             'join' => [
                 'users' => 'participants.user_id = users.id',
                 'programs' => 'participants.program_id = programs.id',
+                'program_categories' => 'programs.program_category_id = program_categories.id',
                 'program_documents' => 'programs.id = program_documents.program_id',
                 'document_invitation' => 'program_documents.id = document_invitation.program_document_id',
             ],
-            'where' => 'participants.id = ' . $participant_id,
+            'where' => 'participants.id = ' . $participant_id . ' AND program_documents.id = 8',
         );
         $data = $this->mCore->join_table($option)->row_array();
 

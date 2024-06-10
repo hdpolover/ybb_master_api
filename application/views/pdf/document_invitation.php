@@ -9,16 +9,16 @@
 
         body {
             margin-top: 4.8cm;
-            margin-left: 1cm;
-            margin-right: 1cm;
+            margin-left: 3cm;
+            margin-right: 3cm;
             margin-bottom: 4.8cm;
         }
 
         header {
             position: fixed;
             top: 2cm;
-            left: 1cm;
-            right: 1cm;
+            left: 3cm;
+            right: 3cm;
             height: 2cm;
         }
 
@@ -113,18 +113,20 @@
         $logo = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
         ?>
+        <div style="border-bottom: solid 2px #0CF0C5;margin-bottom:12px;"></div>
         <div style="width: 15%; float: left;"><img src="<?= $logo ?>" style="width: 80%;"></div>
-        <div style="width: 40%; float: left;"></div>
-        <div style="width: 45%; float: left;">
-            <div class="font-sm text-bold">Youth Break the Boundaries</div>
-            <div style="font-size:30px;font-weight:bold;color:#003487">World Youth Festival</div>
-            <div class="font-sm">Raya Karanglo St. No 17 B, Karanglo, Banjararum, Singosari<br>Malang East Java [Indonesia]</div>
+        <div style="width: 60%; float: left;">
+            <div class="font-sm">Youth Break the Boundaries</div>
+            <div style="font-size:28px;font-weight:bold;"><?= $name_categories ?></div>
+            <div class="font-md"><?= $tagline ?></div>
         </div>
-        <div style="clear: both;">
+        <div style="width: 25%; float: left;margin-top:12px;">
+            <div class="font-sm"><?= $web_categories ?><br><?= $email_categories ?><br><?= $contact_categories . ' (YBB Admin)' ?></div>
+        </div>
+        <div style="clear: both;border-top: solid 2px #0CF0C5;margin-top:12px;">
         </div>
     </header>
-    <footer style="background-color:#0CF0C5">
-        <!-- ASET -->
+    <!-- <footer style="background-color:#0CF0C5">
         <?php
         $path_tel = getcwd() . '/assets/img/tel.png';
         $type_tel = pathinfo($path_tel, PATHINFO_EXTENSION);
@@ -142,9 +144,14 @@
         $img_web = 'data:image/' . $type_web . ';base64,' . base64_encode($data_web);
         ?>
         <div style="position: fixed;margin-top:16px;margin-left:180px;color: #003487;font-size:12px;"><span style="margin-right: 10px;"><img src="<?= $img_tel ?>" width="10px" alt=""> +62 851-7338-662</span><span style="margin-right: 10px;"><img src="<?= $img_email ?>" width="10px" alt=""> worldyouthfest@gmail.com</span><span style="margin-right: 10px;"><img src="<?= $img_web ?>" width="10px" alt=""> www.worldyouthfest.com</span></div>
-    </footer>
-    <main class="font-md">
+    </footer> -->
+    <main class="font-md" style="margin-top: 20px;">
         <?php
+        $path_logo = $logo_categories;
+        $type_logo = pathinfo($path_logo, PATHINFO_EXTENSION);
+        $data_logo = file_get_contents($path_logo);
+        $img_logo = 'data:image/' . $type_logo . ';base64,' . base64_encode($data_logo);
+
         $path_sign = $sign_url;
         $type_sign = pathinfo($path_sign, PATHINFO_EXTENSION);
         $data_sign = file_get_contents($path_sign);
@@ -152,7 +159,7 @@
         ?>
         <div>
             <div style="margin-bottom:20px;">
-                <div style="color: #003487;font-weight:bold;font-size:30px">Letter of Invitation</div>
+                <div style="color: #003487;font-weight:bold;font-size:30px"><?= $name ?></div>
                 <div style="color: #003487">for <?= strtoupper($full_name) ?></div>
             </div>
             <div style="text-align: justify;margin-bottom:100px;">
@@ -163,7 +170,10 @@
             <div style="width: 55%; float: left;"></div>
             <div style="width: 45%; float: left;">
                 <div>Sincerely,</div>
-                <div><img src="<?= $img_sign ?>" alt="" width="100px;"></div>
+                <div>
+                    <img src="<?= $img_logo ?>" style="opacity: 0.3;margin-left:-20px;" alt="" width="50px;">
+                    <img src="<?= $img_sign ?>" alt="" width="100px;">
+                </div>
                 <div style="font-weight:bold;"><?= $sincerely ?></div>
                 <div>Chairman of World Youth Festival 2024</div>
             </div>
