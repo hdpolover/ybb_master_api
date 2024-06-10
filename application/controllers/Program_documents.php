@@ -69,15 +69,16 @@ class Program_documents extends RestController
     function participant_get()
     {
         $id = $this->get('id');
-
         $option = array(
-            'select' => 'program_documents.name, program_documents.file_url, program_documents.drive_url, program_documents.desc, program_documents.is_upload, program_documents.visibility',
-            'table' => 'program_documents',
-            'join' => ['participants' => 'participants.program_id = program_documents.program_id'],
+            'select' => 'participant_statuses.general_status',
+            'table' => 'participants',
+            'join' => ['participant_statuses' => 'participants.id = participant_statuses.participant_id'],
             'where' => 'participants.id = ' . $id,
         );
 
-        $program_documents = $this->mCore->join_table($option)->result_array();
+        $participant = $this->mCore->join_table($option)->row_array();
+        $program_documents = $this->mCore->get_data('program_documents', ['visibility <=' => $participant['general_status']])->result_array();
+
         if ($program_documents) {
             $this->response([
                 'status' => true,
@@ -253,7 +254,7 @@ class Program_documents extends RestController
 
             if ($sql) {
                 $data['status'] = 1;
-                $data['message'] = 'Image saved successfully';
+                $data['message'] = 'Document saved successfully';
             } else {
                 $data['status'] = 0;
                 $data['message'] = 'Sorry, failed to update';
@@ -264,5 +265,98 @@ class Program_documents extends RestController
         }
 
         return $data;
+    }
+
+    // DIRECT UPLOAD FILE AGREEMENT
+    public function agreement_letter_upload_post()
+    {
+
+        $this->load->library('ftp');
+
+        $id = $this->post('participant_id');
+
+        $sql_check = $this->mCore->get_data('participant_agreement_letters', 'participant_id = ' . $id);
+        $update = 0;
+        if ($sql_check->num_rows() > 0) {
+            $update = 1;
+            $data = $sql_check->row_array();
+            if ($data['file_link'] != '') {
+                $exp = (explode('/', $data['file_link']));
+                $temp_img = end($exp);
+
+                //FTP configuration
+                $ftp_config['hostname'] = config_item('hostname_upload');
+                $ftp_config['username'] = config_item('username_upload');
+                $ftp_config['password'] = config_item('password_upload');
+                $ftp_config['port'] = config_item('port_upload');
+                $ftp_config['debug'] = TRUE;
+
+                $this->ftp->connect($ftp_config);
+
+                $this->ftp->delete_file('agreement_letter/' . $id . '/' . $temp_img);
+
+                $this->ftp->close();
+            }
+        }
+        $config['upload_path'] = './uploads';
+        $config['allowed_types'] = '*';
+        $config['max_size'] = 5000;
+        $config['file_name'] = time();
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload("file")) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $source = './uploads/' . $fileName;
+
+            //FTP configuration
+            $ftp_config['hostname'] = config_item('hostname_upload');
+            $ftp_config['username'] = config_item('username_upload');
+            $ftp_config['password'] = config_item('password_upload');
+            $ftp_config['port'] = config_item('port_upload');
+            $ftp_config['debug'] = TRUE;
+
+            $this->ftp->connect($ftp_config);
+
+            if ($this->ftp->list_files('agreement_letter/' . $id . '/') == FALSE) {
+                $this->ftp->mkdir('agreement_letter/' . $id . '/', DIR_WRITE_MODE);
+            }
+
+            $destination = 'agreement_letter/' . $id . '/' . $fileName;
+
+            $this->ftp->upload($source, $destination);
+
+            $this->ftp->close();
+
+            //Delete file from local server
+            @unlink($source);
+
+            if ($update) {
+                $sql = $this->mCore->save_data('participant_agreement_letters', ['file_link' => config_item('dir_upload') . 'agreement_letter/' . $id . '/' . $fileName, 'updated_at' => date('Y-m-d H:i:s')], true, array('participant_id' => $id));
+            } else {
+                $sql = $this->mCore->save_data('participant_agreement_letters', ['participant_id' => $id, 'file_link' => config_item('dir_upload') . 'agreement_letter/' . $id . '/' . $fileName, 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s')]);
+            }
+
+            if ($sql) {
+                $last_data = $this->mCore->get_data('participant_agreement_letters', ['participant_id' => $id])->row_array();
+                $this->response([
+                    'status' => true,
+                    'message' => $last_data
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'Sorry, failed to update'
+                ], 404);
+            }
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => $this->upload->display_errors()
+            ], 404);
+        }
     }
 }
