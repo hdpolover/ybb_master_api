@@ -476,9 +476,13 @@ class payments extends RestController
 	{
 
 		$option = array(
-			'select' => 'xendit_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,program_categories.contact,program_categories.email email_program_category',
+			'select' => 'xendit_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
 			'table' => 'xendit_payment',
 			'join' => [
+				'payments' => 'payments.id = xendit_payment.payment_id',
+				'program_payments' => 'program_payments.id = payments.program_payment_id',
+				'payment_methods' => 'payment_methods.id = payments.payment_method_id',
 				'participants' => 'participants.id = xendit_payment.participant_id',
 				'users' => 'participants.user_id = users.id',
 				'programs' => 'xendit_payment.program_id = programs.id',
@@ -488,6 +492,8 @@ class payments extends RestController
 		);
 		$data = $this->mCore->join_table($option)->row_array();
 
+		// print_r($data);
+		// die();
 		// get invoice
 		Configuration::setXenditKey(config_item('xendit'));
 		$apiInstance = new InvoiceApi();
@@ -1279,6 +1285,22 @@ class payments extends RestController
 					'updated_at' => date('Y-m-d H:i:s'),
 				);
 				$this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
+
+				$status_pay = 0;
+				if($data['program_payment_name'] == 'Registration Fee (Early Bid)'){
+					$status_pay = 1;
+				}else if($data['program_payment_name'] == 'Program Fee Batch 1'){
+					$status_pay = 2;
+				}else if($data['program_payment_name'] == 'Program Fee Batch 2'){
+					$status_pay = 3;
+				}
+
+				// PARTICIPANT STATUS
+				$upd_payment = array(
+					'payment_status' => $status_pay,
+					'updated_at' => date('Y-m-d H:i:s'),
+				);
+				$this->mCore->save_data('participant_statuses', $upd_payment, true, ['participant_id' => $data['participant_id']]);
 
 				$data_view = array(
 					'logo_url' => $data['logo_url'],

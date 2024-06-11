@@ -98,6 +98,31 @@ class Participant_statuses extends RestController
         ], 404);
     }
 
+    // function participant_status_post()
+    // {
+    //     $form_status = $this->post('form_status');
+    //     $general_status = $this->post('general_status');
+    //     if ($form_status == 2) {
+    //         $sql = $this->mCore->query_data('UPDATE participant_statuses SET general_status = ' . $general_status);
+    //         if ($sql) {
+    //             $this->response([
+    //                 'status' => true,
+    //                 'data' => 'Yeay, success'
+    //             ], 200);
+    //         } else {
+    //             $this->response([
+    //                 'status' => false,
+    //                 'message' => 'Sorry, failed to update'
+    //             ], 404);
+    //         }
+    //     } else {
+    //         $this->response([
+    //             'status' => false,
+    //             'message' => 'Sorry, not found participant statuses'
+    //         ], 404);
+    //     }
+    // }
+
     //SIMPAN DATA
     function save_post()
     {
