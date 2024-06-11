@@ -48,6 +48,32 @@ class Program_announcements extends RestController
         }
     }
 
+    function participant_get()
+    {
+        $id = $this->get('id');
+        $option = array(
+            'select' => 'participant_statuses.general_status',
+            'table' => 'participants',
+            'join' => ['participant_statuses' => 'participants.id = participant_statuses.participant_id'],
+            'where' => 'participants.id = ' . $id,
+        );
+
+        $participant = $this->mCore->join_table($option)->row_array();
+        $program_announcements = $this->mCore->get_data('program_announcements', ['visible_to <=' => $participant['general_status']])->result_array();
+
+        if ($program_announcements) {
+            $this->response([
+                'status' => true,
+                'data' => $program_announcements
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     function save_post()
     {
