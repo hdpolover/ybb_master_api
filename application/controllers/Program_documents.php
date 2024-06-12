@@ -344,7 +344,7 @@ class Program_documents extends RestController
                 $last_data = $this->mCore->get_data('participant_agreement_letters', ['participant_id' => $id])->row_array();
                 $this->response([
                     'status' => true,
-                    'message' => $last_data
+                    'data' => $last_data
                 ], 200);
             } else {
                 $this->response([
@@ -357,6 +357,38 @@ class Program_documents extends RestController
                 'status' => false,
                 'message' => $this->upload->display_errors()
             ], 404);
+        }
+    }
+
+    public function agreement_letter_get()
+    {
+        $id = $this->get('participant_id');
+        if ($id == '') {
+            $agreement_letter = $this->mCore->get_data('participant_agreement_letters', ['is_active' => 1])->result_array();
+            if ($agreement_letter) {
+                $this->response([
+                    'status' => true,
+                    'data' => $agreement_letter
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'No result were found'
+                ], 404);
+            }
+        } else {
+            $agreement_letter = $this->mCore->get_data('participant_agreement_letters', ['participant_id' => $id, 'is_active' => 1])->row();
+            if ($agreement_letter) {
+                $this->response([
+                    'status' => true,
+                    'data' => $agreement_letter
+                ], 200);
+            } else {
+                $this->response([
+                    'status' => false,
+                    'message' => 'No result were found'
+                ], 404);
+            }
         }
     }
 }
