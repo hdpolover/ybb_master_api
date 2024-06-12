@@ -20,7 +20,7 @@ class Competition_categories extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $competition_categories = $this->mCore->list_data('competition_categories')->result_array();
+            $competition_categories = $this->mCore->get_data('competition_categories', ['is_active' => 1])->result_array();
             if ($competition_categories) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Competition_categories extends RestController
                 ], 404);
             }
         } else {
-            $competition_categories = $this->mCore->get_data('competition_categories', ['id' => $id])->row_array();
+            $competition_categories = $this->mCore->get_data('competition_categories', ['id' => $id, 'is_active' => 1])->row_array();
             if ($competition_categories) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Competition_categories extends RestController
     function list_get()
     {
         $program_category_id = $this->get('program_category_id');
-        $competition_categories = $this->mCore->get_data('competition_categories', ['program_category_id' => $program_category_id])->result_array();
+        $competition_categories = $this->mCore->get_data('competition_categories', ['program_category_id' => $program_category_id, 'is_active' => 1])->result_array();
         if ($competition_categories) {
             $this->response([
                 'status' => true,
@@ -138,4 +138,3 @@ class Competition_categories extends RestController
         }
     }
 }
-?>

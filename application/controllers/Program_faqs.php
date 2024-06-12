@@ -20,7 +20,7 @@ class Program_faqs extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_faqs = $this->mCore->list_data('program_faqs')->result_array();
+            $program_faqs = $this->mCore->get_data('program_faqs', ['is_active' => 1])->result_array();
             if ($program_faqs) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_faqs extends RestController
                 ], 404);
             }
         } else {
-            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id])->row_array();
+            $program_faqs = $this->mCore->get_data('program_faqs', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_faqs) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Program_faqs extends RestController
     function list_program_get()
     {
         $program_id = $this->get('program_id');
-        $program_faqs = $this->mCore->get_data('program_faqs', ['program_id' => $program_id])->result_array();
+        $program_faqs = $this->mCore->get_data('program_faqs', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_faqs) {
             $this->response([
                 'status' => true,
@@ -140,4 +140,3 @@ class Program_faqs extends RestController
         }
     }
 }
-?>

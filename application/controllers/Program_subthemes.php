@@ -20,7 +20,7 @@ class Program_subthemes extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_subthemes = $this->mCore->list_data('program_subthemes')->result_array();
+            $program_subthemes = $this->mCore->get_data('program_subthemes', ['is_active' => 1])->result_array();
             if ($program_subthemes) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_subthemes extends RestController
                 ], 404);
             }
         } else {
-            $program_subthemes = $this->mCore->get_data('program_subthemes', ['id' => $id])->row_array();
+            $program_subthemes = $this->mCore->get_data('program_subthemes', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_subthemes) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Program_subthemes extends RestController
     function list_get()
     {
         $program_id = $this->get('program_id');
-        $program_subthemes = $this->mCore->get_data('program_subthemes', ['program_id' => $program_id])->result_array();
+        $program_subthemes = $this->mCore->get_data('program_subthemes', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_subthemes) {
             $this->response([
                 'status' => true,
@@ -138,4 +138,3 @@ class Program_subthemes extends RestController
         }
     }
 }
-?>

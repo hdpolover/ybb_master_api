@@ -20,7 +20,7 @@ class Certificates extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $certificates = $this->mCore->list_data('certificates')->result_array();
+            $certificates = $this->mCore->get_data('certificates', ['is_active' => 1])->result_array();
             if ($certificates) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Certificates extends RestController
                 ], 404);
             }
         } else {
-            $certificates = $this->mCore->get_data('certificates', ['id' => $id])->row_array();
+            $certificates = $this->mCore->get_data('certificates', ['id' => $id, 'is_active' => 1])->row_array();
             if ($certificates) {
                 $this->response([
                     'status' => true,
@@ -71,7 +71,7 @@ class Certificates extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('certificates/' . $program_id . '/'. $temp_img);
+            $this->ftp->delete_file('certificates/' . $program_id . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -133,4 +133,3 @@ class Certificates extends RestController
         }
     }
 }
-?>

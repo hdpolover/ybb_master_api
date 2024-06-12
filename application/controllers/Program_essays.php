@@ -20,7 +20,7 @@ class Program_essays extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_essays = $this->mCore->list_data('program_essays')->result_array();
+            $program_essays = $this->mCore->get_data('program_essays', ['is_active' => 1])->result_array();
             if ($program_essays) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_essays extends RestController
                 ], 404);
             }
         } else {
-            $program_essays = $this->mCore->get_data('program_essays', ['id' => $id])->row_array();
+            $program_essays = $this->mCore->get_data('program_essays', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_essays) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Program_essays extends RestController
     public function list_get()
     {
         $program_id = $this->get('program_id');
-        $program_essays = $this->mCore->get_data('program_essays', ['program_id' => $program_id])->result_array();
+        $program_essays = $this->mCore->get_data('program_essays', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_essays) {
             $this->response([
                 'status' => true,

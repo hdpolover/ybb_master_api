@@ -20,7 +20,7 @@ class Program_type extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_type = $this->mCore->list_data('program_type')->result_array();
+            $program_type = $this->mCore->get_data('program_type', ['is_active' => 1])->result_array();
             if ($program_type) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_type extends RestController
                 ], 404);
             }
         } else {
-            $program_type = $this->mCore->get_data('program_type', ['id' => $id])->row_array();
+            $program_type = $this->mCore->get_data('program_type', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_type) {
                 $this->response([
                     'status' => true,
@@ -119,4 +119,3 @@ class Program_type extends RestController
         }
     }
 }
-?>

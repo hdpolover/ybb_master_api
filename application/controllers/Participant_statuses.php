@@ -20,7 +20,7 @@ class Participant_statuses extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $participant_statuses = $this->mCore->list_data('participant_statuses')->result_array();
+            $participant_statuses = $this->mCore->get_data('participant_statuses', ['is_active' => 1])->result_array();
             if ($participant_statuses) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Participant_statuses extends RestController
                 ], 404);
             }
         } else {
-            $participant_statuses = $this->mCore->get_data('participant_statuses', ['id' => $id])->row();
+            $participant_statuses = $this->mCore->get_data('participant_statuses', ['id' => $id, 'is_active' => 1])->row();
             if ($participant_statuses) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Participant_statuses extends RestController
     {
         $participant_id = $this->get('participant_id');
 
-        $participant_statuses = $this->mCore->get_data('participant_statuses', ['participant_id' => $participant_id])->result_array();
+        $participant_statuses = $this->mCore->get_data('participant_statuses', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
         if ($participant_statuses) {
             $this->response([
                 'status' => true,
@@ -69,8 +69,8 @@ class Participant_statuses extends RestController
     function check_status_get()
     {
         $sql = $this->mCore->query_data("SELECT participants.id, participants.user_id, participants.full_name, participant_statuses.general_status 
-        FROM participants LEFT JOIN participant_statuses ON participants.id = participant_statuses.participant_id
-        WHERE general_status IS NULL")->result_array();
+        FROM participants LEFT JOIN participant_statuses ON participants.id = participant_statuses.participant_id AND participant_statuses.is_active = 1
+        WHERE general_status IS NULL AND participants.is_active = 1")->result_array();
 
         if ($sql) {
             foreach ($sql as $row) {

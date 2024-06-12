@@ -20,7 +20,7 @@ class Program_documents extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_documents = $this->mCore->list_data('program_documents')->result_array();
+            $program_documents = $this->mCore->get_data('program_documents', ['is_active' => 1])->result_array();
             if ($program_documents) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_documents extends RestController
                 ], 404);
             }
         } else {
-            $program_documents = $this->mCore->get_data('program_documents', ['id' => $id])->row();
+            $program_documents = $this->mCore->get_data('program_documents', ['id' => $id, 'is_active' => 1])->row();
             if ($program_documents) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Program_documents extends RestController
     {
         $program_id = $this->get('program_id');
 
-        $program_documents = $this->mCore->get_data('program_documents', ['program_id' => $program_id])->result_array();
+        $program_documents = $this->mCore->get_data('program_documents', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_documents) {
             $this->response([
                 'status' => true,

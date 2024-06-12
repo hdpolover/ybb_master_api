@@ -24,9 +24,10 @@ class Participant_competition_categories extends RestController
                 'select' => 'participant_competition_categories.*, competition_categories.category,competition_categories.desc',
                 'table' => 'participant_competition_categories',
                 'join' => [
-                    'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id',
-                    'program_categories' => 'competition_categories.program_category_id = program_categories.id',
+                    'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id AND competition_categories.is_active = 1',
+                    'program_categories' => 'competition_categories.program_category_id = program_categories.id AND program_categories.is_active = 1',
                 ],
+                'where' => 'participant_competition_categories.is_active = 1'
             );
             $participant_competition_categories = $this->mCore->join_table($option)->result_array();
             if ($participant_competition_categories) {
@@ -45,10 +46,10 @@ class Participant_competition_categories extends RestController
                 'select' => 'participant_competition_categories.*, competition_categories.category,competition_categories.desc',
                 'table' => 'participant_competition_categories',
                 'join' => [
-                    'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id',
-                    'program_categories' => 'competition_categories.program_category_id = program_categories.id',
+                    'competition_categories' => 'participant_competition_categories.competition_category_id = competition_categories.id AND competition_categories.is_active = 1',
+                    'program_categories' => 'competition_categories.program_category_id = program_categories.id AND program_categories.is_active = 1',
                 ],
-                'where' => 'participant_competition_categories.participant_id = ' . $participant_id,
+                'where' => 'participant_competition_categories.participant_id = ' . $participant_id . ' AND participant_competition_categories.is_active = 1',
             );
             $participant_competition_categories = $this->mCore->join_table($option)->row();
             if ($participant_competition_categories) {

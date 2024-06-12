@@ -20,7 +20,7 @@ class Program_payments extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_payments = $this->mCore->list_data('program_payments')->result_array();
+            $program_payments = $this->mCore->get_data('program_payments', ['is_active' => 1])->result_array();
             if ($program_payments) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_payments extends RestController
                 ], 404);
             }
         } else {
-            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id])->row_array();
+            $program_payments = $this->mCore->get_data('program_payments', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_payments) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Program_payments extends RestController
     public function list_get()
     {
         $program_id = $this->get('program_id');
-        $program_payments = $this->mCore->get_data('program_payments', ['program_id' => $program_id])->result_array();
+        $program_payments = $this->mCore->get_data('program_payments', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_payments) {
             $this->response([
                 'status' => true,

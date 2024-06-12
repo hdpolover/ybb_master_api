@@ -24,9 +24,10 @@ class Participant_subthemes extends RestController
                 'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
                 'table' => 'participant_subthemes',
                 'join' => [
-                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id',
-                    'programs' => 'program_subthemes.program_id = programs.id',
+                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id AND program_subthemes.is_active = 1',
+                    'programs' => 'program_subthemes.program_id = programs.id AND programs.is_active = 1',
                 ],
+                'where' => 'participant_subthemes.is_active = 1'
             );
             $participant_subthemes = $this->mCore->join_table($option)->result_array();
             if ($participant_subthemes) {
@@ -45,10 +46,10 @@ class Participant_subthemes extends RestController
                 'select' => 'participant_subthemes.*, programs.name, programs.logo_url, programs.description, program_subthemes.name, program_subthemes.desc',
                 'table' => 'participant_subthemes',
                 'join' => [
-                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id',
-                    'programs' => 'program_subthemes.program_id = programs.id',
+                    'program_subthemes' => 'participant_subthemes.program_subtheme_id = program_subthemes.id AND program_subthemes.is_active = 1',
+                    'programs' => 'program_subthemes.program_id = programs.id AND programs.is_active = 1',
                 ],
-                'where' => 'participant_id = ' . $participant_id,
+                'where' => 'participant_id = ' . $participant_id . ' AND participant_subthemes.is_active = 1',
             );
             $participant_subthemes = $this->mCore->join_table($option)->row();
             if ($participant_subthemes) {

@@ -23,7 +23,8 @@ class Participant_essays extends RestController
             $option = array(
                 'select' => 'participant_essays.*, program_essays.questions',
                 'table' => 'participant_essays',
-                'join' => ['program_essays' => 'participant_essays.program_essay_id = program_essays.id'],
+                'join' => ['program_essays' => 'participant_essays.program_essay_id = program_essays.id AND program_essays.is_active = 1'],
+                'where' => 'participant_essays.is_active = 1'
             );
             $participant_essays = $this->mCore->join_table($option)->result_array();
             if ($participant_essays) {
@@ -41,8 +42,8 @@ class Participant_essays extends RestController
             $option = array(
                 'select' => 'participant_essays.*, program_essays.questions',
                 'table' => 'participant_essays',
-                'join' => ['program_essays' => 'participant_essays.program_essay_id = program_essays.id'],
-                'where' => 'participant_id = ' . $participant_id,
+                'join' => ['program_essays' => 'participant_essays.program_essay_id = program_essays.id AND program_essays.is_active = 1'],
+                'where' => 'participant_id = ' . $participant_id . ' AND participant_essays.is_active = 1',
             );
             $participant_essays = $this->mCore->join_table($option)->result_array();
             if ($participant_essays) {

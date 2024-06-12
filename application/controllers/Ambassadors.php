@@ -20,7 +20,7 @@ class Ambassadors extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $data = $this->mCore->list_data('ambassadors')->result_array();
+            $data = $this->mCore->get_data('ambassadors', ['is_active' => 1])->result_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Ambassadors extends RestController
                 ], 404);
             }
         } else {
-            $data = $this->mCore->get_data('ambassadors', ['id' => $id])->row_array();
+            $data = $this->mCore->get_data('ambassadors', ['id' => $id, 'is_active' => 1])->row_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -63,8 +63,8 @@ class Ambassadors extends RestController
         $sql = $this->mCore->save_data('ambassadors', array_filter($data));
         if ($sql) {
             $last_id = $this->mCore->get_lastid('ambassadors', 'id');
-            $this->mCore->save_data('ambassadors', ['ref_code' => strtoupper(substr(str_replace(' ', '',$this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
-            
+            $this->mCore->save_data('ambassadors', ['ref_code' => strtoupper(substr(str_replace(' ', '', $this->post('name')), 0, 4)) . str_pad($last_id, 3, '0', STR_PAD_LEFT)], true, ['id' => $last_id]);
+
             $last_data = $this->mCore->get_data('ambassadors', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
@@ -132,13 +132,13 @@ class Ambassadors extends RestController
         $email = $this->post('email');
         $ref_code = $this->post('ref_code');
 
-        $check_data = $this->mCore->get_data('ambassadors', ['email' => $email, 'ref_code' => $ref_code]);
-        if($check_data->num_rows() > 0){
+        $check_data = $this->mCore->get_data('ambassadors', ['email' => $email, 'ref_code' => $ref_code, 'is_active' => 1]);
+        if ($check_data->num_rows() > 0) {
             $this->response([
                 'status' => true,
                 'data' => $check_data->row()
             ], 200);
-        }else{
+        } else {
             $this->response([
                 'status' => false,
                 'message' => 'Login failed'
@@ -146,4 +146,3 @@ class Ambassadors extends RestController
         }
     }
 }
-?>

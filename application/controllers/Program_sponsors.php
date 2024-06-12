@@ -20,7 +20,7 @@ class Program_sponsors extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_sponsors = $this->mCore->list_data('program_sponsors')->result_array();
+            $program_sponsors = $this->mCore->get_data('program_sponsors', ['is_active' => 1])->result_array();
             if ($program_sponsors) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_sponsors extends RestController
                 ], 404);
             }
         } else {
-            $program_sponsors = $this->mCore->get_data('program_sponsors', ['id' => $id])->row_array();
+            $program_sponsors = $this->mCore->get_data('program_sponsors', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_sponsors) {
                 $this->response([
                     'status' => true,

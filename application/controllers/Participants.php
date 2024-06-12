@@ -19,7 +19,7 @@ class Participants extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $participants = $this->mCore->list_data('participants')->result_array();
+            $participants = $this->mCore->get_data('participants', ['is_active' => 1])->result_array();
             if ($participants) {
                 $this->response([
                     'status' => true,
@@ -32,7 +32,7 @@ class Participants extends RestController
                 ], 404);
             }
         } else {
-            $participants = $this->mCore->get_data('participants', ['id' => $id])->row_array();
+            $participants = $this->mCore->get_data('participants', ['id' => $id, 'is_active' => 1])->row_array();
             if ($participants) {
                 $this->response([
                     'status' => true,
@@ -51,7 +51,7 @@ class Participants extends RestController
     public function participant_user_get()
     {
         $user_id = $this->get('user_id');
-        $participants = $this->mCore->get_data('participants', ['user_id' => $user_id])->result_array();
+        $participants = $this->mCore->get_data('participants', ['user_id' => $user_id, 'is_active' => 1])->result_array();
         if ($participants) {
             $this->response([
                 'status' => true,
@@ -69,7 +69,7 @@ class Participants extends RestController
     public function list_ambassador_get()
     {
         $ref_code = $this->get('ref_code');
-        $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code])->result_array();
+        $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code, 'is_active' => 1])->result_array();
         if ($participants) {
             $this->response([
                 'status' => true,
@@ -329,7 +329,7 @@ class Participants extends RestController
                 $this->ftp->mkdir('participants/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
                 // $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE, true);
             }
-            
+
             if ($this->ftp->list_files('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/') == false) {
                 // $this->ftp->mkdir('participants/' . $data['program_id'] . '/' . $data['user_id'] . '/', DIR_WRITE_MODE);
                 // $this->ftp->mkdir('participants/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);

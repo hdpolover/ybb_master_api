@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_schedules	extends RestController
+class Program_schedules    extends RestController
 {
 
     function __construct()
@@ -20,7 +20,7 @@ class Program_schedules	extends RestController
     {
         $program_id = $this->get('program_id');
         if ($program_id == '') {
-            $program_schedules = $this->mCore->list_data('program_schedules')->result_array();
+            $program_schedules = $this->mCore->get_data('program_schedules', ['is_active' => 1])->result_array();
             if ($program_schedules) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_schedules	extends RestController
                 ], 404);
             }
         } else {
-            $program_schedules = $this->mCore->get_data('program_schedules', ['program_id' => $program_id])->result_array();
+            $program_schedules = $this->mCore->get_data('program_schedules', ['program_id' => $program_id, 'is_active' => 1])->result_array();
             if ($program_schedules) {
                 $this->response([
                     'status' => true,
@@ -126,4 +126,3 @@ class Program_schedules	extends RestController
         }
     }
 }
-?>

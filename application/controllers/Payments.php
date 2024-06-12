@@ -32,11 +32,12 @@ class payments extends RestController
 				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
 				'table' => 'payments',
 				'join' => [
-					'participants' => 'payments.participant_id = participants.id',
-					'users' => 'participants.user_id = users.id',
-					'program_payments' => 'payments.program_payment_id = program_payments.id',
-					'payment_methods' => 'payments.payment_method_id = payment_methods.id',
+					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+					'users' => 'participants.user_id = users.id AND users.is_active = 1',
+					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
+				'where' => ['payments.is_active = 1'],
 			);
 			$payments = $this->mCore->join_table($option)->result_array();
 			if ($payments) {
@@ -58,12 +59,12 @@ class payments extends RestController
 				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
 				'table' => 'payments',
 				'join' => [
-					'participants' => 'payments.participant_id = participants.id',
-					'users' => 'participants.user_id = users.id',
-					'program_payments' => 'payments.program_payment_id = program_payments.id',
-					'payment_methods' => 'payments.payment_method_id = payment_methods.id',
+					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+					'users' => 'participants.user_id = users.id AND users.is_active = 1',
+					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
-				'where' => ['payments.id' => $id],
+				'where' => ['payments.id' => $id, 'payments.is_active = 1'],
 			);
 			$payments = $this->mCore->join_table($option)->row();
 			if ($payments) {
@@ -84,7 +85,7 @@ class payments extends RestController
 	{
 		$participant_id = $this->get('participant_id');
 
-		$payments = $this->mCore->get_data('payments', ['participant_id' => $participant_id])->result_array();
+		$payments = $this->mCore->get_data('payments', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -102,7 +103,7 @@ class payments extends RestController
 	{
 		$program_payment_id = $this->get('program_payment_id');
 
-		$payments = $this->mCore->get_data('payments', ['program_payment_id' => $program_payment_id])->result_array();
+		$payments = $this->mCore->get_data('payments', ['program_payment_id' => $program_payment_id, 'is_active' => 1])->result_array();
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -120,7 +121,7 @@ class payments extends RestController
 	{
 		$payment_method_id = $this->get('payment_method_id');
 
-		$payments = $this->mCore->get_data('payments', ['payment_method_id' => $payment_method_id])->result_array();
+		$payments = $this->mCore->get_data('payments', ['payment_method_id' => $payment_method_id, 'is_active' => 1])->result_array();
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -1287,11 +1288,11 @@ class payments extends RestController
 				$this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
 
 				$status_pay = 0;
-				if($data['program_payment_name'] == 'Registration Fee (Early Bid)'){
+				if ($data['program_payment_name'] == 'Registration Fee (Early Bid)') {
 					$status_pay = 1;
-				}else if($data['program_payment_name'] == 'Program Fee Batch 1'){
+				} else if ($data['program_payment_name'] == 'Program Fee Batch 1') {
 					$status_pay = 2;
-				}else if($data['program_payment_name'] == 'Program Fee Batch 2'){
+				} else if ($data['program_payment_name'] == 'Program Fee Batch 2') {
 					$status_pay = 3;
 				}
 

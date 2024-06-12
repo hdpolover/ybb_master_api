@@ -20,7 +20,7 @@ class Program_photos extends RestController
     {
         $program_category_id = $this->get('program_category_id');
         if ($program_category_id == '') {
-            $program_photos = $this->mCore->list_data('program_photos')->result_array();
+            $program_photos = $this->mCore->get_data('program_photos', ['is_active' => 1])->result_array();
             if ($program_photos) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_photos extends RestController
                 ], 404);
             }
         } else {
-            $program_photos = $this->mCore->get_data('program_photos', ['program_category_id' => $program_category_id])->result_array();
+            $program_photos = $this->mCore->get_data('program_photos', ['program_category_id' => $program_category_id, 'is_active' => 1])->result_array();
             if ($program_photos) {
                 $this->response([
                     'status' => true,

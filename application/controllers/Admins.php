@@ -20,7 +20,7 @@ class Admins extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $data = $this->mCore->list_data('admins')->result_array();
+            $data = $this->mCore->get_data('admins', ['is_active' => 1])->result_array();
             if ($data) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Admins extends RestController
                 ], 404);
             }
         } else {
-            $data = $this->mCore->get_data('admins', ['id' => $id])->row_array();
+            $data = $this->mCore->get_data('admins', ['id' => $id, 'is_active' => 1])->row_array();
             if ($data) {
                 $this->response([
                     'status' => true,

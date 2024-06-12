@@ -20,7 +20,7 @@ class Users extends RestController
   {
     $id = $this->get('id');
     if ($id == '') {
-      $users = $this->mCore->list_data('users')->result_array();
+      $users = $this->mCore->get_data('users', ['is_active' => 1])->result_array();
       if ($users) {
         $this->response([
           'status' => true,
@@ -33,7 +33,7 @@ class Users extends RestController
         ], 404);
       }
     } else {
-      $users = $this->mCore->get_data('users', ['id' => $id])->row_array();
+      $users = $this->mCore->get_data('users', ['id' => $id, 'is_active' => 1])->row_array();
       if ($users) {
         $this->response([
           'status' => true,

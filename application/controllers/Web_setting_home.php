@@ -20,7 +20,7 @@ class Web_setting_home extends RestController
     {
         $program_id = $this->get('program_id');
         if ($program_id == '') {
-            $web_setting_home = $this->mCore->list_data('web_setting_home')->result_array();
+            $web_setting_home = $this->mCore->get_data('web_setting_home', ['is_active' => 1])->result_array();
             if ($web_setting_home) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Web_setting_home extends RestController
                 ], 404);
             }
         } else {
-            $web_setting_home = $this->mCore->get_data('web_setting_home', ['program_id' => $program_id])->result();
+            $web_setting_home = $this->mCore->get_data('web_setting_home', ['program_id' => $program_id, 'is_active' => 1])->result();
             if ($web_setting_home) {
                 $this->response([
                     'status' => true,

@@ -20,7 +20,7 @@ class Program_announcements extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_announcements = $this->mCore->list_data('program_announcements')->result_array();
+            $program_announcements = $this->mCore->get_data('program_announcements', ['is_active' => 1])->result_array();
             if ($program_announcements) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_announcements extends RestController
                 ], 404);
             }
         } else {
-            $program_announcements = $this->mCore->get_data('program_announcements', ['id' => $id])->row_array();
+            $program_announcements = $this->mCore->get_data('program_announcements', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_announcements) {
                 $this->response([
                     'status' => true,
@@ -54,12 +54,12 @@ class Program_announcements extends RestController
         $option = array(
             'select' => 'participant_statuses.general_status',
             'table' => 'participants',
-            'join' => ['participant_statuses' => 'participants.id = participant_statuses.participant_id'],
-            'where' => 'participants.id = ' . $id,
+            'join' => ['participant_statuses' => 'participants.id = participant_statuses.participant_id AND participant_statuses.is_active = 1'],
+            'where' => 'participants.id = ' . $id . ' AND participants.is_active = 1',
         );
 
         $participant = $this->mCore->join_table($option)->row_array();
-        $program_announcements = $this->mCore->get_data('program_announcements', ['visible_to <=' => $participant['general_status']])->result_array();
+        $program_announcements = $this->mCore->get_data('program_announcements', ['visible_to <=' => $participant['general_status'], 'is_active' => 1])->result_array();
 
         if ($program_announcements) {
             $this->response([
@@ -155,7 +155,7 @@ class Program_announcements extends RestController
             ], 404);
         }
     }
-    
+
     // UPLOAD IMAGE
     public function upload_image($img_url, $id)
     {
@@ -176,7 +176,7 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/'. $temp_img);
+            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -256,7 +256,7 @@ class Program_announcements extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/'. $temp_img);
+            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -318,4 +318,3 @@ class Program_announcements extends RestController
         }
     }
 }
-?>

@@ -20,7 +20,7 @@ class Program_testimonies extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_testimonies = $this->mCore->list_data('program_testimonies')->result_array();
+            $program_testimonies = $this->mCore->get_data('program_testimonies', ['is_active' => 1])->result_array();
             if ($program_testimonies) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Program_testimonies extends RestController
                 ], 404);
             }
         } else {
-            $program_testimonies = $this->mCore->get_data('program_testimonies', ['id' => $id])->row_array();
+            $program_testimonies = $this->mCore->get_data('program_testimonies', ['id' => $id, 'is_active' => 1])->row_array();
             if ($program_testimonies) {
                 $this->response([
                     'status' => true,
@@ -53,7 +53,7 @@ class Program_testimonies extends RestController
     {
         $program_id = $this->get('id');
 
-        $program_testimonies = $this->mCore->get_data('program_testimonies', ['program_id' => $program_id])->result_array();
+        $program_testimonies = $this->mCore->get_data('program_testimonies', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($program_testimonies) {
             $this->response([
                 'status' => true,
@@ -158,7 +158,7 @@ class Program_testimonies extends RestController
             ], 404);
         }
     }
-    
+
     public function upload_image($img_url, $id)
     {
 
@@ -178,7 +178,7 @@ class Program_testimonies extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('testimonies/' . $data['program_id'] . '/'. $temp_img);
+            $this->ftp->delete_file('testimonies/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -258,7 +258,7 @@ class Program_testimonies extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('testimonies/' . $data['program_id'] . '/'. $temp_img);
+            $this->ftp->delete_file('testimonies/' . $data['program_id'] . '/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -320,4 +320,3 @@ class Program_testimonies extends RestController
         }
     }
 }
-?>

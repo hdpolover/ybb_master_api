@@ -20,7 +20,7 @@ class Help_ticket_discussions extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $help_ticket_discussions = $this->mCore->list_data('help_ticket_discussions')->result_array();
+            $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['is_active' => 1])->result_array();
             if ($help_ticket_discussions) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Help_ticket_discussions extends RestController
                 ], 404);
             }
         } else {
-            $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['id' => $id])->row_array();
+            $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['id' => $id, 'is_active' => 1])->row_array();
             if ($help_ticket_discussions) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Help_ticket_discussions extends RestController
     {
         $help_ticket_id = $this->get('help_ticket_id');
 
-        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['help_ticket_id' => $help_ticket_id])->result_array();
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['help_ticket_id' => $help_ticket_id, 'is_active' => 1])->result_array();
         if ($help_ticket_discussions) {
             $this->response([
                 'status' => true,
@@ -70,7 +70,7 @@ class Help_ticket_discussions extends RestController
     {
         $participant_id = $this->get('participant_id');
 
-        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['participant_id' => $participant_id])->result_array();
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
         if ($help_ticket_discussions) {
             $this->response([
                 'status' => true,
@@ -88,7 +88,7 @@ class Help_ticket_discussions extends RestController
     {
         $admin_id = $this->get('admin_id');
 
-        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['admin_id' => $admin_id])->result_array();
+        $help_ticket_discussions = $this->mCore->get_data('help_ticket_discussions', ['admin_id' => $admin_id, 'is_active' => 1])->result_array();
         if ($help_ticket_discussions) {
             $this->response([
                 'status' => true,

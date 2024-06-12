@@ -20,7 +20,7 @@ class Participant_program_documents extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $participant_program_documents = $this->mCore->list_data('participant_program_documents')->result_array();
+            $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['is_active' => 1])->result_array();
             if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Participant_program_documents extends RestController
                 ], 404);
             }
         } else {
-            $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['id' => $id])->row();
+            $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['id' => $id, 'is_active' => 1])->row();
             if ($participant_program_documents) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Participant_program_documents extends RestController
     {
         $participant_id = $this->get('participant_id');
 
-        $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['participant_id' => $participant_id])->result_array();
+        $participant_program_documents = $this->mCore->get_data('participant_program_documents', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
         if ($participant_program_documents) {
             $this->response([
                 'status' => true,

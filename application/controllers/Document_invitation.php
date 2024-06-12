@@ -20,7 +20,7 @@ class Document_invitation extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $document_invitation = $this->mCore->list_data('document_invitation')->result_array();
+            $document_invitation = $this->mCore->get_data('document_invitation', ['is_active' => 1])->result_array();
             if ($document_invitation) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Document_invitation extends RestController
                 ], 404);
             }
         } else {
-            $document_invitation = $this->mCore->get_data('document_invitation', ['id' => $id])->row();
+            $document_invitation = $this->mCore->get_data('document_invitation', ['id' => $id, 'is_active' => 1])->row();
             if ($document_invitation) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Document_invitation extends RestController
     {
         $program_document_id = $this->get('program_document_id');
 
-        $document_invitation = $this->mCore->get_data('document_invitation', ['program_document_id' => $program_document_id])->result_array();
+        $document_invitation = $this->mCore->get_data('document_invitation', ['program_document_id' => $program_document_id, 'is_active' => 1])->result_array();
         if ($document_invitation) {
             $this->response([
                 'status' => true,

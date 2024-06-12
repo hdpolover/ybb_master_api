@@ -20,7 +20,7 @@ class Programs extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $programs = $this->mCore->list_data('programs')->result_array();
+            $programs = $this->mCore->get_data('programs', ['is_active' => 1])->result_array();
             if ($programs) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Programs extends RestController
                 ], 404);
             }
         } else {
-            $programs = $this->mCore->get_data('programs', ['id' => $id])->row();
+            $programs = $this->mCore->get_data('programs', ['id' => $id, 'is_active' => 1])->row();
             if ($programs) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Programs extends RestController
     {
         $program_category_id = $this->get('id');
 
-        $programs = $this->mCore->get_data('programs', ['program_category_id' => $program_category_id])->result_array();
+        $programs = $this->mCore->get_data('programs', ['program_category_id' => $program_category_id, 'is_active' => 1])->result_array();
         if ($programs) {
             $this->response([
                 'status' => true,

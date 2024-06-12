@@ -20,7 +20,7 @@ class Help_tickets extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $help_tickets = $this->mCore->list_data('help_tickets')->result_array();
+            $help_tickets = $this->mCore->get_data('help_tickets', ['is_active' => 1])->result_array();
             if ($help_tickets) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Help_tickets extends RestController
                 ], 404);
             }
         } else {
-            $help_tickets = $this->mCore->get_data('help_tickets', ['id' => $id])->row_array();
+            $help_tickets = $this->mCore->get_data('help_tickets', ['id' => $id, 'is_active' => 1])->row_array();
             if ($help_tickets) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Help_tickets extends RestController
     {
         $participant_id = $this->get('participant_id');
 
-        $help_tickets = $this->mCore->get_data('help_tickets', ['participant_id' => $participant_id])->result_array();
+        $help_tickets = $this->mCore->get_data('help_tickets', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
         if ($help_tickets) {
             $this->response([
                 'status' => true,
@@ -70,7 +70,7 @@ class Help_tickets extends RestController
     {
         $admin_id = $this->get('admin_id');
 
-        $help_tickets = $this->mCore->get_data('help_tickets', ['admin_id' => $admin_id])->result_array();
+        $help_tickets = $this->mCore->get_data('help_tickets', ['admin_id' => $admin_id, 'is_active' => 1])->result_array();
         if ($help_tickets) {
             $this->response([
                 'status' => true,

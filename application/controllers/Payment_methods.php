@@ -20,7 +20,7 @@ class Payment_methods extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $payment_methods = $this->mCore->list_data('payment_methods')->result_array();
+            $payment_methods = $this->mCore->get_data('payment_methods', ['is_active' => 1])->result_array();
             if ($payment_methods) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Payment_methods extends RestController
                 ], 404);
             }
         } else {
-            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id])->row_array();
+            $payment_methods = $this->mCore->get_data('payment_methods', ['id' => $id, 'is_active' => 1])->row_array();
             if ($payment_methods) {
                 $this->response([
                     'status' => true,
@@ -52,7 +52,7 @@ class Payment_methods extends RestController
     {
         $program_id = $this->get('program_id');
 
-        $payment_methods = $this->mCore->get_data('payment_methods', ['program_id' => $program_id])->result_array();
+        $payment_methods = $this->mCore->get_data('payment_methods', ['program_id' => $program_id, 'is_active' => 1])->result_array();
         if ($payment_methods) {
             $this->response([
                 'status' => true,
