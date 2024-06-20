@@ -48,6 +48,22 @@ class Users extends RestController
     }
   }
 
+  public function check_email_get()
+  {
+    $email = $this->get('email');
+    $users = $this->mCore->get_data('users', ['email' => $email, 'is_active' => 1])->row_array();
+    if ($users) {
+      $this->response([
+        'status' => true,
+        'data' => $users,
+      ], 200);
+    } else {
+      $this->response([
+        'status' => false,
+        'message' => 'No result were found',
+      ], 404);
+    }
+  }
   //SIMPAN DATA
   public function save_post()
   {
