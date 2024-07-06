@@ -65,6 +65,24 @@ class Participants extends RestController
         }
     }
 
+    //LIST PROGRAM
+    public function participant_program_get()
+    {
+        $program_id = $this->get('program_id');
+        $participants = $this->mCore->get_data('participants', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($participants) {
+            $this->response([
+                'status' => true,
+                'data' => $participants,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found',
+            ], 404);
+        }
+    }
+
     //LIST AMBASSADOR
     public function list_ambassador_get()
     {
