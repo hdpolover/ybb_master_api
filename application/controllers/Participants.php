@@ -19,7 +19,17 @@ class Participants extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $participants = $this->mCore->get_data('participants', ['is_active' => 1])->result_array();
+            $option = array(
+                'select' => 'participants.*, a.general_status, a.form_status, a.document_status, a.payment_status, b.email',
+                'table' => 'participants',
+                'join' => [
+                    'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
+                    'users b' => 'b.id = participants.user_id AND b.is_active = 1',
+                ],
+                'where' => ['participants.is_active = 1'],
+                'order' => ['participants.id' => 'ASC']
+            );
+            $participants = $this->mCore->join_table($option)->result_array();
             if ($participants) {
                 $this->response([
                     'status' => true,
@@ -32,7 +42,16 @@ class Participants extends RestController
                 ], 404);
             }
         } else {
-            $participants = $this->mCore->get_data('participants', ['id' => $id, 'is_active' => 1])->row_array();
+            $option = array(
+                'select' => 'participants.*, a.general_status, a.form_status, a.document_status, a.payment_status, b.email',
+                'table' => 'participants',
+                'join' => [
+                    'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
+                    'users b' => 'b.id = participants.user_id AND b.is_active = 1',
+                ],
+                'where' => ['participants.id = ' . $id . ' AND participants.is_active = 1'],
+            );
+            $participants = $this->mCore->join_table($option)->row_array();
             if ($participants) {
                 $this->response([
                     'status' => true,
