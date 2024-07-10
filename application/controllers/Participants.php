@@ -70,7 +70,17 @@ class Participants extends RestController
     public function participant_user_get()
     {
         $user_id = $this->get('user_id');
-        $participants = $this->mCore->get_data('participants', ['user_id' => $user_id, 'is_active' => 1])->result_array();
+
+        $option = array(
+            'select' => 'participants.*, a.general_status, a.form_status, a.document_status, a.payment_status, b.email',
+            'table' => 'participants',
+            'join' => [
+                'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
+                'users b' => 'b.id = participants.user_id AND b.is_active = 1',
+            ],
+            'where' => ['participants.user_id = ' . $user_id . ' AND participants.is_active = 1'],
+        );
+        $participants = $this->mCore->join_table($option)->result_array();
         if ($participants) {
             $this->response([
                 'status' => true,
@@ -88,7 +98,17 @@ class Participants extends RestController
     public function participant_program_get()
     {
         $program_id = $this->get('program_id');
-        $participants = $this->mCore->get_data('participants', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+
+        $option = array(
+            'select' => 'participants.*, a.general_status, a.form_status, a.document_status, a.payment_status, b.email',
+            'table' => 'participants',
+            'join' => [
+                'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
+                'users b' => 'b.id = participants.user_id AND b.is_active = 1',
+            ],
+            'where' => ['participants.program_id = ' . $program_id . ' AND participants.is_active = 1'],
+        );
+        $participants = $this->mCore->join_table($option)->result_array();
         if ($participants) {
             $this->response([
                 'status' => true,
@@ -106,7 +126,16 @@ class Participants extends RestController
     public function list_ambassador_get()
     {
         $ref_code = $this->get('ref_code');
-        $participants = $this->mCore->get_data('participants', ['ref_code_ambassador' => $ref_code, 'is_active' => 1])->result_array();
+        $option = array(
+            'select' => 'participants.*, a.general_status, a.form_status, a.document_status, a.payment_status, b.email',
+            'table' => 'participants',
+            'join' => [
+                'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
+                'users b' => 'b.id = participants.user_id AND b.is_active = 1',
+            ],
+            'where' => ['participants.ref_code_ambassador = ' . $ref_code . ' AND participants.is_active = 1'],
+        );
+        $participants = $this->mCore->join_table($option)->result_array();
         if ($participants) {
             $this->response([
                 'status' => true,
