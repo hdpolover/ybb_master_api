@@ -85,7 +85,22 @@ class payments extends RestController
 	{
 		$participant_id = $this->get('participant_id');
 
-		$payments = $this->mCore->get_data('payments', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
+		$option = array(
+			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
+				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
+				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
+				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+			'table' => 'payments',
+			'join' => [
+				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+				'users' => 'participants.user_id = users.id AND users.is_active = 1',
+				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+			],
+			'where' => ['payments.participant_id' => $participant_id, 'payments.is_active = 1'],
+		);
+		$payments = $this->mCore->join_table($option)->result_array();
+
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -103,7 +118,22 @@ class payments extends RestController
 	{
 		$program_payment_id = $this->get('program_payment_id');
 
-		$payments = $this->mCore->get_data('payments', ['program_payment_id' => $program_payment_id, 'is_active' => 1])->result_array();
+		$option = array(
+			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
+				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
+				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
+				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+			'table' => 'payments',
+			'join' => [
+				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+				'users' => 'participants.user_id = users.id AND users.is_active = 1',
+				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+			],
+			'where' => ['payments.program_payment_id' => $program_payment_id, 'payments.is_active = 1'],
+		);
+		$payments = $this->mCore->join_table($option)->result_array();
+
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -121,7 +151,22 @@ class payments extends RestController
 	{
 		$payment_method_id = $this->get('payment_method_id');
 
-		$payments = $this->mCore->get_data('payments', ['payment_method_id' => $payment_method_id, 'is_active' => 1])->result_array();
+		$option = array(
+			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
+				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
+				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
+				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+			'table' => 'payments',
+			'join' => [
+				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+				'users' => 'participants.user_id = users.id AND users.is_active = 1',
+				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+			],
+			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active = 1'],
+		);
+		$payments = $this->mCore->join_table($option)->result_array();
+
 		if ($payments) {
 			$this->response([
 				'status' => true,
@@ -131,6 +176,24 @@ class payments extends RestController
 			$this->response([
 				'status' => false,
 				'message' => 'No result were found',
+			], 404);
+		}
+	}
+
+	// UPDATE PAYMENT YANG LEBIH DARI SEHARI
+	public function update_payments_get()
+	{
+		$sql = $this->mCore->query_data('UPDATE payments p JOIN payment_methods pm ON p.payment_method_id = pm.id SET p.status = 3 WHERE pm.type = "gateway" AND p.status IN (0, 1) AND p.updated_at < NOW() - INTERVAL 1 DAY');
+
+		if ($sql) {
+			$this->response([
+				'status' => true,
+				'message' => 'Data update successfully',
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'Sorry, failed to update',
 			], 404);
 		}
 	}
@@ -1336,10 +1399,6 @@ class payments extends RestController
 			//     'message' => 'Payment error!',
 			// ], 404);
 		}
-	}
-
-	public function test_post()
-	{
 	}
 
 	public function failure_pay_get()
