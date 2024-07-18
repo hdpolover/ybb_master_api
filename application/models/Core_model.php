@@ -140,7 +140,6 @@ class Core_model extends CI_Model
                 if (count($value) > 0) {
                     $this->db->where_in($key, $value);
                 }
-
             }
         }
 
@@ -149,7 +148,6 @@ class Core_model extends CI_Model
                 if (count($value) > 0) {
                     $this->db->where_not_in($key, $value);
                 }
-
             }
         }
 

@@ -822,11 +822,24 @@ class Users extends RestController
     );
     $sql = $this->mCore->save_data('users', $data, true, ['id' => $id]);
     if ($sql) {
-      // $last_data = $this->mCore->get_data('users', ['id' => $id])->row_array();
-      $this->response([
-        'status' => true,
-        'data' => 'Email verification successfully',
-      ], 200);
+      $opt = array(
+        'select' => 'users.id, users.full_name, users.email, programs.name, programs.logo_url, program_categories.web_url',
+        'table' => 'users',
+        'join' => [
+          'participants' => 'participants.user_id = users.id',
+          'programs' => 'participants.program_id = programs.id',
+          'program_categories' => 'programs.program_category_id = program_categories.id',
+        ],
+        'where' => 'users.id = ' . $id,
+      );
+      $data = $this->mCore->join_table($opt)->row_array();
+
+      $data_view = array(
+        'logo_url' => $data['logo_url'],
+        'web_url' => $data['web_url']
+      );
+
+      $this->load->view("success_verif", $data_view);
     } else {
       $this->response([
         'status' => false,

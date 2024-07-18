@@ -48,6 +48,23 @@ class Program_announcements extends RestController
         }
     }
 
+    function list_get()
+    {
+        $program_id = $this->get('program_id');
+        $program_announcements = $this->mCore->get_data('program_announcements', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($program_announcements) {
+            $this->response([
+                'status' => true,
+                'data' => $program_announcements
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     function participant_get()
     {
         $id = $this->get('id');
@@ -82,6 +99,7 @@ class Program_announcements extends RestController
             'title' => $this->post('title'),
             'description' => $this->post('description'),
             'img_url' => NULL,
+            'visible_to' => $this->post('visible_to'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -116,6 +134,7 @@ class Program_announcements extends RestController
         $data = array(
             'title' => $this->post('title'),
             'description' => $this->post('description'),
+            'visible_to' => $this->post('visible_to'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_announcements', array_filter($data), true, ['id' => $id]);
