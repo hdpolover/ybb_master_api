@@ -54,10 +54,11 @@ class Program_categories extends RestController
         if ($url) {
             $join = [
                 'select' => '*',
-                'table' => 'programs',
-                'join' => ['program_categories' => 'program_categories.id = programs.program_category_id'],
+                'table' => 'program_categories',
+                'join' => ['programs' => 'programs.program_category_id = program_categories.id AND programs.is_active = 1'],
                 'where' => ['program_categories.web_url' => $url, 'programs.is_active' => 1],
-                'order' => ['programs.id' => 'asc'],
+                'order' => ['programs.id' => 'desc'],
+                'limit' => 1
             ];
             $web_url = $this->mCore->join_table($join)->row_array();
             if ($web_url) {
