@@ -48,6 +48,23 @@ class Ambassadors extends RestController
         }
     }
 
+    function ambassador_program_get()
+    {
+        $program_id = $this->get('program_id');
+        $data = $this->mCore->get_data('ambassadors', ['program_id' => $program_id, 'is_active' => 1])->row_array();
+        if ($data) {
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     function save_post()
     {
