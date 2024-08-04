@@ -18,11 +18,11 @@ class Dashboard_admin extends RestController
 
     public function user_count_by_day_get()
     {
-        $program_category_id = $this->get('program_category_id');
-        if ($program_category_id) {
-            $data = $this->mCore->query_data('SELECT date(created_at) tanggal, count(*) jumlah FROM users WHERE program_category_id = ' . $program_category_id . ' GROUP BY DATE(created_at) order by created_at asc')->result_array();
+        $program_id = $this->get('program_id');
+        if ($program_id) {
+            $data = $this->mCore->query_data('SELECT date(users.created_at) tanggal, count(*) jumlah FROM users JOIN participants ON participants.user_id = users.id WHERE program_id = ' . $program_id . ' GROUP BY DATE(users.created_at) order by users.created_at asc')->result_array();
         } else {
-            $data = $this->mCore->query_data('SELECT date(created_at) tanggal, count(*) jumlah FROM users GROUP BY DATE(created_at) order by created_at asc')->result_array();
+            $data = $this->mCore->query_data('SELECT date(users.created_at) tanggal, count(*) jumlah FROM users JOIN participants ON participants.user_id = users.id GROUP BY DATE(users.created_at) order by users.created_at asc')->result_array();
         }
         $this->response([
             'status' => true,
