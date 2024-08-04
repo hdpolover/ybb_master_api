@@ -269,22 +269,32 @@ class Core_model extends CI_Model
 
     public function do_signin_participant($email = '', $password = '', $program_category_id)
     {
-        $this->db->where('email', $email);
-        $user = $this->db->get('users');
 
-        if ($user->num_rows() == 1) {
+        $user = $this->get_data('users', ['email' => $email, 'password' => md5($password), 'program_category_id' => $program_category_id]);
+
+        if ($user->num_rows() > 0) {
             if ($user->row_array()['is_active'] == 1) {
-                $isSignin = $this->get_data('users', ['password' => md5($password), 'program_category_id' => $program_category_id])->num_rows();
-                if ($isSignin) {
-                    return $user->row_array()['id'];
+                $isSignin = $this->db->select('participants.*, users.email, users.is_verified, users.program_category_id')
+                    ->join('participants', 'users.id = participants.user_id')
+                    ->get_where('users', 'participants.id = ' . $user->row_array()['id']);
+                if ($isSignin->num_rows() > 0) {
+                    $arr['data'] = $isSignin->row_array();
+                    $arr['status'] = 1;
+                    return $arr;
                 } else {
-                    return false;
+                    $arr['data'] = "Data not Found!";
+                    $arr['status'] = 0;
+                    return $arr;
                 }
             } else {
-                return false;
+                $arr['data'] = "Participant not active!";
+                $arr['status'] = 0;
+                return $arr;
             }
-        } else {
-            return false;
+        }else{
+            $arr['data'] = "Email/Password are Incorrect!";
+            $arr['status'] = 0;
+            return $arr;
         }
     }
 }

@@ -18,8 +18,12 @@ class Dashboard_admin extends RestController
 
     public function user_count_by_day_get()
     {
-        $data = $this->mCore->query_data('SELECT date(created_at) tanggal, count(*) jumlah FROM users GROUP BY DATE(created_at) order by created_at asc')->result_array();
-
+        $program_category_id = $this->get('program_category_id');
+        if ($program_category_id) {
+            $data = $this->mCore->query_data('SELECT date(created_at) tanggal, count(*) jumlah FROM users WHERE program_category_id = ' . $program_category_id . ' GROUP BY DATE(created_at) order by created_at asc')->result_array();
+        } else {
+            $data = $this->mCore->query_data('SELECT date(created_at) tanggal, count(*) jumlah FROM users GROUP BY DATE(created_at) order by created_at asc')->result_array();
+        }
         $this->response([
             'status' => true,
             'data' => $data,
@@ -28,9 +32,12 @@ class Dashboard_admin extends RestController
 
     public function participant_country_count_get()
     {
-
-        $data = $this->mCore->query_data('SELECT nationality,count(*) jumlah FROM participants group by nationality order by jumlah desc')->result_array();
-
+        $program_id = $this->get('program_id');
+        if ($program_id) {
+            $data = $this->mCore->query_data('SELECT nationality,count(*) jumlah FROM participants WHERE program_id = ' . $program_id . ' group by nationality order by jumlah desc')->result_array();
+        } else {
+            $data = $this->mCore->query_data('SELECT nationality,count(*) jumlah FROM participants group by nationality order by jumlah desc')->result_array();
+        }
         $this->response([
             'status' => true,
             'data' => $data,
