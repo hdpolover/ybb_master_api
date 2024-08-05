@@ -870,7 +870,7 @@ class Users extends RestController
     $options = 0;
     $iv = '1234567891011121';
 
-    $encryptedData = openssl_encrypt($id_encrypt, $method, $key, $options, $iv);
+    $encryptedData = str_replace('+','%2B',openssl_encrypt($id_encrypt, $method, $key, $options, $iv));
 
     $config = array(
       'protocol' => 'smtp',
@@ -1336,7 +1336,7 @@ class Users extends RestController
                         <tbody>
                           <tr align="center">
                             <td align="center" valign="middle" style="border-collapse:collapse;">
-                              <a class="buttonText" href="https://redirect.ybbfoundation.com/reset-password.php?id=' . $encryptedData . '" target="_blank" style="color: #fff;text-decoration: none;font-weight: normal;display: block;border:none;border-radius:3px;padding: 10px 80px;font-family: Arial;background-color:#7289DA">Reset Password</a>
+                              <a class="buttonText" href="https://redirect.ybbfoundation.com/reset-password?id=' . $encryptedData . '" target="_blank" style="color: #fff;text-decoration: none;font-weight: normal;display: block;border:none;border-radius:3px;padding: 10px 80px;font-family: Arial;background-color:#7289DA">Reset Password</a>
                             </td>
                           </tr>
                         </tbody>
