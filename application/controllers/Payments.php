@@ -37,7 +37,7 @@ class payments extends RestController
 					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
 					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
-				'where' => ['payments.is_active = 1'],
+				'where' => ['payments.is_active' => 1],
 			);
 			$payments = $this->mCore->join_table($option)->result_array();
 			if ($payments) {
@@ -64,7 +64,7 @@ class payments extends RestController
 					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
 					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
-				'where' => ['payments.id' => $id, 'payments.is_active = 1'],
+				'where' => ['payments.id' => $id, 'payments.is_active' => 1],
 			);
 			$payments = $this->mCore->join_table($option)->row();
 			if ($payments) {
@@ -97,7 +97,7 @@ class payments extends RestController
 				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
-			'where' => ['payments.participant_id' => $participant_id, 'payments.is_active = 1'],
+			'where' => ['payments.participant_id' => $participant_id, 'payments.is_active' => 1],
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
@@ -130,7 +130,7 @@ class payments extends RestController
 				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
-			'where' => ['payments.program_payment_id' => $program_payment_id, 'payments.is_active = 1'],
+			'where' => ['payments.program_payment_id' => $program_payment_id, 'payments.is_active' => 1],
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
@@ -163,7 +163,7 @@ class payments extends RestController
 				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
-			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active = 1'],
+			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active' => 1],
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
