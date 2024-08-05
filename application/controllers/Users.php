@@ -253,7 +253,7 @@ class Users extends RestController
     $config = array(
       'protocol' => 'smtp',
       'smtp_host' => 'ssl://smtp.googlemail.com',
-      'smtp_port' => 465,
+      'smtp_port' => config_item('port_email'),
       'smtp_user' => config_item('user_email'),
       'smtp_pass' => config_item('pass_email'),
       'mailtype' => 'html',
@@ -795,7 +795,7 @@ class Users extends RestController
     $this->email->set_mailtype("html");
     $this->email->set_newline("\r\n");
     $this->email->set_crlf("\r\n");
-    $this->email->from('paywithalla@gmail.com');
+    $this->email->from(config_item('user_email'));
     $this->email->to($data['email']);
     $this->email->subject('Verify Your Email Address for ' . $data['name']);
     $this->email->message($message);
@@ -875,7 +875,7 @@ class Users extends RestController
     $config = array(
       'protocol' => 'smtp',
       'smtp_host' => 'ssl://smtp.googlemail.com',
-      'smtp_port' => 465,
+      'smtp_port' => config_item('port_email'),
       'smtp_user' => config_item('user_email'),
       'smtp_pass' => config_item('pass_email'),
       'mailtype' => 'html',
@@ -1418,7 +1418,7 @@ class Users extends RestController
     $this->email->set_mailtype("html");
     $this->email->set_newline("\r\n");
     $this->email->set_crlf("\r\n");
-    $this->email->from('paywithalla@gmail.com');
+    $this->email->from(config_item('user_email'));
     $this->email->to($data['email']);
     $this->email->subject('Reset Your ' . $data['name'] . ' Account Password');
     $this->email->message($message);

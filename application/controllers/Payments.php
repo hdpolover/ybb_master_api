@@ -580,7 +580,7 @@ class payments extends RestController
 		$config = array(
 			'protocol' => 'smtp',
 			'smtp_host' => 'ssl://smtp.googlemail.com',
-			'smtp_port' => 465,
+			'smtp_port' => config_item('port_email'),
 			'smtp_user' => config_item('user_email'),
 			'smtp_pass' => config_item('pass_email'),
 			'mailtype' => 'html',
@@ -1335,7 +1335,7 @@ class payments extends RestController
 		$this->email->set_mailtype("html");
 		$this->email->set_newline("\r\n");
 		$this->email->set_crlf("\r\n");
-		$this->email->from('paywithalla@gmail.com');
+		$this->email->from(config_item('user_email'));
 		$this->email->to($data['email']);
 		$this->email->subject('Thank you for participating in ' . $data['name']);
 		$this->email->message($message);
@@ -1446,7 +1446,7 @@ class payments extends RestController
 		$config = array(
 			'protocol' => 'smtp',
 			'smtp_host' => 'ssl://smtp.googlemail.com',
-			'smtp_port' => 465,
+			'smtp_port' => config_item('port_email'),
 			'smtp_user' => config_item('user_email'),
 			'smtp_pass' => config_item('pass_email'),
 			'mailtype' => 'html',
@@ -2201,7 +2201,7 @@ class payments extends RestController
 		$this->email->set_mailtype("html");
 		$this->email->set_newline("\r\n");
 		$this->email->set_crlf("\r\n");
-		$this->email->from('paywithalla@gmail.com');
+		$this->email->from(config_item('user_email'));
 		$this->email->to($data['email_user']);
 		$this->email->subject('Thank you for participating in ' . $data['name']);
 		$this->email->message($message);
