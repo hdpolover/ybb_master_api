@@ -276,7 +276,7 @@ class Core_model extends CI_Model
             if ($user->row_array()['is_active'] == 1) {
                 $isSignin = $this->db->select('participants.*, users.email, users.is_verified, users.program_category_id')
                     ->join('participants', 'users.id = participants.user_id')
-                    ->get_where('users', 'participants.id = ' . $user->row_array()['id']);
+                    ->get_where('users', 'participants.user_id = ' . $user->row_array()['id']);
                 if ($isSignin->num_rows() > 0) {
                     $arr['data'] = $isSignin->row_array();
                     $arr['status'] = 1;
