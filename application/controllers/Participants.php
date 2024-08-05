@@ -106,7 +106,7 @@ class Participants extends RestController
                 'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
                 'users b' => 'b.id = participants.user_id AND b.is_active = 1',
             ],
-            'where' => ['participants.program_id = ' . $program_id . ' AND participants.is_active = 1'],
+            'where' => 'participants.program_id = ' . $program_id . ' AND participants.is_active = 1',
         );
         $participants = $this->mCore->join_table($option)->result_array();
         if ($participants) {
@@ -133,7 +133,7 @@ class Participants extends RestController
                 'participant_statuses a' => 'a.participant_id = participants.id AND a.is_active = 1',
                 'users b' => 'b.id = participants.user_id AND b.is_active = 1',
             ],
-            'where' => ['participants.ref_code_ambassador = ' . $ref_code . ' AND participants.is_active = 1'],
+            'where' => 'participants.ref_code_ambassador = "' . $ref_code . '" AND participants.is_active = 1',
         );
         $participants = $this->mCore->join_table($option)->result_array();
         if ($participants) {

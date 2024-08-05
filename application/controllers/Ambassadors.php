@@ -51,7 +51,24 @@ class Ambassadors extends RestController
     function ambassador_program_get()
     {
         $program_id = $this->get('program_id');
-        $data = $this->mCore->get_data('ambassadors', ['program_id' => $program_id, 'is_active' => 1])->row_array();
+        $data = $this->mCore->get_data('ambassadors', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($data) {
+            $this->response([
+                'status' => true,
+                'data' => $data
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
+    function participant_list_get()
+    {
+        $code = $this->get('code');
+        $data = $this->mCore->get_data('ambassadors', ['ref_code' => $code])->result_array();
         if ($data) {
             $this->response([
                 'status' => true,
