@@ -51,13 +51,23 @@ class Program_categories extends RestController
     public function web_get()
     {
         $url = $this->get('url');
+        // ganti // dengan .
+        $temp_url = str_replace('/','.', $url);
+        // dipecah dulu
+        $exp = explode('.', $temp_url);
+        // cari ukuran array nya
+        $uk_exp = count($exp);
+        // ambil 2 dari belakang
+        $url_new = $exp[($uk_exp-2)];
+
+
         if ($url) {
             $join = [
                 'select' => '*',
                 'table' => 'program_categories',
                 'join' => ['programs' => 'programs.program_category_id = program_categories.id AND programs.is_active = 1'],
-                'where' => ['program_categories.web_url' => $url, 'programs.is_active' => 1],
-                'order' => ['programs.id' => 'desc'],
+                'like' => ['program_categories.web_url' => $url_new],
+                'where' => ['programs.is_active' => 1],
                 'limit' => 1
             ];
             $web_url = $this->mCore->join_table($join)->row_array();
