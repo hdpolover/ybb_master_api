@@ -39,6 +39,7 @@ class Payments extends RestController
 					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
 				'where' => ['payments.is_active' => 1],
+				'order' => ['payments.id' => 'asc']
 			);
 			$payments = $this->mCore->join_table($option)->result_array();
 			if ($payments) {
@@ -67,6 +68,7 @@ class Payments extends RestController
 					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 				],
 				'where' => ['payments.id' => $id, 'payments.is_active' => 1],
+				'order' => ['payments.id' => 'asc']
 			);
 			$payments = $this->mCore->join_table($option)->row();
 			if ($payments) {
@@ -101,6 +103,7 @@ class Payments extends RestController
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
 			'where' => ['payments.participant_id' => $participant_id, 'payments.is_active' => 1],
+			'order' => ['payments.id' => 'asc']
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
@@ -135,6 +138,7 @@ class Payments extends RestController
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
 			'where' => ['payments.program_payment_id' => $program_payment_id, 'payments.is_active' => 1],
+			'order' => ['payments.id' => 'asc']
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
@@ -169,6 +173,7 @@ class Payments extends RestController
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
 			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active' => 1],
+			'order' => ['payments.id' => 'asc']
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
@@ -203,6 +208,7 @@ class Payments extends RestController
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
 			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
+			'order' => ['payments.id' => 'asc']
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
