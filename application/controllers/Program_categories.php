@@ -51,17 +51,19 @@ class Program_categories extends RestController
     public function web_get()
     {
         $url = $this->get('url');
-        // ganti // dengan .
-        $temp_url = str_replace('/','.', $url);
-        // dipecah dulu
-        $exp = explode('.', $temp_url);
-        // cari ukuran array nya
-        $uk_exp = count($exp);
-        // ambil 2 dari belakang
-        $url_new = $exp[($uk_exp-2)];
 
+        $program_categories = $this->mCore->get_data('program_categories', ['is_active' => 1])->result_array();
+        $cat = array_column($program_categories, 'web_url');
 
-        if ($url) {
+        $is_true = false;
+        foreach ($cat as $val) {
+            if (strpos($url, $val) !== false) {
+                $is_true = true;
+                $url_new = $val;
+            }
+        }
+
+        if ($is_true) {
             $join = [
                 'select' => '*',
                 'table' => 'program_categories',
