@@ -12,7 +12,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class payments extends RestController
+class Payments extends RestController
 {
 
 	public function __construct()
@@ -27,9 +27,10 @@ class payments extends RestController
 
 			$option = array(
 				'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
-				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
-				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
-				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
 				'table' => 'payments',
 				'join' => [
 					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
@@ -54,9 +55,10 @@ class payments extends RestController
 		} else {
 			$option = array(
 				'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
-				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
-				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
-				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
 				'table' => 'payments',
 				'join' => [
 					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
@@ -87,9 +89,10 @@ class payments extends RestController
 
 		$option = array(
 			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
-				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
-				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
-				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
 			'table' => 'payments',
 			'join' => [
 				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
@@ -120,9 +123,10 @@ class payments extends RestController
 
 		$option = array(
 			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
-				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
-				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
-				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
 			'table' => 'payments',
 			'join' => [
 				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
@@ -153,9 +157,10 @@ class payments extends RestController
 
 		$option = array(
 			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
-				program_payments.name program_payments_name, program_payments.description, program_payments.start_date, program_payments.end_date,
-				program_payments.order_number, program_payments.idr_amount, program_payments.usd_amount, program_payments.category,
-				payment_methods.name payment_methods_name, payment_methods.type, payment_methods.img_url',
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
 			'table' => 'payments',
 			'join' => [
 				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
@@ -164,6 +169,40 @@ class payments extends RestController
 				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
 			],
 			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active' => 1],
+		);
+		$payments = $this->mCore->join_table($option)->result_array();
+
+		if ($payments) {
+			$this->response([
+				'status' => true,
+				'data' => $payments,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'No result were found',
+			], 404);
+		}
+	}
+
+	public function payment_program_get()
+	{
+		$program_id = $this->get('program_id');
+
+		$option = array(
+			'select' => 'payments.*, participants.full_name, participants.phone_number, users.email,
+				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url',
+			'table' => 'payments',
+			'join' => [
+				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
+				'users' => 'participants.user_id = users.id AND users.is_active = 1',
+				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+			],
+			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
