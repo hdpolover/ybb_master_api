@@ -88,8 +88,12 @@ class Dashboard_admin extends RestController
     {
 
         $param = $this->get('param');
-
-        $data = $this->mCore->query_data('SELECT ' . $param . ',count(*) jumlah FROM participants group by  ' . $param . ' order by jumlah desc')->result_array();
+        $program_id = $this->get('program_id');
+        if ($program_id) {
+            $data = $this->mCore->query_data('SELECT ' . $param . ',count(*) jumlah FROM participants WHERE program_id = '.$program_id.' group by  ' . $param . ' order by jumlah desc')->result_array();
+        } else {
+            $data = $this->mCore->query_data('SELECT ' . $param . ',count(*) jumlah FROM participants group by  ' . $param . ' order by jumlah desc')->result_array();
+        }
 
         $this->response([
             'status' => true,

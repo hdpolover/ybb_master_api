@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,7 +69,7 @@
         <p>Your account has been successfully verified.</p>
         <p>Thank you for verifying your account. You can now enjoy all the features our platform offers.</p>
         <p>Click the button below to sign in to your account.</p>
-        <a href="<?= $web_url ?>" class="btn-signin">Sign In</a>
+        <a href="https://<?= $web_url ?>" class="btn-signin">Sign In</a>
     </div>
 </body>
 
