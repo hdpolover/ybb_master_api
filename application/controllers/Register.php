@@ -14,7 +14,7 @@ class Register extends CI_Controller
     {
         $code = $this->input->get('code');
 
-        if ($code) {
+        // if ($code) {
             // check ambassador
             $opt = array(
                 'select' => 'ambassadors.*, programs.program_category_id, programs.logo_url',
@@ -25,7 +25,7 @@ class Register extends CI_Controller
 
             $ambassadors = $this->mCore->join_table($opt)->row_array();
             echo $this->db->last_query();
-
+            die();
             if ($ambassadors->num_rows() == 0) {
                 $data_view = [
                     'title' => 'Error Page',
@@ -36,18 +36,18 @@ class Register extends CI_Controller
                 // jika ada
                 $this->load->view("regist_ambassador", $ambassadors->row_array());
             }
-        } else {
-            $data_view = [
-                'title' => 'Error Page',
-                'message' => 'No Parameters!'
-            ];
-            $this->load->view("errors/page", $data_view);
-        }
+        // } else {
+        //     $data_view = [
+        //         'title' => 'Error Page',
+        //         'message' => 'No Parameters!'
+        //     ];
+        //     $this->load->view("errors/page", $data_view);
+        // }
     }
 
     public function save()
     {
-        if ($this->input->post('code')) {
+        // if ($this->input->post('code')) {
             if ($this->input->post('password') != $this->input->post('confirmPassword')) {
                 $arr['status'] = true;
                 $arr['message'] = 'Passwords do not match!';
@@ -117,11 +117,11 @@ class Register extends CI_Controller
                     }
                 }
             }
-        } else {
-            $arr['status'] = false;
-            $arr['message'] = 'Code Ambassador not found!';
-            echo json_encode($arr);
-            exit();
-        }
+        // } else {
+        //     $arr['status'] = false;
+        //     $arr['message'] = 'Code Ambassador not found!';
+        //     echo json_encode($arr);
+        //     exit();
+        // }
     }
 }

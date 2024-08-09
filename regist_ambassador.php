@@ -177,13 +177,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     echo ("Error description: " . mysqli_error($db));
                     die();
                 }
-                echo '<script language="javascript">';
-                echo 'alert("Data saved successfully!")';
-                echo '</script>';
+                // echo '<script language="javascript">';
+                // echo 'alert("Data saved successfully!")';
+                // echo '</script>';
+                // query cari data nya
+                $data_user_qry = mysqli_query($db, "SELECT users.id, programs.name, programs.logo_url,program_categories.web_url
+                FROM users
+                JOIN participants ON participants.user_id = users.id
+                JOIN programs ON participants.program_id = programs.id
+                JOIN program_categories ON programs.program_category_id = program_categories.id
+                WHERE users.id = '" . $last_id['id'] . "'");
+                $data_user = mysqli_fetch_array($data_user_qry);
+?>
+                <script>
+                    var urlVerifEmail = "https://master-api.ybbfoundation.com/Users/email_verif/";
+                    // var urlVerifEmail = "Users/email_verif/";
+
+                    $.ajax({
+                        url: urlVerifEmail,
+                        data: {
+                        id :<?= $data_user['id'] ?>
+                        },
+                        async:false,
+                        type: 'POST',
+                        success: function(resp) {
+                            if (resp.status) {
+                                window.location.href = 'success_register.php?logo_url=<?= $data_user['logo_url'] ?>&program=<?= $data_user['name'] ?>&web_url=<?= $data_user['web_url'] ?>';
+                            } else {
+                                alert('Error: ' + e);
+                            }
+                        },
+                        error: function(e) {
+                            alert('Error: ' + e);
+                        }
+                    });
+                </script>
+<?php
             }
         } else {
             echo '<script language="javascript">';
-            echo 'alert("Passwords do not matc!")';
+            echo 'alert("Passwords do not match!")';
             echo '</script>';
         }
     }

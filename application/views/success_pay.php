@@ -87,7 +87,7 @@
     }
 
     function goHome() {
-      window.location.href = "http://worldyouthfest.com";
+      window.location.href = "https://<?= $web_url ?>";
     }
   </script>
 </body>

@@ -1413,6 +1413,7 @@ class Payments extends RestController
 
 				$data_view = array(
 					'logo_url' => $data['logo_url'],
+					'web_url' => $data['web_url'],
 					'id' => $data['external_id'],
 					'date' => date('D, d M Y H:i:s', strtotime($data['updated_at'])),
 					'currency' => $data['currency'],

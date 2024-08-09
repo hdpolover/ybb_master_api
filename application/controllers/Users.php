@@ -248,8 +248,16 @@ class Users extends RestController
       ],
       'where' => 'users.id = ' . $this->post('id'),
     );
-    $data = $this->mCore->join_table($opt)->row_array();
+    $data = $this->mCore->join_table($opt);
 
+    if ($data->num_rows() == 0) {
+      $this->response([
+        'status' => false,
+        'message' => 'Sorry, data not found!',
+      ], 404);
+    } else {
+      $data = $data->row_array();
+    }
     $config = array(
       'protocol' => 'smtp',
       'smtp_host' => 'ssl://smtp.googlemail.com',
@@ -870,7 +878,7 @@ class Users extends RestController
     $options = 0;
     $iv = '1234567891011121';
 
-    $encryptedData = str_replace('+','%2B',openssl_encrypt($id_encrypt, $method, $key, $options, $iv));
+    $encryptedData = str_replace('+', '%2B', openssl_encrypt($id_encrypt, $method, $key, $options, $iv));
 
     $config = array(
       'protocol' => 'smtp',
