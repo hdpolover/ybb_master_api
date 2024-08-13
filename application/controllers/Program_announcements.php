@@ -139,6 +139,15 @@ class Program_announcements extends RestController
         );
         $sql = $this->mCore->save_data('program_announcements', array_filter($data), true, ['id' => $id]);
         if ($sql) {
+            if (!empty($_FILES['img_url']['name'])) {
+                $upload_file = $this->upload_image('img_url', $id);
+                if ($upload_file['status'] == 0) {
+                    $this->response([
+                        'status' => false,
+                        'message' => $upload_file['message'],
+                    ], 404);
+                }
+            }
             $last_data = $this->mCore->get_data('program_announcements', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
@@ -224,7 +233,8 @@ class Program_announcements extends RestController
             $this->ftp->connect($ftp_config);
 
             if ($this->ftp->list_files('announcements/' . $data['program_id'] . '/') == FALSE) {
-                $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE);
+                // $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE);
+                $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
             }
 
             $destination = 'announcements/' . $data['program_id'] . '/' . $fileName;
