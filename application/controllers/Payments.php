@@ -225,7 +225,7 @@ class Payments extends RestController
 		}
 	}
 
-	public function payment_xendit_get()
+	public function list_payment_xendit_get()
 	{
 
 		$program_id = $this->get('program_id');
@@ -248,6 +248,42 @@ class Payments extends RestController
 		);
 		
 		$payments = $this->mCore->join_table($option)->result_array();
+
+		if ($payments) {
+			$this->response([
+				'status' => true,
+				'data' => $payments,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'No result were found',
+			], 404);
+		}
+	}
+
+	public function payment_xendit_get()
+	{
+		$id = $this->get('id');
+
+		$option = array(
+			'select' => 'xendit_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
+			'table' => 'xendit_payment',
+			'join' => [
+				'payments' => 'payments.id = xendit_payment.payment_id',
+				'program_payments' => 'program_payments.id = payments.program_payment_id',
+				'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+				'participants' => 'participants.id = xendit_payment.participant_id',
+				'users' => 'participants.user_id = users.id',
+				'programs' => 'xendit_payment.program_id = programs.id',
+				'program_categories' => 'programs.program_category_id = program_categories.id',
+			],
+			'where' => ['payments.id' => $id],
+			'order' => ['xendit_payment.id' => 'asc']
+		);
+		
+		$payments = $this->mCore->join_table($option)->row_array();
 
 		if ($payments) {
 			$this->response([
