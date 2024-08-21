@@ -459,7 +459,7 @@ class Participants extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = time() . '_resume';
+        $config['file_name'] = time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
@@ -543,7 +543,7 @@ class Participants extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = '*';
         $config['max_size'] = 5000;
-        $config['file_name'] = time();
+        $config['file_name'] = time() . '_resume';
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
