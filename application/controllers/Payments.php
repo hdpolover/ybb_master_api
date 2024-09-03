@@ -199,16 +199,17 @@ class Payments extends RestController
 				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
 				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
 				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
-				payment_methods.type, payment_methods.img_url',
+				payment_methods.type, payment_methods.img_url, xendit_payment.status xendit_status, xendit_payment.payment_method xendit_payment_method',
 			'table' => 'payments',
 			'join' => [
-				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
-				'users' => 'participants.user_id = users.id AND users.is_active = 1',
-				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
-				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+				['participants' => 'payments.participant_id = participants.id AND participants.is_active = 1'],
+				['users' => 'participants.user_id = users.id AND users.is_active = 1'],
+				['program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1'],
+				['payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1'],
+				['xendit_payment', 'payments.id = xendit_payment.payment_id', 'left'],
 			],
 			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
-			'order' => ['payments.id' => 'asc']
+			'order' => ['payments.created_at' => 'desc']
 		);
 		$payments = $this->mCore->join_table($option)->result_array();
 
