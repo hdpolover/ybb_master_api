@@ -15,7 +15,8 @@
 		"chriskacerguis/codeigniter-restserver": "*",
 		"ramsey/uuid": "*",
 		"xendit/xendit-php": "*",
-		"dompdf/dompdf": "^2.0"
+		"dompdf/dompdf": "^2.0",
+		"claviska/simpleimage": "*"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"

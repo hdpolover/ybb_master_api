@@ -120,8 +120,8 @@ class ComposerStaticInit5d73d81fb9771d4db94b844314313ab8
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -181,12 +181,23 @@ class ComposerStaticInit5d73d81fb9771d4db94b844314313ab8
         ),
     );
 
+    public static $fallbackDirsPsr4 = array (
+        0 => __DIR__ . '/..' . '/league/color-extractor/src',
+    );
+
     public static $prefixesPsr0 = array (
         'o' => 
         array (
             'org\\bovigo\\vfs\\' => 
             array (
                 0 => __DIR__ . '/..' . '/mikey179/vfsstream/src/main/php',
+            ),
+        ),
+        'c' => 
+        array (
+            'claviska' => 
+            array (
+                0 => __DIR__ . '/..' . '/claviska/simpleimage/src',
             ),
         ),
     );
@@ -837,6 +848,7 @@ class ComposerStaticInit5d73d81fb9771d4db94b844314313ab8
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit5d73d81fb9771d4db94b844314313ab8::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit5d73d81fb9771d4db94b844314313ab8::$prefixDirsPsr4;
+            $loader->fallbackDirsPsr4 = ComposerStaticInit5d73d81fb9771d4db94b844314313ab8::$fallbackDirsPsr4;
             $loader->prefixesPsr0 = ComposerStaticInit5d73d81fb9771d4db94b844314313ab8::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit5d73d81fb9771d4db94b844314313ab8::$classMap;
 

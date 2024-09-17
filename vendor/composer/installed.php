@@ -3,7 +3,7 @@
         'name' => 'codeigniter/framework',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
-        'reference' => NULL,
+        'reference' => null,
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -28,10 +28,19 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'claviska/simpleimage' => array(
+            'pretty_version' => '3.7.2',
+            'version' => '3.7.2.0',
+            'reference' => '82dbef988e356baa5d73993a1351bcb6c0959269',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../claviska/simpleimage',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'codeigniter/framework' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
-            'reference' => NULL,
+            'reference' => null,
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -91,6 +100,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'league/color-extractor' => array(
+            'pretty_version' => '0.3.2',
+            'version' => '0.3.2.0',
+            'reference' => '837086ec60f50c84c611c613963e4ad2e2aec806',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../league/color-extractor',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'masterminds/html5' => array(
             'pretty_version' => '2.9.0',
             'version' => '2.9.0.0',
@@ -99,6 +117,12 @@
             'install_path' => __DIR__ . '/../masterminds/html5',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'matthecat/colorextractor' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '*',
+            ),
         ),
         'mikey179/vfsstream' => array(
             'pretty_version' => 'v1.6.11',
