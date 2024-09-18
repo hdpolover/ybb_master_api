@@ -318,9 +318,24 @@ class Program_certificates extends RestController
         }
     }
 
-    public function addTextImage_get()
+    public function generate_get()
     {
-        $nama = "Ronald Arrival Fajar";
+        $certif_id = $this->get('certif_id');
+        $participant_id = $this->get('participant_id');
+
+        $option = array(
+            'select' => 'program_certificates.*, b.full_name',
+            'table' => 'program_certificates',
+            'join' => [
+                'participant_certificates a' => 'program_certificates.program_certificate_id = a.id AND a.is_active = 1',
+                'participants b' => 'a.participant_id = b.id AND b.is_active = 1',
+            ],
+            'where' => 'program_certificates.id = "' . $certif_id . '" AND a.participant_id = "' . $participant_id . '" AND program_certificates.is_active = 1',
+        );
+
+        $certificate = $this->mCore->join_table($option)->row_array();
+
+        $nama = $certificate['full_name'];
         $file_name = $nama . "_WYF_Certif.jpg";
         try {
             // Create a new SimpleImage object
