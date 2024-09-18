@@ -320,26 +320,27 @@ class Program_certificates extends RestController
 
     public function addTextImage_get()
     {
-        $nama = "RONALD";
-        $file_name = "email_new.png";
+        $nama = "Ronald Arrival Fajar";
+        $file_name = $nama . "_WYF_Certif.jpg";
         try {
             // Create a new SimpleImage object
             $image = new \claviska\SimpleImage();
 
             $image
-                ->fromFile('assets/img/email.png')                     // load image.jpg
+                ->fromFile('assets/img/template_WYF_Certif.jpg')                     // load image.jpg
                 ->autoOrient()                              // adjust orientation based on exif data
                 ->text(
                     $nama,
                     array(
                         'fontFile' => realpath('font.ttf'),
-                        'size' => 20,
-                        'anchor' => 'top',
-                        'xOffset' => 330,
-                        'yOffset' => 213,
+                        'size' => 148,
+                        'color' => '#003487',
+                        'anchor' => 'left',
+                        'xOffset' => 334,
+                        'yOffset' => -54,
                     )
                 )
-                ->toFile('assets/img/' . $file_name, 'image/png');
+                ->toFile('assets/img/' . $file_name);
             //->toScreen();                               // output to the screen
 
             return $file_name;
