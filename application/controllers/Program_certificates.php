@@ -70,6 +70,7 @@ class Program_certificates extends RestController
     public function save_post()
     {
         $data = array(
+            'program_id' => $this->post('program_id'),
             'title' => $this->post('title'),
             'description' => $this->post('description'),
             'created_at' => date('Y-m-d H:i:s'),
@@ -104,6 +105,7 @@ class Program_certificates extends RestController
     public function update_post($id)
     {
         $data = array(
+            'program_id' => $this->post('program_id'),
             'title' => $this->post('title'),
             'description' => $this->post('description'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -162,8 +164,8 @@ class Program_certificates extends RestController
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_certificates', 'id = ' . $id)->row_array();
-        if ($data['file_url'] != '') {
-            $exp = (explode('/', $data['file_url']));
+        if ($data['template_url'] != '') {
+            $exp = (explode('/', $data['template_url']));
             $temp_img = end($exp);
 
             //FTP configuration
@@ -324,11 +326,12 @@ class Program_certificates extends RestController
         $participant_id = $this->get('participant_id');
 
         $option = array(
-            'select' => 'program_certificates.*, b.full_name',
+            'select' => 'program_certificates.*, c.name, b.full_name',
             'table' => 'program_certificates',
             'join' => [
-                'participant_certificates a' => 'program_certificates.program_certificate_id = a.id AND a.is_active = 1',
+                'participant_certificates a' => 'program_certificates.id = a.program_certificate_id AND a.is_active = 1',
                 'participants b' => 'a.participant_id = b.id AND b.is_active = 1',
+                'programs c' => 'program_certificates.program_id = c.id',
             ],
             'where' => 'program_certificates.id = "' . $certif_id . '" AND a.participant_id = "' . $participant_id . '" AND program_certificates.is_active = 1',
         );
@@ -336,16 +339,28 @@ class Program_certificates extends RestController
         $certificate = $this->mCore->join_table($option)->row_array();
 
         $nama = $certificate['full_name'];
-        $file_name = $nama . "_WYF_Certif.jpg";
+        $file_name = $nama . "_" . str_replace(' ', '_', trim($certificate['name'])) . "_Certif.jpg";
+
+        $url = 'https://storage.ybbfoundation.com/programs/3/certificates/1726825063.jpg';
+        // $image_url = file_get_contents($url);
+        // $finfo = finfo_open(FILEINFO_MIME_TYPE);
+
+        // // reads your image's data and convert it to base64
+        // $data = base64_encode($image_url);
+
+        // // Create the image's SRC:  "data:{mime};base64,{data};"
+        // $mime = finfo_buffer($finfo, $image_url);
+        // $datauri = 'data: ' . $mime . ';base64,' . $data;
+
         try {
             // Create a new SimpleImage object
             $image = new \claviska\SimpleImage();
 
             $image
-                ->fromFile('assets/img/template_WYF_Certif.jpg')                     // load image.jpg
-                ->autoOrient()                              // adjust orientation based on exif data
+                ->fromDataUri($url)
+                ->autoOrient() // adjust orientation based on exif data
                 ->text(
-                    $nama,
+                    strtoupper($nama),
                     array(
                         'fontFile' => realpath('font.ttf'),
                         'size' => 148,
@@ -355,8 +370,8 @@ class Program_certificates extends RestController
                         'yOffset' => -54,
                     )
                 )
-                ->toFile('assets/img/' . $file_name);
-            //->toScreen();                               // output to the screen
+                // ->toFile('assets/img/' . $file_name);
+                ->toDownload($file_name);
 
             return $file_name;
             // And much more! 💪
