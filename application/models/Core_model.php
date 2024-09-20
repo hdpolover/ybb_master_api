@@ -274,13 +274,29 @@ class Core_model extends CI_Model
 
         if ($user->num_rows() > 0) {
             if ($user->row_array()['is_active'] == 1) {
-                $isSignin = $this->db->select('participants.*, users.email, users.is_verified, users.program_category_id')
+                $isSignin = $this->db->select('participants.*, users.email, users.is_verified, users.program_category_id, program_categories.verification_required')
                     ->join('participants', 'users.id = participants.user_id')
+                    ->join('program_categories', 'users.program_category_id = program_categories.id')
                     ->get_where('users', 'participants.user_id = ' . $user->row_array()['id']);
                 if ($isSignin->num_rows() > 0) {
-                    $arr['data'] = $isSignin->row_array();
-                    $arr['status'] = 1;
-                    return $arr;
+                    // pengecekan verification required
+                    if ($isSignin->row_array()['verification_required'] == 1) {
+                        // jika ya
+                        if ($isSignin->row_array()['is_verified'] == 0) {
+                            $arr['data'] = "Participant has not been verified!";
+                            $arr['status'] = 0;
+                            return $arr;
+                        } else {
+                            $arr['data'] = $isSignin->row_array();
+                            $arr['status'] = 1;
+                            return $arr;
+                        }
+                    } else {
+                        // jika tidak
+                        $arr['data'] = $isSignin->row_array();
+                        $arr['status'] = 1;
+                        return $arr;
+                    }
                 } else {
                     $arr['data'] = "Data not Found!";
                     $arr['status'] = 0;
