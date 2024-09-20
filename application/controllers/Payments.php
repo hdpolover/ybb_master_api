@@ -195,8 +195,8 @@ class Payments extends RestController
 		$program_id = $this->get('program_id');
 
 		$option = array(
-			'select' => 'payments.*, participants.full_name, participants.phone_number, participants.nationality, users.email,
-				program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+			'select' => 'payments.*, participants.full_name, participants.phone_number, participants.nationality, participants.gender, participants.institution,
+				users.email, program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
 				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
 				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
 				payment_methods.type, payment_methods.img_url, xendit_payment.external_id, xendit_payment.status xendit_status, xendit_payment.payment_method xendit_payment_method',

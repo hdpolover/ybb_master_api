@@ -107,6 +107,7 @@ class Program_categories extends RestController
             'titktok' => $this->post('titktok'),
             'youtube' => $this->post('youtube'),
             'telegram' => $this->post('telegram'),
+            'verification_required' => $this->post('verification_required'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -141,6 +142,7 @@ class Program_categories extends RestController
             'titktok' => $this->post('titktok'),
             'youtube' => $this->post('youtube'),
             'telegram' => $this->post('telegram'),
+            'verification_required' => $this->post('verification_required'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('program_categories', array_filter($data), true, ['id' => $id]);
