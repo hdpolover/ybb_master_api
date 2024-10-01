@@ -383,6 +383,7 @@ class Program_certificates extends RestController
 
         $certificate = $this->mCore->join_table($option)->row_array();
 
+        $name_participant = $certificate['full_name'];
         $file_name = 'Certificate_'.str_replace(' ', '_', $certificate['name']).'_'.$certificate['full_name'];
 
         try {
@@ -393,7 +394,7 @@ class Program_certificates extends RestController
                 ->fromFile("uploads/certificates/".basename($certificate['template_url']))
                 ->autoOrient() // adjust orientation based on exif data
                 ->text(
-                    strtoupper($file_name),
+                    strtoupper($name_participant),
                     array(
                         'fontFile' => realpath('font.ttf'),
                         'size' => 148,
