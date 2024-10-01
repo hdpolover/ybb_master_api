@@ -161,6 +161,52 @@ class Program_certificates extends RestController
     public function upload_certificate($certificate_url, $id)
     {
 
+        $join = [
+            'select' => 'program_certificates.*, programs.name',
+            'table' => 'program_certificates',
+            'join' => ['programs' => 'programs.id = program_certificates.program_id'],
+            'where' => ['program_certificates.id' => $id],
+            'limit' => 1
+        ];
+
+        $data = $this->mCore->join_table($join)->row_array();
+
+        $config['upload_path'] = './uploads/certificates';
+        $config['allowed_types'] = '*';
+        $config['overwrite'] = true;
+        $config['max_size'] = 5000;
+        $config['file_name'] = 'Certificate_'.str_replace(' ', '_', $data['name']);
+
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload($certificate_url)) {
+
+            $upload_data = $this->upload->data();
+            $fileName = $upload_data['file_name'];
+
+            $sql = $this->mCore->save_data('program_certificates', ['template_url' => base_url() . 'uploads/certificates/' . $fileName], true, array('id' => $id));
+
+            if ($sql) {
+                $data['status'] = 1;
+                $data['message'] = 'Certificates saved successfully';
+            } else {
+                $data['status'] = 0;
+                $data['message'] = 'Sorry, failed to update';
+            }
+        } else {
+            $data['status'] = 0;
+            $data['message'] = $this->upload->display_errors();
+        }
+
+        return $data;
+    }
+
+    // old
+    
+    //UPLOAD
+    public function upload_certificate_old($certificate_url, $id)
+    {
+
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_certificates', 'id = ' . $id)->row_array();
@@ -326,41 +372,28 @@ class Program_certificates extends RestController
         $participant_id = $this->get('participant_id');
 
         $option = array(
-            'select' => 'program_certificates.*, c.name, b.full_name',
+            'select' => 'program_certificates.*, a.name, b.full_name',
             'table' => 'program_certificates',
             'join' => [
-                'participant_certificates a' => 'program_certificates.id = a.program_certificate_id AND a.is_active = 1',
-                'participants b' => 'a.participant_id = b.id AND b.is_active = 1',
-                'programs c' => 'program_certificates.program_id = c.id',
+                'programs a' => 'program_certificates.program_id = a.id',
+                'participants b' => 'a.id = b.program_id AND b.is_active = 1',
             ],
-            'where' => 'program_certificates.id = "' . $certif_id . '" AND a.participant_id = "' . $participant_id . '" AND program_certificates.is_active = 1',
+            'where' => 'program_certificates.id = "' . $certif_id . '" AND b.id = "' . $participant_id . '" AND program_certificates.is_active = 1',
         );
 
         $certificate = $this->mCore->join_table($option)->row_array();
 
-        $nama = $certificate['full_name'];
-        $file_name = $nama . "_" . str_replace(' ', '_', trim($certificate['name'])) . "_Certif.jpg";
-
-        $url = 'https://storage.ybbfoundation.com/programs/3/certificates/1726825063.jpg';
-        // $image_url = file_get_contents($url);
-        // $finfo = finfo_open(FILEINFO_MIME_TYPE);
-
-        // // reads your image's data and convert it to base64
-        // $data = base64_encode($image_url);
-
-        // // Create the image's SRC:  "data:{mime};base64,{data};"
-        // $mime = finfo_buffer($finfo, $image_url);
-        // $datauri = 'data: ' . $mime . ';base64,' . $data;
+        $file_name = 'Certificate_'.str_replace(' ', '_', $certificate['name']).'_'.$certificate['full_name'];
 
         try {
             // Create a new SimpleImage object
             $image = new \claviska\SimpleImage();
 
             $image
-                ->fromDataUri($url)
+                ->fromFile("uploads/certificates/".basename($certificate['template_url']))
                 ->autoOrient() // adjust orientation based on exif data
                 ->text(
-                    strtoupper($nama),
+                    strtoupper($file_name),
                     array(
                         'fontFile' => realpath('font.ttf'),
                         'size' => 148,
@@ -370,8 +403,10 @@ class Program_certificates extends RestController
                         'yOffset' => -54,
                     )
                 )
+                ->toScreen();                               // output to the screen
+                // ->toFile('uploads/certificates/' . $file_name)
                 // ->toFile('assets/img/' . $file_name);
-                ->toDownload($file_name);
+                // ->toDownload($file_name);
 
             return $file_name;
             // And much more! 💪
