@@ -60,6 +60,42 @@ class Participant_certificates extends RestController
         }
     }
 
+    function list_get()
+    {
+        $participant_id = $this->get('participant_id');
+
+        $participant_certificates = $this->mCore->get_data('participant_certificates', ['participant_id' => $participant_id, 'is_active' => 1])->result_array();
+        if ($participant_certificates) {
+            $this->response([
+                'status' => true,
+                'data' => $participant_certificates
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
+    function list_certificate_get()
+    {
+        $program_certificate_id = $this->get('program_certificate_id');
+
+        $participant_certificates = $this->mCore->get_data('participant_certificates', ['program_certificate_id' => $program_certificate_id, 'is_active' => 1])->result_array();
+        if ($participant_certificates) {
+            $this->response([
+                'status' => true,
+                'data' => $participant_certificates
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     public function save_post()
     {
