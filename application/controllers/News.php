@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Program_announcements extends RestController
+class News extends RestController
 {
 
     function __construct()
@@ -20,11 +20,11 @@ class Program_announcements extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $program_announcements = $this->mCore->get_data('program_announcements', ['is_active' => 1])->result_array();
-            if ($program_announcements) {
+            $news = $this->mCore->get_data('program_announcements', ['is_active' => 1])->result_array();
+            if ($news) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_announcements
+                    'data' => $news
                 ], 200);
             } else {
                 $this->response([
@@ -33,11 +33,11 @@ class Program_announcements extends RestController
                 ], 404);
             }
         } else {
-            $program_announcements = $this->mCore->get_data('program_announcements', ['id' => $id, 'is_active' => 1])->row_array();
-            if ($program_announcements) {
+            $news = $this->mCore->get_data('program_announcements', ['id' => $id, 'is_active' => 1])->row_array();
+            if ($news) {
                 $this->response([
                     'status' => true,
-                    'data' => $program_announcements
+                    'data' => $news
                 ], 200);
             } else {
                 $this->response([
@@ -51,11 +51,11 @@ class Program_announcements extends RestController
     function list_get()
     {
         $program_id = $this->get('program_id');
-        $program_announcements = $this->mCore->get_data('program_announcements', ['program_id' => $program_id, 'is_active' => 1])->result_array();
-        if ($program_announcements) {
+        $news = $this->mCore->get_data('program_announcements', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($news) {
             $this->response([
                 'status' => true,
-                'data' => $program_announcements
+                'data' => $news
             ], 200);
         } else {
             $this->response([
@@ -76,12 +76,12 @@ class Program_announcements extends RestController
         );
 
         $participant = $this->mCore->join_table($option)->row_array();
-        $program_announcements = $this->mCore->get_data('program_announcements', ['visible_to <=' => $participant['general_status'], 'is_active' => 1])->result_array();
+        $news = $this->mCore->get_data('program_announcements', ['visible_to <=' => $participant['general_status'], 'is_active' => 1])->result_array();
 
-        if ($program_announcements) {
+        if ($news) {
             $this->response([
                 'status' => true,
-                'data' => $program_announcements
+                'data' => $news
             ], 200);
         } else {
             $this->response([
