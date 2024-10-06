@@ -33,7 +33,14 @@ class News extends RestController
                 ], 404);
             }
         } else {
-            $news = $this->mCore->get_data('program_announcements', ['id' => $id, 'is_active' => 1])->row_array();
+            $encryptedData = $id;
+            $method = "AES-256-CBC";
+            $key = "encryptionKey123";
+            $options = 0;
+            $iv = '1234567891011121';
+    
+            $decryptedData = openssl_decrypt($encryptedData, $method, $key, $options, $iv);
+            $news = $this->mCore->get_data('program_announcements', ['id' => $decryptedData, 'is_active' => 1])->row_array();
             if ($news) {
                 $this->response([
                     'status' => true,
@@ -101,7 +108,7 @@ class News extends RestController
         $iv = '1234567891011121';
 
         $encryptedData = str_replace('+', '%2B', openssl_encrypt($id_encrypt, $method, $key, $options, $iv));
-        
+
         $this->response([
             'status' => true,
             'data' => $encryptedData
