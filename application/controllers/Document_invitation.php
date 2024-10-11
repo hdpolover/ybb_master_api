@@ -239,6 +239,7 @@ class Document_invitation extends RestController
     function generate_pdf_get()
     {
         $participant_id = $this->get('id');
+        $document_id = $this->get('document_id');
 
         $option = array(
             'select' => 'participants.id, participants.full_name, participants.gender, users.email, 
@@ -255,7 +256,7 @@ class Document_invitation extends RestController
                 'program_documents' => 'programs.id = program_documents.program_id',
                 'document_invitation' => 'program_documents.id = document_invitation.program_document_id',
             ],
-            'where' => 'participants.id = ' . $participant_id . ' AND program_documents.id = 8',
+            'where' => 'participants.id = ' . $participant_id . ' AND program_documents.id = ' . $document_id,
         );
         $data = $this->mCore->join_table($option)->row_array();
 
