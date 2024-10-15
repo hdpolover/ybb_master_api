@@ -4,6 +4,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
 class Programs extends RestController
 {
 
@@ -176,10 +180,6 @@ class Programs extends RestController
     // UPLOAD LOGO
     public function upload_logo($logo_url, $id)
     {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('programs', 'id = ' . $id)->row_array();
@@ -256,12 +256,7 @@ class Programs extends RestController
 
     // UPLOAD LOGO DIRECT
     public function do_upload_logo_post()
-    {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-        
+    { 
         $this->load->library('ftp');
 
         $id = $this->post('id');

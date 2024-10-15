@@ -4,6 +4,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
 class Document_invitation extends RestController
 {
 
@@ -157,10 +161,6 @@ class Document_invitation extends RestController
     // UPLOAD SIGN
     private function upload_sign($sign_url, $id)
     {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");        
-
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('document_invitation', 'id = ' . $id)->row_array();

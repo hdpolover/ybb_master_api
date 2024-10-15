@@ -4,6 +4,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
 class Participants extends RestController
 {
     public function __construct()
@@ -341,11 +345,6 @@ class Participants extends RestController
     // UPLOAD PICTURE
     private function upload_picture($picture_url, $id)
     {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();
@@ -433,10 +432,6 @@ class Participants extends RestController
     public function do_upload_picture_post()
     {
 
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-
         $this->load->library('ftp');
 
         $id = $this->post('id');
@@ -521,12 +516,7 @@ class Participants extends RestController
 
     // UPLOAD RESUME
     public function upload_resume($resume_url, $id)
-    {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-        
+    {        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('participants', 'id = ' . $id)->row_array();

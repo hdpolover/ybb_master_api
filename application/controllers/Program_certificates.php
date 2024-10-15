@@ -4,6 +4,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
 class Program_certificates extends RestController
 {
 
@@ -156,11 +160,6 @@ class Program_certificates extends RestController
     //UPLOAD
     public function upload_certificate($certificate_url, $id)
     {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-
         $join = [
             'select' => 'program_certificates.*, programs.name',
             'table' => 'program_certificates',
@@ -206,11 +205,6 @@ class Program_certificates extends RestController
     //UPLOAD
     public function upload_certificate_old($certificate_url, $id)
     {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_certificates', 'id = ' . $id)->row_array();
@@ -288,11 +282,6 @@ class Program_certificates extends RestController
     // UPLOAD CERTIFICATES
     public function do_upload_certificate_post()
     {
-
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-        header("Access-Control-Allow-Headers: X-Requested-With");
-        
         $this->load->library('ftp');
 
         $id = $this->post('id');
