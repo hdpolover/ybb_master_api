@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Web_setting_home extends RestController
 {
 
@@ -184,6 +180,10 @@ class Web_setting_home extends RestController
     private function upload_banner1($banner1_img_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
@@ -261,6 +261,9 @@ class Web_setting_home extends RestController
     // UPLOAD BANNER 1 DIRECT
     public function do_upload_banner1_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
 
         $this->load->library('ftp');
 
@@ -346,6 +349,10 @@ class Web_setting_home extends RestController
     private function upload_banner1_mobile($banner1_mobile_img_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
@@ -423,6 +430,10 @@ class Web_setting_home extends RestController
     // UPLOAD BANNER MOBILE 1 DIRECT
     public function do_upload_banner1_mobile_post()
     {
+
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
 
         $this->load->library('ftp');
 
@@ -508,6 +519,10 @@ class Web_setting_home extends RestController
     private function upload_banner2($banner2_img_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
+
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
@@ -585,6 +600,9 @@ class Web_setting_home extends RestController
     // UPLOAD BANNER 2 DIRECT
     public function do_upload_banner2_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
 
         $this->load->library('ftp');
 
@@ -670,6 +688,10 @@ class Web_setting_home extends RestController
     private function upload_banner2_mobile($banner2_mobile_img_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
+
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('web_setting_home', 'id = ' . $id)->row_array();
@@ -747,6 +769,9 @@ class Web_setting_home extends RestController
     // UPLOAD BANNER MOBILE 2 DIRECT
     public function do_upload_banner2_mobile_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");        
 
         $this->load->library('ftp');
 

@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Payment_methods extends RestController
 {
 
@@ -163,6 +159,10 @@ class Payment_methods extends RestController
     // UPLOAD IMAGE
     public function upload_image($img_url, $id)
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('payment_methods', 'id = ' . $id)->row_array();
@@ -236,6 +236,10 @@ class Payment_methods extends RestController
     // UPLOAD IMAGE DIRECT
     public function do_upload_image_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $id = $this->post('id');

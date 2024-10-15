@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Help_ticket_discussions extends RestController
 {
 

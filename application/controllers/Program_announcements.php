@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Program_announcements extends RestController
 {
 
@@ -101,7 +97,7 @@ class Program_announcements extends RestController
         $iv = '1234567891011121';
 
         $encryptedData = str_replace('+', '%2B', openssl_encrypt($id_encrypt, $method, $key, $options, $iv));
-        
+
         $this->response([
             'status' => true,
             'data' => $encryptedData
@@ -206,6 +202,10 @@ class Program_announcements extends RestController
     public function upload_image($img_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_announcements', 'id = ' . $id)->row_array();
@@ -284,6 +284,9 @@ class Program_announcements extends RestController
     // UPLOAD IMAGE DIRECT
     public function do_upload_image_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
 
         $this->load->library('ftp');
 

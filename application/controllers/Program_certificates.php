@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Program_certificates extends RestController
 {
 
@@ -161,6 +157,10 @@ class Program_certificates extends RestController
     public function upload_certificate($certificate_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+
         $join = [
             'select' => 'program_certificates.*, programs.name',
             'table' => 'program_certificates',
@@ -175,7 +175,7 @@ class Program_certificates extends RestController
         $config['allowed_types'] = '*';
         $config['overwrite'] = true;
         $config['max_size'] = 5000;
-        $config['file_name'] = 'Certificate_'.str_replace(' ', '_', $data['name']);
+        $config['file_name'] = 'Certificate_' . str_replace(' ', '_', $data['name']);
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
@@ -202,11 +202,15 @@ class Program_certificates extends RestController
     }
 
     // old
-    
+
     //UPLOAD
     public function upload_certificate_old($certificate_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_certificates', 'id = ' . $id)->row_array();
@@ -285,6 +289,10 @@ class Program_certificates extends RestController
     public function do_upload_certificate_post()
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $id = $this->post('id');
@@ -384,14 +392,14 @@ class Program_certificates extends RestController
         $certificate = $this->mCore->join_table($option)->row_array();
 
         $name_participant = $certificate['full_name'];
-        $file_name = 'Certificate_'.str_replace(' ', '_', $certificate['name']).'_'.$certificate['full_name'];
+        $file_name = 'Certificate_' . str_replace(' ', '_', $certificate['name']) . '_' . $certificate['full_name'];
 
         try {
             // Create a new SimpleImage object
             $image = new \claviska\SimpleImage();
 
             $image
-                ->fromFile("uploads/certificates/".basename($certificate['template_url']))
+                ->fromFile("uploads/certificates/" . basename($certificate['template_url']))
                 ->autoOrient() // adjust orientation based on exif data
                 ->text(
                     strtoupper($name_participant),
@@ -405,9 +413,9 @@ class Program_certificates extends RestController
                     )
                 )
                 ->toScreen();                               // output to the screen
-                // ->toFile('uploads/certificates/' . $file_name)
-                // ->toFile('assets/img/' . $file_name);
-                // ->toDownload($file_name);
+            // ->toFile('uploads/certificates/' . $file_name)
+            // ->toFile('assets/img/' . $file_name);
+            // ->toDownload($file_name);
 
             return $file_name;
             // And much more! 💪

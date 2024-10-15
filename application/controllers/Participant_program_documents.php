@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Participant_program_documents extends RestController
 {
 
@@ -178,6 +174,10 @@ class Participant_program_documents extends RestController
     public function upload_file($file_url, $id)
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('participant_program_documents', 'id = ' . $id)->row_array();
@@ -256,6 +256,10 @@ class Participant_program_documents extends RestController
     public function do_upload_file_post()
     {
 
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $id = $this->post('id');

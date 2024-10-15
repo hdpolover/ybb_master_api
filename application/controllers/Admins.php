@@ -4,10 +4,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 use chriskacerguis\RestServer\RestController;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
-header("Access-Control-Allow-Headers: X-Requested-With");
-
 class Admins extends RestController
 {
 
@@ -209,6 +205,10 @@ class Admins extends RestController
     // UPLOAD PROFILE
     private function upload_profile($profile_url, $id)
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('admins', 'id = ' . $id)->row_array();
@@ -284,6 +284,10 @@ class Admins extends RestController
     // UPLOAD PROFILE
     public function do_upload_profile_post()
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header("Access-Control-Allow-Headers: X-Requested-With");
+        
         $this->load->library('ftp');
 
         $id = $this->post('id');
