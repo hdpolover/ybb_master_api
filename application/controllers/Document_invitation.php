@@ -237,7 +237,7 @@ class Document_invitation extends RestController
 
     function generate_pdf_get()
     {
-        $participant_id = $this->get('id');
+        $participant_id = $this->get('participant_id');
         $document_id = $this->get('document_id');
 
         $option = array(

@@ -175,7 +175,7 @@
                     <img src="<?= $img_sign ?>" alt="" width="100px;">
                 </div>
                 <div style="font-weight:bold;"><?= $sincerely ?></div>
-                <div>Chairman of World Youth Festival 2024</div>
+                <div>Chairman of <?= $name_categories ?></div>
             </div>
             <div style="clear: both;">
             </div>
