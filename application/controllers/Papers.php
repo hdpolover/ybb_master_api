@@ -79,7 +79,7 @@ class Papers extends RestController
         if ($sql) {
             $last_id = $this->mCore->get_lastid('papers', 'id');
             if (!empty($_FILES['paper_url']['name'])) {
-                $upload_file = $this->upload_image('paper_url', $last_id);
+                $upload_file = $this->upload_paper('paper_url', $last_id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -112,7 +112,7 @@ class Papers extends RestController
         $sql = $this->mCore->save_data('papers', array_filter($data), true, ['id' => $id]);
         if ($sql) {
             if (!empty($_FILES['paper_url']['name'])) {
-                $upload_file = $this->upload_image('paper_url', $id);
+                $upload_file = $this->upload_paper('paper_url', $id);
                 if ($upload_file['status'] == 0) {
                     $this->response([
                         'status' => false,
@@ -156,14 +156,24 @@ class Papers extends RestController
         }
     }
 
-    // UPLOAD IMAGE
-    public function upload_image($img_url, $id)
+    // UPLOAD PAPER
+    public function upload_paper($paper_url, $id)
     {
         $this->load->library('ftp');
 
-        $data = $this->mCore->get_data('papers', 'id = ' . $id)->row_array();
-        if ($data['img_url'] != '') {
-            $exp = (explode('/', $data['img_url']));
+        $opt = [
+            'select' => 'papers.*, programs.id',
+            'table' => 'papers',
+            'join' => [
+                ['paper_details' => 'papers.id = paper_details.paper_id'],
+                ['programs' => 'paper_details.program_id = programs.id'],
+            ],
+            'where' => ['papers.id' => $id]
+        ];
+        $data = $this->mCore->join_table($opt)->row_array();
+
+        if ($data['paper_url'] != '') {
+            $exp = (explode('/', $data['paper_url']));
             $temp_img = end($exp);
 
             //FTP configuration
@@ -175,19 +185,19 @@ class Papers extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/' . $temp_img);
+            $this->ftp->delete_file('program/' . $data['program_id'] . '/others/' . $temp_img);
 
             $this->ftp->close();
         }
 
         $config['upload_path'] = './uploads';
-        $config['allowed_types'] = 'gif|jpg|png|jpeg';
+        $config['allowed_types'] = '*';
         $config['max_size'] = 5000;
-        $config['file_name'] = time();
+        $config['file_name'] = 'papers_'.time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
-        if ($this->upload->do_upload($img_url)) {
+        if ($this->upload->do_upload($paper_url)) {
 
             $upload_data = $this->upload->data();
             $fileName = $upload_data['file_name'];
@@ -203,12 +213,11 @@ class Papers extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('announcements/' . $data['program_id'] . '/') == FALSE) {
-                // $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE);
-                $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
+            if ($this->ftp->list_files('program/' . $data['program_id'] . '/others/') == FALSE) {
+                $this->ftp->mkdir('program/' . $data['program_id'] . '/others/', DIR_WRITE_MODE, true);
             }
 
-            $destination = 'announcements/' . $data['program_id'] . '/' . $fileName;
+            $destination = 'program/' . $data['program_id'] . '/others/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -217,11 +226,11 @@ class Papers extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('papers', ['img_url' => config_item('dir_upload') . 'announcements/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('papers', ['paper_url' => config_item('dir_upload') . 'program/' . $data['program_id'] . '/others/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $data['status'] = 1;
-                $data['message'] = 'Image saved successfully';
+                $data['message'] = 'Paper saved successfully';
             } else {
                 $data['status'] = 0;
                 $data['message'] = 'Sorry, failed to update';
@@ -232,88 +241,5 @@ class Papers extends RestController
         }
 
         return $data;
-    }
-
-    // UPLOAD IMAGE DIRECT
-    public function do_upload_image_post()
-    {
-        $this->load->library('ftp');
-
-        $id = $this->post('id');
-
-        $data = $this->mCore->get_data('papers', 'id = ' . $id)->row_array();
-        if ($data['img_url'] != '') {
-            $exp = (explode('/', $data['img_url']));
-            $temp_img = end($exp);
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/' . $temp_img);
-
-            $this->ftp->close();
-        }
-
-        $config['upload_path'] = './uploads';
-        $config['allowed_types'] = 'gif|jpg|png|jpeg';
-        $config['max_size'] = 5000;
-        $config['file_name'] = time();
-
-        $this->load->library('upload', $config);
-        $this->upload->initialize($config);
-        if ($this->upload->do_upload("image")) {
-
-            $upload_data = $this->upload->data();
-            $fileName = $upload_data['file_name'];
-
-            $source = './uploads/' . $fileName;
-
-            //FTP configuration
-            $ftp_config['hostname'] = config_item('hostname_upload');
-            $ftp_config['username'] = config_item('username_upload');
-            $ftp_config['password'] = config_item('password_upload');
-            $ftp_config['port'] = config_item('port_upload');
-            $ftp_config['debug'] = TRUE;
-
-            $this->ftp->connect($ftp_config);
-
-            if ($this->ftp->list_files('announcements/' . $data['program_id'] . '/') == FALSE) {
-                $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE);
-            }
-
-            $destination = 'announcements/' . $data['program_id'] . '/' . $fileName;
-
-            $this->ftp->upload($source, $destination);
-
-            $this->ftp->close();
-
-            //Delete file from local server
-            @unlink($source);
-
-            $sql = $this->mCore->save_data('papers', ['img_url' => config_item('dir_upload') . 'announcements/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
-
-            if ($sql) {
-                $this->response([
-                    'status' => true,
-                    'message' => 'Image saved successfully'
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'Sorry, failed to update'
-                ], 404);
-            }
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => $this->upload->display_errors()
-            ], 404);
-        }
     }
 }

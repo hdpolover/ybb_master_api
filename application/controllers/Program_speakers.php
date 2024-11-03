@@ -162,13 +162,13 @@ class Program_speakers extends RestController
     }
 
     // UPLOAD IMAGE
-    public function upload_image($img_url, $id)
+    public function upload_image($photo_url, $id)
     {
         $this->load->library('ftp');
 
         $data = $this->mCore->get_data('program_speakers', 'id = ' . $id)->row_array();
-        if ($data['img_url'] != '') {
-            $exp = (explode('/', $data['img_url']));
+        if ($data['photo_url'] != '') {
+            $exp = (explode('/', $data['photo_url']));
             $temp_img = end($exp);
 
             //FTP configuration
@@ -180,7 +180,7 @@ class Program_speakers extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            $this->ftp->delete_file('announcements/' . $data['program_id'] . '/' . $temp_img);
+            $this->ftp->delete_file('program/' . $data['program_id'] . '/others/' . $temp_img);
 
             $this->ftp->close();
         }
@@ -188,11 +188,11 @@ class Program_speakers extends RestController
         $config['upload_path'] = './uploads';
         $config['allowed_types'] = 'gif|jpg|png|jpeg';
         $config['max_size'] = 5000;
-        $config['file_name'] = time();
+        $config['file_name'] = 'program_speaker_'.time();
 
         $this->load->library('upload', $config);
         $this->upload->initialize($config);
-        if ($this->upload->do_upload($img_url)) {
+        if ($this->upload->do_upload($photo_url)) {
 
             $upload_data = $this->upload->data();
             $fileName = $upload_data['file_name'];
@@ -208,12 +208,11 @@ class Program_speakers extends RestController
 
             $this->ftp->connect($ftp_config);
 
-            if ($this->ftp->list_files('announcements/' . $data['program_id'] . '/') == FALSE) {
-                // $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE);
-                $this->ftp->mkdir('announcements/' . $data['program_id'] . '/', DIR_WRITE_MODE, true);
+            if ($this->ftp->list_files('program/' . $data['program_id'] . '/others/') == FALSE) {
+                $this->ftp->mkdir('program/' . $data['program_id'] . '/others/', DIR_WRITE_MODE, true);
             }
 
-            $destination = 'announcements/' . $data['program_id'] . '/' . $fileName;
+            $destination = 'program/' . $data['program_id'] . '/others/' . $fileName;
 
             $this->ftp->upload($source, $destination);
 
@@ -222,7 +221,7 @@ class Program_speakers extends RestController
             //Delete file from local server
             @unlink($source);
 
-            $sql = $this->mCore->save_data('program_speakers', ['img_url' => config_item('dir_upload') . 'announcements/' . $data['program_id'] . '/' . $fileName], true, array('id' => $id));
+            $sql = $this->mCore->save_data('program_speakers', ['photo_url' => config_item('dir_upload') . 'program/' . $data['program_id'] . '/others/' . $fileName], true, array('id' => $id));
 
             if ($sql) {
                 $data['status'] = 1;

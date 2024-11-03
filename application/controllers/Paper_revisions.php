@@ -68,30 +68,16 @@ class Paper_revisions extends RestController
     //SIMPAN DATA
     function save_post()
     {
-        $paper_detail_id = $this->post('paper_detail_id');
-        $check_paper_revisions = $this->mCore->get_data('paper_revisions', ['paper_detail_id' => $paper_detail_id]);
-        // exists or not
-        if ($check_paper_revisions->num_rows() > 0) {
-            // update
-            $data = array(
-                'comment' => $this->post('comment'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            );
-            $sql = $this->mCore->save_data('paper_revisions', array_filter($data), true, ['id' => $check_paper_revisions->row_array()['id']]);
-            $last_data = $this->mCore->get_data('paper_revisions', ['id' => $check_paper_revisions->row_array()['id']])->row_array();
-        } else {
-            // insert
-            $data = array(
-                'comment' => $this->post('comment'),
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            );
-
-            $sql = $this->mCore->save_data('paper_revisions', array_filter($data));
+        $data = array(
+            'paper_detail_id' => $this->post('paper_detail_id'),
+            'comment' => $this->post('comment'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        );
+        $sql = $this->mCore->save_data('paper_revisions', array_filter($data));
+        if ($sql) {
             $last_id = $this->mCore->get_lastid('paper_revisions', 'id');
             $last_data = $this->mCore->get_data('paper_revisions', ['id' => $last_id])->row_array();
-        }
-        if ($sql) {
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -100,6 +86,29 @@ class Paper_revisions extends RestController
             $this->response([
                 'status' => false,
                 'message' => 'Sorry, failed to save'
+            ], 404);
+        }
+    }
+
+    //UPDATE DATA
+    function update_post($id)
+    {
+        $data = array(
+            'paper_detail_id' => $this->post('paper_detail_id'),
+            'comment' => $this->post('comment'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        );
+        $sql = $this->mCore->save_data('paper_revisions', array_filter($data), true, ['id' => $id]);
+        if ($sql) {
+            $last_data = $this->mCore->get_data('paper_revisions', ['id' => $id])->row_array();
+            $this->response([
+                'status' => true,
+                'data' => $last_data
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Sorry, failed to update'
             ], 404);
         }
     }
