@@ -1,0 +1,5 @@
+https://github.com/Midtrans/Midtrans-Codeigniter
+
+server key di controller/snap
+client key di view/checkout_snap
+	jangan lupa ganti src nya juga ke production  (https://app.midtrans.com/snap/snap.js)
