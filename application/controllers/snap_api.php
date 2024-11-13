@@ -1,6 +1,12 @@
 <?php if (! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Snap extends CI_Controller
+use chriskacerguis\RestServer\RestController;
+
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With");
+
+class Snap_api extends RestController
 {
 
 	/**
@@ -33,17 +39,11 @@ class Snap extends CI_Controller
 	public function pay_midtrans()
 	{
 		$data = [
-			'id' => 'a1',
-			'price' => '100000',
-			'description' => 'PEMBAYARAN',
-			'name' => 'IVAL AKUDEWE',
-			'email' => 'AKUDEWE@GMAIL.COM',
-			'phone' => '081823',
-			'participant_id' => '4',
-			'payment_id' => '10000',
-			'program_id' => '3',
-			'program_payment_id' => '7',
-			'payment_method_id' => '7',
+			'id' => $this->post('id'),
+			'price' => $this->post('price'),
+			'name' => $this->post('name'),
+			'email' => $this->post('email'),
+			'phone' => $this->post('phone'),
 		];
 
 		$this->load->view('checkout_snap', $data);
@@ -64,7 +64,7 @@ class Snap extends CI_Controller
 			'id' => $this->input->post('id'),
 			'price' => $this->input->post('price'),
 			'quantity' => 1,
-			'name' => $this->input->post('description')
+			'name' => $this->input->post('name')
 		);
 
 		// Optional
@@ -98,52 +98,10 @@ class Snap extends CI_Controller
 		);
 
 		error_log(json_encode($transaction_data));
-		// insert
-		// tabel payment
-		$data_payment = array(
-			'participant_id' => $this->input->post('participant_id'),
-			'program_payment_id' => $this->input->post('program_payment_id'),
-			'payment_method_id' => $this->input->post('payment_method_id'),
-			'status' => 1,
-			'account_name' => $this->input->post('name'),
-			'amount' => $this->input->post('price'),
-			'source_name' => $this->input->post('email'),
-			'created_at' => date('Y-m-d H:i:s'),
-			'updated_at' => date('Y-m-d H:i:s'),
-		);
-
-		$sql = $this->mCore->save_data('payments', $data_payment);
-		if (!$sql) {
-			echo "<BR><BR>";
-			print_r($this->db->error());
-			echo "<BR><BR>";
-			die();
-		}
-		$last_id = $this->mCore->get_lastid('payments', 'id');
-
-		$tambahan = $custom_expiry['duration'] . ' ' . $custom_expiry['unit'];
-		$data_midtrans = array(
-			'participant_id' => $this->input->post('participant_id'),
-			'payment_id' => $last_id,
-			'program_id' => $this->input->post('program_id'),
-			'description' => $this->input->post('description'),
-			'gross_amount' => $this->input->post('price'),
-			'order_id' => $id,
-			'expired_at' => date('Y-m-d H:i:s', strtotime($custom_expiry['start_time'] . '+' . $tambahan)),
-			'created_at' => date('Y-m-d H:i:s'),
-			'updated_at' => date('Y-m-d H:i:s'),
-		);
-
-		$sql = $this->mCore->save_data('midtrans_payment', $data_midtrans);
-		if (!$sql) {
-			echo "<BR><BR>";
-			print_r($this->db->error());
-			echo "<BR><BR>";
-			die();
-		}
-
 		$snapToken = $this->midtrans->getSnapToken($transaction_data);
-
+		echo "<pre>";
+		print_r($snapToken);
+		die();
 		error_log($snapToken);
 		echo $snapToken;
 	}
@@ -152,15 +110,54 @@ class Snap extends CI_Controller
 	{
 		$result = json_decode($this->input->post('result_data'), true);
 
+		// 		RESULT
+
+		// object(stdClass)#24 (13) {
+		//   ["status_code"]=>
+		//   string(3) "200"
+		//   ["status_message"]=>
+		//   string(29) "Success, transaction is found"
+		//   ["transaction_id"]=>
+		//   string(36) "eae56769-6ea7-45ab-add6-82fcd22005de"
+		//   ["order_id"]=>
+		//   string(12) "173150571276"
+		//   ["gross_amount"]=>
+		//   string(9) "100000.00"
+		//   ["payment_type"]=>
+		//   string(13) "bank_transfer"
+		//   ["transaction_time"]=>
+		//   string(19) "2024-11-13 20:49:06"
+		//   ["transaction_status"]=>
+		//   string(10) "settlement"
+		//   ["fraud_status"]=>
+		//   string(6) "accept"
+		//   ["va_numbers"]=>
+		//   array(1) {
+		//     [0]=>
+		//     object(stdClass)#25 (2) {
+		//       ["bank"]=>
+		//       string(3) "bca"
+		//       ["va_number"]=>
+		//       string(23) "47319212652000920303766"
+		//     }
+		//   }
+		//   ["bca_va_number"]=>
+		//   string(23) "47319212652000920303766"
+		//   ["pdf_url"]=>
+		//   string(94) "https://app.sandbox.midtrans.com/snap/v1/transactions/b2b702b8-c57f-4cdb-abeb-0fafc6a087a6/pdf"
+		//   ["finish_redirect_url"]=>
+		//   string(86) "http://example.com?order_id=173150571276&status_code=200&transaction_status=settlement"
+		// }
+
 		// tabel payment
 		$data_payment = array(
 			'participant_id' => $this->input->post('participant_id'),
 			'program_payment_id' => $this->input->post('program_payment_id'),
 			'payment_method_id' => $this->input->post('payment_method_id'),
 			'status' => 1,
-			'account_name' => $this->input->post('account_name'),
-			'amount' => $this->input->post('amount'),
-			'source_name' => $result['payer_email'],
+			'account_name' => $this->input->post('name'),
+			'amount' => $this->input->post('gross_amount'),
+			'source_name' => $this->input->post('email'),
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s'),
 		);
@@ -185,12 +182,12 @@ class Snap extends CI_Controller
 			'pdf_url' => $result['pdf_url'],
 			'finish_redirect_url' => $result['finish_redirect_url'],
 		);
-
+		
 		$sql = $this->mCore->save_data('midtrans_payment', $data_midtrans);
-
-		if ($sql) {
+		
+		if($sql){
 			echo "SUKSES";
-		} else {
+		}else{
 			echo "GAGAL";
 		}
 	}
