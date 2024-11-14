@@ -33,7 +33,7 @@
 
     .icon {
       font-size: 50px;
-      color: green;
+      color: red;
       margin-bottom: 20px;
     }
 
@@ -66,17 +66,9 @@
 
 <body>
   <div class="container">
-    <img src="<?= $logo_url ?>" alt="Company Logo" class="logo" />
-    <div class="icon">✔</div>
-    <h1>Thank You!</h1>
-    <p>Your payment has been successfully completed<br>via <?= $app ?>.</p>
-    <p>We appreciate your participation in our program.</p>
-
-    <div class="order-details">
-      <p><strong>Order ID:</strong> #<?= $id ?></p>
-      <p><strong>Payment Date:</strong> <?= $date ?></p>
-      <p><strong>Amount Paid:</strong> <?= $currency . ' ' . $amount ?></p>
-    </div>
+    <div class="icon">✖</div>
+    <h1>Sorry!</h1>
+    <p>An error occurred, please try again.</p>
 
     <button class="btn" onclick="goHome()">Back to Previous Page</button>
   </div>

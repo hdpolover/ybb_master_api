@@ -248,7 +248,7 @@ class Payments extends RestController
 			'where' => ['xendit_payment.program_id' => $program_id],
 			'order' => ['xendit_payment.id' => 'asc']
 		);
-		
+
 		$payments = $this->mCore->join_table($option)->result_array();
 
 		if ($payments) {
@@ -284,7 +284,7 @@ class Payments extends RestController
 			'where' => ['payments.id' => $id],
 			'order' => ['xendit_payment.id' => 'asc']
 		);
-		
+
 		$payments = $this->mCore->join_table($option)->row_array();
 
 		if ($payments) {
@@ -609,7 +609,9 @@ class Payments extends RestController
 		} catch (\Xendit\XenditSdkException $e) {
 			$this->response([
 				'status' => false,
-				'message' => 'Exception when calling InvoiceApi->createInvoice: ', $e->getMessage(), PHP_EOL,
+				'message' => 'Exception when calling InvoiceApi->createInvoice: ',
+				$e->getMessage(),
+				PHP_EOL,
 			], 404);
 			// echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
 		}
@@ -634,7 +636,9 @@ class Payments extends RestController
 			} catch (\Xendit\XenditSdkException $e) {
 				$this->response([
 					'status' => false,
-					'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
+					'message' => 'Exception when calling InvoiceApi->getInvoiceById: ',
+					$e->getMessage(),
+					PHP_EOL,
 				], 404);
 				// echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
 			}
@@ -649,7 +653,9 @@ class Payments extends RestController
 			} catch (\Xendit\XenditSdkException $e) {
 				$this->response([
 					'status' => false,
-					'message' => 'Exception when calling InvoiceApi->getInvoices: ', $e->getMessage(), PHP_EOL,
+					'message' => 'Exception when calling InvoiceApi->getInvoices: ',
+					$e->getMessage(),
+					PHP_EOL,
 				], 404);
 				// echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
 			}
@@ -1492,7 +1498,8 @@ class Payments extends RestController
 					'id' => $data['external_id'],
 					'date' => date('D, d M Y H:i:s', strtotime($data['updated_at'])),
 					'currency' => $data['currency'],
-					'amount' => number_format($data['amount'])
+					'amount' => number_format($data['amount']),
+					'app' => 'Xendit'
 				);
 
 				$this->load->view("success_pay", $data_view);
@@ -1505,7 +1512,9 @@ class Payments extends RestController
 			} catch (\Xendit\XenditSdkException $e) {
 				$this->response([
 					'status' => false,
-					'message' => 'Exception when calling InvoiceApi->getInvoiceById: ', $e->getMessage(), PHP_EOL,
+					'message' => 'Exception when calling InvoiceApi->getInvoiceById: ',
+					$e->getMessage(),
+					PHP_EOL,
 				], 404);
 				// echo 'Full Error: ', json_encode($e->getFullError()), PHP_EOL;
 			}
@@ -2448,5 +2457,24 @@ class Payments extends RestController
 		}
 
 		return $data;
+	}
+
+	// MIDTRANS
+	public function pay_midtrans_post()
+	{
+		$data = [
+			'id' => $this->post('id'),
+			'price' => $this->post('price'),
+			'description' => $this->post('description'),
+			'name' => $this->post('name'),
+			'email' => $this->post('email'),
+			'phone' => $this->post('phone'),
+			'participant_id' => $this->post('participant_id'),
+			'program_id' => $this->post('program_id'),
+			'program_payment_id' => $this->post('program_payment_id'),
+			'payment_method_id' => $this->post('payment_method_id'),
+		];
+
+		$this->load->view('checkout_snap', $data);
 	}
 }

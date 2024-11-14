@@ -60,7 +60,7 @@
 
       $.ajax({
         type: 'POST',
-        url: '<?= site_url() ?>/snap/token',
+        url: '<?= base_url() ?>/snap/token',
         data: {
           'id': "<?= $id ?>",
           'price': "<?= $price ?>",
@@ -69,7 +69,6 @@
           'email': "<?= $email ?>",
           'phone': "<?= $phone ?>",
           'participant_id': "<?= $participant_id ?>",
-          'payment_id': "<?= $payment_id ?>",
           'program_id': "<?= $program_id ?>",
           'program_payment_id': "<?= $program_payment_id ?>",
           'payment_method_id': "<?= $payment_method_id ?>",
