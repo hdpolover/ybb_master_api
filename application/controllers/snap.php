@@ -463,6 +463,8 @@ class Snap extends CI_Controller
 															"
 															>Receipt</span
 														>
+														<br>
+														<small>via Midtrans</small>
 													</td>
 												</tr>
 												<tr></tr>

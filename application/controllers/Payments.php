@@ -960,6 +960,8 @@ class Payments extends RestController
 															"
 															>Receipt</span
 														>
+														<br>
+														<small>via Xendit</small>
 													</td>
 												</tr>
 												<tr></tr>
