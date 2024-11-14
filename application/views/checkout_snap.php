@@ -64,10 +64,8 @@
         data: {
           'id': "<?= $id ?>",
           'price': "<?= $price ?>",
-          'description': "<?= $description ?>",
           'name': "<?= $name ?>",
-          'email': "<?= $email ?>",
-          'phone': "<?= $phone ?>",
+          'description': "<?= $description ?>",
           'participant_id': "<?= $participant_id ?>",
           'program_id': "<?= $program_id ?>",
           'program_payment_id': "<?= $program_payment_id ?>",

@@ -2465,10 +2465,8 @@ class Payments extends RestController
 		$data = [
 			'id' => $this->post('id'),
 			'price' => $this->post('price'),
-			'description' => $this->post('description'),
 			'name' => $this->post('name'),
-			'email' => $this->post('email'),
-			'phone' => $this->post('phone'),
+			'description' => $this->post('description'),
 			'participant_id' => $this->post('participant_id'),
 			'program_id' => $this->post('program_id'),
 			'program_payment_id' => $this->post('program_payment_id'),

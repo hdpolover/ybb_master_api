@@ -33,12 +33,10 @@ class Snap extends CI_Controller
 	public function pay_midtrans()
 	{
 		$data = [
-			'id' => 'a1',
+			'id' => 'A1',
 			'price' => '100000',
+			'name' => 'IVAL TINDIK',
 			'description' => 'PEMBAYARAN',
-			'name' => 'IVAL AKUDEWE',
-			'email' => 'ronoroakid@gmail.com',
-			'phone' => '081823',
 			'participant_id' => '4',
 			'program_id' => '3',
 			'program_payment_id' => '1',
@@ -69,11 +67,24 @@ class Snap extends CI_Controller
 		// Optional
 		$item_details = array($item1_details);
 
+		// get data
+		$opt = [
+			'select' => 'participants.full_name, email, phone_number, origin_address',
+			'table' => 'participants',
+			'join' => [
+				'users' => 'participants.user_id = users.id'
+			],
+			'where' => ['participants.id = '. $this->input->post('participant_id')],
+			'limit' => '1'
+		];
+		$row = $this->mCore->join_table($opt)->row_array();
+		
 		// Optional
 		$customer_details = array(
-			'first_name'    => $this->input->post('name'),
-			'email'         => $this->input->post('email'),
-			'phone'         => $this->input->post('phone'),
+			'first_name'    => $row['full_name'],
+			'email'         => $row['email'],
+			'phone'         => $row['phone_number'],
+			'address'       => $row['origin_address']
 		);
 
 		// Data yang akan dikirim untuk request redirect_url.
@@ -106,7 +117,7 @@ class Snap extends CI_Controller
 			'status' => 1,
 			'account_name' => $this->input->post('name'),
 			'amount' => $this->input->post('price'),
-			'source_name' => $this->input->post('email'),
+			'source_name' => $row['email'],
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s'),
 		);
@@ -128,7 +139,7 @@ class Snap extends CI_Controller
 			'description' => $this->input->post('description'),
 			'currency' => 'IDR',
 			'gross_amount' => $this->input->post('price'),
-			'email' => $this->input->post('email'),
+			'email' => $row['email'],
 			'order_id' => $id,
 			'expired_at' => date('Y-m-d H:i:s', strtotime($custom_expiry['start_time'] . '+' . $tambahan)),
 			'created_at' => date('Y-m-d H:i:s'),
@@ -183,7 +194,7 @@ class Snap extends CI_Controller
 			'updated_at' => date('Y-m-d H:i:s', strtotime($result['transaction_time'])),
 		);
 		
-		if($result['payment_type'] == 'bank'){
+		if($result['payment_type'] == 'bank_transfer'){
 			$upd['bank'] = $result['va_numbers'][0]['bank'];
 			$upd['va_number'] = $result['va_numbers'][0]['va_number'];
 			$upd['pdf_url'] = $result['pdf_url'];
