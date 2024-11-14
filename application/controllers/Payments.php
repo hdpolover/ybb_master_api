@@ -2477,4 +2477,113 @@ class Payments extends RestController
 
 		$this->load->view('checkout_snap', $data);
 	}
+	
+	public function payment_program_midtrans_get()
+	{
+		$program_id = $this->get('program_id');
+
+		$option = array(
+			'select' => 'payments.*, participants.full_name, participants.phone_number, participants.nationality, participants.gender, participants.institution,
+				users.email, program_payments.program_id, program_payments.name program_payments_name, program_payments.description, 
+				program_payments.start_date, program_payments.end_date, program_payments.order_number, program_payments.idr_amount, 
+				program_payments.usd_amount, program_payments.category, payment_methods.name payment_methods_name, 
+				payment_methods.type, payment_methods.img_url, midtrans_payment.order_id, midtrans_payment.transaction_status midtrans_status, midtrans_payment.payment_type midtrans_payment_method',
+			'table' => 'payments',
+			'join' => [
+				['participants' => 'payments.participant_id = participants.id AND participants.is_active = 1'],
+				['users' => 'participants.user_id = users.id AND users.is_active = 1'],
+				['program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1'],
+				['payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1'],
+				['midtrans_payment', 'payments.id = midtrans_payment.payment_id', 'left'],
+			],
+			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
+			'order' => ['payments.created_at' => 'desc']
+		);
+		$payments = $this->mCore->join_table($option)->result_array();
+
+		if ($payments) {
+			$this->response([
+				'status' => true,
+				'data' => $payments,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'No result were found',
+			], 404);
+		}
+	}
+
+	public function list_payment_midtrans_get()
+	{
+
+		$program_id = $this->get('program_id');
+
+		$option = array(
+			'select' => 'midtrans_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
+			'table' => 'midtrans_payment',
+			'join' => [
+				'payments' => 'payments.id = midtrans_payment.payment_id',
+				'program_payments' => 'program_payments.id = payments.program_payment_id',
+				'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+				'participants' => 'participants.id = midtrans_payment.participant_id',
+				'users' => 'participants.user_id = users.id',
+				'programs' => 'midtrans_payment.program_id = programs.id',
+				'program_categories' => 'programs.program_category_id = program_categories.id',
+			],
+			'where' => ['midtrans_payment.program_id' => $program_id],
+			'order' => ['midtrans_payment.id' => 'asc']
+		);
+
+		$payments = $this->mCore->join_table($option)->result_array();
+
+		if ($payments) {
+			$this->response([
+				'status' => true,
+				'data' => $payments,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'No result were found',
+			], 404);
+		}
+	}
+
+	public function payment_midtrans_get()
+	{
+		$id = $this->get('id');
+
+		$option = array(
+			'select' => 'midtrans_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
+			'table' => 'midtrans_payment',
+			'join' => [
+				'payments' => 'payments.id = midtrans_payment.payment_id',
+				'program_payments' => 'program_payments.id = payments.program_payment_id',
+				'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+				'participants' => 'participants.id = midtrans_payment.participant_id',
+				'users' => 'participants.user_id = users.id',
+				'programs' => 'midtrans_payment.program_id = programs.id',
+				'program_categories' => 'programs.program_category_id = program_categories.id',
+			],
+			'where' => ['payments.id' => $id],
+			'order' => ['midtrans_payment.id' => 'asc']
+		);
+
+		$payments = $this->mCore->join_table($option)->row_array();
+
+		if ($payments) {
+			$this->response([
+				'status' => true,
+				'data' => $payments,
+			], 200);
+		} else {
+			$this->response([
+				'status' => false,
+				'message' => 'No result were found',
+			], 404);
+		}
+	}
 }
