@@ -167,6 +167,35 @@ class Participants extends RestController
         }
     }
 
+    //CHECK PROGRAM
+    public function check_get()
+    {
+        $email = $this->get('email');
+        $program_id = $this->get('program_id');
+        
+        $option = array(
+            'select' => 'participants.*, users.email',
+            'table' => 'participants',
+            'join' => [
+                'users' => 'users.id = participants.user_id AND users.is_active = 1',
+            ],
+            'where' => 'participants.program_id = "' . $program_id . '" AND users.email = "' . $email . '" AND participants.is_active = 1',
+        );
+        $participants = $this->mCore->join_table($option)->result_array();
+        
+        if ($participants) {
+            $this->response([
+                'status' => true,
+                'data' => $participants,
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Participants are not registered in the Program.',
+            ], 404);
+        }
+    }
+
     //SIMPAN DATA
     public function save_post()
     {
