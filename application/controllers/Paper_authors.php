@@ -95,7 +95,7 @@ class Paper_authors extends RestController
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('paper_authors', array_filter($data));
+        $sql = $this->mCore->save_data('paper_authors', $data);
         if ($sql) {
             $last_id = $this->mCore->get_lastid('paper_authors', 'id');
             $last_data = $this->mCore->get_data('paper_authors', ['id' => $last_id])->row_array();
@@ -121,7 +121,7 @@ class Paper_authors extends RestController
             'is_participant' => $this->post('is_participant'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('paper_authors', array_filter($data), true, ['id' => $id]);
+        $sql = $this->mCore->save_data('paper_authors', $data, true, ['id' => $id]);
         if ($sql) {
             $last_data = $this->mCore->get_data('paper_authors', ['id' => $id])->row_array();
             $this->response([
