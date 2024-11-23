@@ -30,21 +30,21 @@ class Snap extends CI_Controller
 		$this->load->helper('url');
 	}
 
-	// public function pay_midtrans()
-	// {
-	// 	$data = [
-	// 		'id' => 'A1',
-	// 		'price' => '100000',
-	// 		'name' => 'IVAL TINDIK',
-	// 		'description' => 'PEMBAYARAN',
-	// 		'participant_id' => '4',
-	// 		'program_id' => '3',
-	// 		'program_payment_id' => '1',
-	// 		'payment_method_id' => '7',
-	// 	];
+	public function pay_midtrans()
+	{
+		$data = [
+			'id' => $this->input->post('id'),
+			'price' => $this->input->post('price'),
+			'name' => $this->input->post('name'),
+			'description' => $this->input->post('description'),
+			'participant_id' => $this->input->post('participant_id'),
+			'program_id' => $this->input->post('program_id'),
+			'program_payment_id' => $this->input->post('program_payment_id'),
+			'payment_method_id' => $this->input->post('payment_method_id'),
+		];
 
-	// 	$this->load->view('checkout_snap', $data);
-	// }
+		$this->load->view('checkout_snap', $data);
+	}
 
 	public function token()
 	{
