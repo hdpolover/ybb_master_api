@@ -32,6 +32,17 @@ class Snap extends CI_Controller
 
 	public function pay_midtrans()
 	{
+		// $data = [
+		// 	'id' => 'A1',
+		// 	'price' => '100000',
+		// 	'name' => 'IVAL TINDIK',
+		// 	'description' => 'PEMBAYARAN',
+		// 	'participant_id' => '4',
+		// 	'program_id' => '3',
+		// 	'program_payment_id' => '1',
+		// 	'payment_method_id' => '7',
+		// ];
+		
 		$data = [
 			'id' => $this->input->post('id'),
 			'price' => $this->input->post('price'),
