@@ -69,7 +69,7 @@
     <img src="<?= $logo_url ?>" alt="Company Logo" class="logo" />
     <div class="icon">✔</div>
     <h1>Thank You!</h1>
-    <p>Your payment has been successfully completed<br>via <?= $app ?>.</p>
+    <p>Your payment has been successfully completed</p>
     <p>We appreciate your participation in our program.</p>
 
     <div class="order-details">

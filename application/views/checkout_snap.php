@@ -47,7 +47,7 @@
 <body>
 
 
-  <form id="payment-form" method="post" action="<?= site_url() ?>/snap/finish">
+  <form id="payment-form" method="post" action="<?= site_url() ?>/Snap/finish">
     <input type="hidden" name="result_type" id="result-type" value=""></div>
     <input type="hidden" name="result_data" id="result-data" value=""></div>
   </form>
@@ -60,7 +60,8 @@
 
       $.ajax({
         type: 'POST',
-        url: '<?= base_url() ?>/snap/token',
+        // dataType: "json",
+        url: '<?= base_url() ?>/Snap/token',
         data: {
           'id': "<?= $id ?>",
           'price': "<?= $price ?>",
