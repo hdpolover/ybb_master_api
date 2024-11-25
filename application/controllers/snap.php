@@ -28,7 +28,7 @@ class Snap extends CI_Controller
 	{
 		// iki dev		
 		parent::__construct();
-		$params = array('server_key' => config_item('server_key'), 'production' => false);
+		$params = array('server_key' => config_item('server_key'), 'production' => true);
 		$this->load->library('midtrans');
 		$this->midtrans->config($params);
 		$this->load->helper('url');
