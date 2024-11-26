@@ -53,8 +53,13 @@ class Paper_reviewers extends RestController
     function save_post()
     {
         $data = array(
+            'paper_topic_id' => $this->post('paper_topic_id'),
+            'program_id' => $this->post('program_id'),
             'name' => $this->post('name'),
             'email' => $this->post('email'),
+            'institution' => $this->post('institution'),
+            'password' => $this->post('password'),
+            'topic_access' => $this->post('topic_access'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -78,21 +83,17 @@ class Paper_reviewers extends RestController
     function update_post($id)
     {
         $data = array(
+            'paper_topic_id' => $this->post('paper_topic_id'),
+            'program_id' => $this->post('program_id'),
             'name' => $this->post('name'),
             'email' => $this->post('email'),
+            'institution' => $this->post('institution'),
+            'password' => $this->post('password'),
+            'topic_access' => $this->post('topic_access'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('paper_reviewers', array_filter($data), true, ['id' => $id]);
         if ($sql) {
-            if (!empty($_FILES['img_url']['name'])) {
-                $upload_file = $this->upload_image('img_url', $id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message'],
-                    ], 404);
-                }
-            }
             $last_data = $this->mCore->get_data('paper_reviewers', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
