@@ -47,11 +47,29 @@ class Paper_topics extends RestController
             }
         }
     }
+    
+    function list_get()
+    {
+        $program_id = $this->get('program_id');
+        $paper_topics = $this->mCore->get_data('paper_topics', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($paper_topics) {
+            $this->response([
+                'status' => true,
+                'data' => $paper_topics
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
 
     //SIMPAN DATA
     function save_post()
     {
         $data = array(
+            'program_id' => $this->post('program_id'),
             'topic_name' => $this->post('topic_name'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -76,6 +94,7 @@ class Paper_topics extends RestController
     function update_post($id)
     {
         $data = array(
+            'program_id' => $this->post('program_id'),
             'topic_name' => $this->post('topic_name'),
             'updated_at' => date('Y-m-d H:i:s'),
         );

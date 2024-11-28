@@ -47,6 +47,24 @@ class Paper_reviewers extends RestController
             }
         }
     }
+    
+    function list_get()
+    {
+        $program_id = $this->get('program_id');
+        $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['program_id' => $program_id, 'is_active' => 1])->result_array();
+        if ($paper_reviewers) {
+            $this->response([
+                'status' => true,
+                'data' => $paper_reviewers
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
+
 
 
     //SIMPAN DATA

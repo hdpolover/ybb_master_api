@@ -70,6 +70,7 @@ class Paper_revisions extends RestController
     {
         $data = array(
             'paper_detail_id' => $this->post('paper_detail_id'),
+            'paper_reviewer_id' => $this->post('paper_reviewer_id'),
             'comment' => $this->post('comment'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -95,6 +96,7 @@ class Paper_revisions extends RestController
     {
         $data = array(
             'paper_detail_id' => $this->post('paper_detail_id'),
+            'paper_reviewer_id' => $this->post('paper_reviewer_id'),
             'comment' => $this->post('comment'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
