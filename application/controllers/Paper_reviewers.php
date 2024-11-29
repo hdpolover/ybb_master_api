@@ -65,7 +65,23 @@ class Paper_reviewers extends RestController
         }
     }
 
-
+    function signin_get()
+    {
+        $email = $this->get('email');
+        $password = $this->get('password');
+        $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['email' => $email, 'password' => $password, 'is_active' => 1])->result_array();
+        if ($paper_reviewers) {
+            $this->response([
+                'status' => true,
+                'data' => $paper_reviewers
+            ], 200);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'No result were found'
+            ], 404);
+        }
+    }
 
     //SIMPAN DATA
     function save_post()
