@@ -10,9 +10,20 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 
 class Participants extends RestController
 {
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
+        
+        // Add CORS headers
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
+        header('Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, X-Request-With');
+        header('Content-Type: application/json');
+        
+        // Handle preflight OPTIONS request
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+            header('HTTP/1.1 200 OK');
+            exit();
+        }
     }
 
     public function index_get()
