@@ -48,49 +48,52 @@ class Program_categories extends RestController
         }
     }
 
-    public function web_get()
-    {
-        $url = $this->get('url');
+   public function web_get()
+{
+    $url = $this->get('url');
 
-        $program_categories = $this->mCore->get_data('program_categories', ['is_active' => 1])->result_array();
-        $cat = array_column($program_categories, 'web_url');
+    $program_categories = $this->mCore->get_data('program_categories', ['is_active' => 1])->result_array();
+    $cat = array_column($program_categories, 'web_url');
 
-        $is_true = false;
-        foreach ($cat as $val) {
-            if (strpos($url, $val) !== false) {
-                $is_true = true;
-                $url_new = $val;
-            }
+    $is_true = false;
+    foreach ($cat as $val) {
+        if (strpos($url, $val) !== false) {
+            $is_true = true;
+            $url_new = $val;
         }
+    }
 
-        if ($is_true) {
-            $join = [
-                'select' => '*',
-                'table' => 'program_categories',
-                'join' => ['programs' => 'programs.program_category_id = program_categories.id AND programs.is_active = 1'],
-                'like' => ['program_categories.web_url' => $url_new],
-                'where' => ['programs.is_active' => 1],
-                'limit' => 1
-            ];
-            $web_url = $this->mCore->join_table($join)->row_array();
-            if ($web_url) {
-                $this->response([
-                    'status' => true,
-                    'data' => $web_url,
-                ], 200);
-            } else {
-                $this->response([
-                    'status' => false,
-                    'message' => 'No result were found',
-                ], 404);
-            }
+    if ($is_true) {
+        $join = [
+            'select' => '*',
+            'table' => 'program_categories',
+            'join' => ['programs' => 'programs.program_category_id = program_categories.id'],
+            'like' => ['program_categories.web_url' => $url_new],
+        ];
+        $web_url = $this->mCore->join_table($join)->result_array();
+
+        // Get the last item
+        $last_item = end($web_url);
+
+        if ($last_item) {
+            $this->response([
+                'status' => true,
+                'data' => $last_item,
+            ], 200);
         } else {
             $this->response([
                 'status' => false,
                 'message' => 'No result were found',
             ], 404);
         }
+    } else {
+        $this->response([
+            'status' => false,
+            'message' => 'No result were found',
+        ], 404);
     }
+}
+
 
     //SIMPAN DATA
     public function save_post()
