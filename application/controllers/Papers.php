@@ -71,7 +71,6 @@ class Papers extends RestController
         $data = array(
             'paper_url' => NULL,
             'desc' => $this->post('desc'),
-            'paper_topic_id' => $this->post('paper_topic_id'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
@@ -106,7 +105,6 @@ class Papers extends RestController
         $data = array(
             'paper_url' => NULL,
             'desc' => $this->post('desc'),
-            'paper_topic_id' => $this->post('paper_topic_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
         $sql = $this->mCore->save_data('papers', array_filter($data), true, ['id' => $id]);

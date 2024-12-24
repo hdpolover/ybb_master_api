@@ -105,6 +105,7 @@ class Paper_details extends RestController
         $data = array(
             'program_id' => $this->post('program_id'),
             'paper_abstract_id' => $this->post('paper_abstract_id'),
+            'paper_topic_id' => $this->post('paper_topic_id'),
             'paper_id' => $this->post('paper_id'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -131,6 +132,7 @@ class Paper_details extends RestController
         $data = array(
             'program_id' => $this->post('program_id'),
             'paper_abstract_id' => $this->post('paper_abstract_id'),
+            'paper_topic_id' => $this->post('paper_topic_id'),
             'paper_id' => $this->post('paper_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
