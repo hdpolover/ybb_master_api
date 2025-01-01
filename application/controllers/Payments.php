@@ -37,7 +37,7 @@ class Payments extends RestController
 					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
 					'users' => 'participants.user_id = users.id AND users.is_active = 1',
 					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
-					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+					'payment_methods' => 'payments.payment_method_id = payment_methods.id',
 				],
 				'where' => ['payments.is_active' => 1],
 				'order' => ['payments.id' => 'asc']
@@ -66,7 +66,7 @@ class Payments extends RestController
 					'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
 					'users' => 'participants.user_id = users.id AND users.is_active = 1',
 					'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
-					'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+					'payment_methods' => 'payments.payment_method_id = payment_methods.id',
 				],
 				'where' => ['payments.id' => $id, 'payments.is_active' => 1],
 				'order' => ['payments.id' => 'asc']
@@ -138,7 +138,7 @@ class Payments extends RestController
 				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
 				'users' => 'participants.user_id = users.id AND users.is_active = 1',
 				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
-				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id',
 			],
 			'where' => ['payments.program_payment_id' => $program_payment_id, 'payments.is_active' => 1],
 			'order' => ['payments.id' => 'asc']
@@ -173,7 +173,7 @@ class Payments extends RestController
 				'participants' => 'payments.participant_id = participants.id AND participants.is_active = 1',
 				'users' => 'participants.user_id = users.id AND users.is_active = 1',
 				'program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1',
-				'payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1',
+				'payment_methods' => 'payments.payment_method_id = payment_methods.id',
 			],
 			'where' => ['payments.payment_method_id' => $payment_method_id, 'payments.is_active' => 1],
 			'order' => ['payments.id' => 'asc']
@@ -208,7 +208,7 @@ class Payments extends RestController
 				['participants' => 'payments.participant_id = participants.id AND participants.is_active = 1'],
 				['users' => 'participants.user_id = users.id AND users.is_active = 1'],
 				['program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1'],
-				['payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1'],
+				['payment_methods' => 'payments.payment_method_id = payment_methods.id'],
 				['xendit_payment', 'payments.id = xendit_payment.payment_id', 'left'],
 			],
 			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
@@ -2495,7 +2495,7 @@ class Payments extends RestController
 				['participants' => 'payments.participant_id = participants.id AND participants.is_active = 1'],
 				['users' => 'participants.user_id = users.id AND users.is_active = 1'],
 				['program_payments' => 'payments.program_payment_id = program_payments.id AND program_payments.is_active = 1'],
-				['payment_methods' => 'payments.payment_method_id = payment_methods.id AND payment_methods.is_active = 1'],
+				['payment_methods' => 'payments.payment_method_id = payment_methods.id'],
 				['midtrans_payment', 'payments.id = midtrans_payment.payment_id', 'left'],
 			],
 			'where' => ['program_payments.program_id' => $program_id, 'payments.is_active' => 1],
