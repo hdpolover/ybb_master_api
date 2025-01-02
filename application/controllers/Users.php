@@ -51,7 +51,8 @@ class Users extends RestController
   public function check_email_get()
   {
     $email = $this->get('email');
-    $users = $this->mCore->get_data('users', ['email' => $email, 'is_active' => 1])->row_array();
+    $program_category_id = $this->get('program_category_id');
+    $users = $this->mCore->get_data('users', ['email' => $email, 'program_category_id' => $program_category_id, 'is_active' => 1])->row_array();
     if ($users) {
       $this->response([
         'status' => true,
