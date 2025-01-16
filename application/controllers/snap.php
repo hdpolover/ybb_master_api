@@ -28,7 +28,7 @@ class Snap extends CI_Controller
 	{
 		// iki dev		
 		parent::__construct();
-		$params = array('server_key' => config_item('server_key'), 'production' => true);
+		$params = array('server_key' => config_item('server_key'), 'production' => false);
 		$this->load->library('midtrans');
 		$this->midtrans->config($params);
 		$this->load->helper('url');
@@ -46,7 +46,7 @@ class Snap extends CI_Controller
 	// 		'program_payment_id' => '1',
 	// 		'payment_method_id' => '7',
 	// 	];
-		
+
 	// 	// $data = [
 	// 	// 	'id' => $this->input->post('id'),
 	// 	// 	'price' => $this->input->post('price'),
@@ -93,7 +93,7 @@ class Snap extends CI_Controller
 			'limit' => '1'
 		];
 		$row = $this->mCore->join_table($opt)->row_array();
-		
+
 		// Optional
 		$customer_details = array(
 			'first_name'    => $row['full_name'],
@@ -175,64 +175,132 @@ class Snap extends CI_Controller
 		echo $snapToken;
 	}
 
+	public function check_status(){
+		// https://app.sandbox.midtrans.com/snap/v1/transactions/a3288fd3-000b-4324-a5da-50c19e22856e/status
+		$transaction_id = $this->input->post('transaction_id');
+
+		print_r($this->midtrans->status($transaction_id));
+	}
+
 	public function finish()
 	{
 		// dari midtrans
 		$result = json_decode($this->input->post('result_data'), true);
-
-		$option = array(
-			'select' => 'midtrans_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+// print_r($result);
+// die();
+		if ($result['status_code'] == '201') {
+			// pending
+			$option = array(
+				'select' => 'midtrans_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
 				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
-			'table' => 'midtrans_payment',
-			'join' => [
-				'payments' => 'payments.id = midtrans_payment.payment_id',
-				'program_payments' => 'program_payments.id = payments.program_payment_id',
-				'payment_methods' => 'payment_methods.id = payments.payment_method_id',
-				'participants' => 'participants.id = midtrans_payment.participant_id',
-				'users' => 'participants.user_id = users.id',
-				'programs' => 'midtrans_payment.program_id = programs.id',
-				'program_categories' => 'programs.program_category_id = program_categories.id',
-			],
-			'where' => 'midtrans_payment.order_id = ' . $result['order_id'],
-		);
+				'table' => 'midtrans_payment',
+				'join' => [
+					'payments' => 'payments.id = midtrans_payment.payment_id',
+					'program_payments' => 'program_payments.id = payments.program_payment_id',
+					'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+					'participants' => 'participants.id = midtrans_payment.participant_id',
+					'users' => 'participants.user_id = users.id',
+					'programs' => 'midtrans_payment.program_id = programs.id',
+					'program_categories' => 'programs.program_category_id = program_categories.id',
+				],
+				'where' => 'midtrans_payment.order_id = ' . $result['order_id'],
+			);
 
-		$data = $this->mCore->join_table($option)->row_array();
+			$data = $this->mCore->join_table($option)->row_array();
 
-		// TABEL PEMBANTU
-		$upd = array(
-			'payment_type' => $result['payment_type'],
-			'transaction_time' => $result['transaction_time'],
-			'status_code' => $result['status_code'],
-			'transaction_status' => $result['transaction_status'],
-			'transaction_id' => $result['transaction_id'],
-			'finish_redirect_url' => $result['finish_redirect_url'],
-			'updated_at' => date('Y-m-d H:i:s', strtotime($result['transaction_time'])),
-		);
-		
-		if($result['payment_type'] == 'bank_transfer'){
-			$upd['bank'] = $result['va_numbers'][0]['bank'];
-			$upd['va_number'] = $result['va_numbers'][0]['va_number'];
-			$upd['pdf_url'] = $result['pdf_url'];
-		}
+			// TABEL PEMBANTU
+			$upd = array(
+				'payment_type' => $result['payment_type'],
+				'transaction_time' => $result['transaction_time'],
+				'status_code' => $result['status_code'],
+				'transaction_status' => $result['transaction_status'],
+				'transaction_id' => $result['transaction_id'],
+				'finish_redirect_url' => $result['finish_redirect_url'],
+				'updated_at' => date('Y-m-d H:i:s', strtotime($result['transaction_time'])),
+			);
 
-		$this->mCore->save_data('midtrans_payment', $upd, true, ['order_id' => $result['order_id']]);
+			$va_number = 0;
+			$url_qris = 0;
+			if ($result['payment_type'] == 'bank_transfer') {
+				$va_number = strtoupper($result['va_numbers'][0]['bank']) . ' (' . $result['va_numbers'][0]['va_number'] . ')';
+				$upd['bank'] = $result['va_numbers'][0]['bank'];
+				$upd['va_number'] = $result['va_numbers'][0]['va_number'];
+				$upd['pdf_url'] = $result['pdf_url'];
+			}else if($result['payment_type'] == 'qris'){
+				$url_qris = 'https://api.sandbox.midtrans.com/v2/qris/shopeepay/sppq_'.$result['transaction_id'].'/qr-code';
+			}
 
-		// diambil lagi
-		$data = $this->mCore->join_table($option)->row_array();
+			$this->mCore->save_data('midtrans_payment', $upd, true, ['order_id' => $result['order_id']]);
 
-		// email
-		$config = array(
-			'protocol' => 'smtp',
-			'smtp_host' => 'ssl://smtp.googlemail.com',
-			'smtp_port' => config_item('port_email'),
-			'smtp_user' => config_item('user_email'),
-			'smtp_pass' => config_item('pass_email'),
-			'mailtype' => 'html',
-			'charset' => 'iso-8859-1',
-			'wordwrap' => true,
-		);
+			$data_view = array(
+				'logo_url' => $data['logo_url'],
+				'web_url' => $data['web_url'],
+				'id' => $data['order_id'],
+				'date' => date('D, d M Y H:i:s', strtotime($result['transaction_time'])),
+				'currency' => $data['currency'],
+				'amount' => number_format($result['gross_amount']),
+				'app' => 'Midtrans',
+				'va_number' => $va_number,
+				'url_qris' => $url_qris,
+			);
 
-		$message = ('
+			// pending
+			$this->load->view("pending_pay", $data_view);
+		} else if ($result['status_code'] == '200') {
+			// success
+			$option = array(
+				'select' => 'midtrans_payment.*, users.full_name, users.email email_user, programs.name, programs.logo_url, program_categories.web_url,
+				program_categories.contact,program_categories.email email_program_category, program_payments.name program_payment_name',
+				'table' => 'midtrans_payment',
+				'join' => [
+					'payments' => 'payments.id = midtrans_payment.payment_id',
+					'program_payments' => 'program_payments.id = payments.program_payment_id',
+					'payment_methods' => 'payment_methods.id = payments.payment_method_id',
+					'participants' => 'participants.id = midtrans_payment.participant_id',
+					'users' => 'participants.user_id = users.id',
+					'programs' => 'midtrans_payment.program_id = programs.id',
+					'program_categories' => 'programs.program_category_id = program_categories.id',
+				],
+				'where' => 'midtrans_payment.order_id = ' . $result['order_id'],
+			);
+
+			$data = $this->mCore->join_table($option)->row_array();
+
+			// TABEL PEMBANTU
+			$upd = array(
+				'payment_type' => $result['payment_type'],
+				'transaction_time' => $result['transaction_time'],
+				'status_code' => $result['status_code'],
+				'transaction_status' => $result['transaction_status'],
+				'transaction_id' => $result['transaction_id'],
+				'finish_redirect_url' => $result['finish_redirect_url'],
+				'updated_at' => date('Y-m-d H:i:s', strtotime($result['transaction_time'])),
+			);
+
+			if ($result['payment_type'] == 'bank_transfer') {
+				$upd['bank'] = $result['va_numbers'][0]['bank'];
+				$upd['va_number'] = $result['va_numbers'][0]['va_number'];
+				$upd['pdf_url'] = $result['pdf_url'];
+			}
+
+			$this->mCore->save_data('midtrans_payment', $upd, true, ['order_id' => $result['order_id']]);
+
+			// diambil lagi
+			$data = $this->mCore->join_table($option)->row_array();
+
+			// email
+			$config = array(
+				'protocol' => 'smtp',
+				'smtp_host' => 'ssl://smtp.googlemail.com',
+				'smtp_port' => config_item('port_email'),
+				'smtp_user' => config_item('user_email'),
+				'smtp_pass' => config_item('pass_email'),
+				'mailtype' => 'html',
+				'charset' => 'iso-8859-1',
+				'wordwrap' => true,
+			);
+
+			$message = ('
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Order confirmation</title>
 <meta name="robots" content="noindex,nofollow" />
@@ -874,7 +942,7 @@ class Snap extends CI_Controller
 																	vertical-align: top;
 																"
 															>
-																' . ucfirst(str_replace('_', ' ',$data['payment_type'])) . '<br />
+																' . ucfirst(str_replace('_', ' ', $data['payment_type'])) . '<br />
 																<span
 																	style="color: #5b5b5b"
 																	>' . date('D, d M Y H:i:s', strtotime($data['updated_at'])) . ' (GMT+0)</span
@@ -977,51 +1045,55 @@ class Snap extends CI_Controller
 	</tr>
 </table>');
 
-		$this->load->library('email', $config);
-		$this->email->set_mailtype("html");
-		$this->email->set_newline("\r\n");
-		$this->email->set_crlf("\r\n");
-		$this->email->from(config_item('user_email'));
-		$this->email->to($data['email']);
-		$this->email->subject('Thank you for participating in ' . $data['name']);
-		$this->email->message($message);
+			$this->load->library('email', $config);
+			$this->email->set_mailtype("html");
+			$this->email->set_newline("\r\n");
+			$this->email->set_crlf("\r\n");
+			$this->email->from(config_item('user_email'));
+			$this->email->to($data['email']);
+			$this->email->subject('Thank you for participating in ' . $data['name']);
+			$this->email->message($message);
 
-		if ($this->email->send()) {
-			// PAYMENT
-			$upd_payment = array(
-				'status' => 2,
-				'updated_at' => date('Y-m-d H:i:s'),
-			);
-			$this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
+			if ($this->email->send()) {
+				// PAYMENT
+				$upd_payment = array(
+					'status' => 2,
+					'updated_at' => date('Y-m-d H:i:s'),
+				);
+				$this->mCore->save_data('payments', $upd_payment, true, ['id' => $data['payment_id']]);
 
-			$status_pay = 0;
-			if ($data['program_payment_name'] == 'Registration Fee (Early Bid)') {
-				$status_pay = 1;
-			} else if ($data['program_payment_name'] == 'Program Fee Batch 1') {
-				$status_pay = 2;
-			} else if ($data['program_payment_name'] == 'Program Fee Batch 2') {
-				$status_pay = 3;
+				$status_pay = 0;
+				if ($data['program_payment_name'] == 'Registration Fee (Early Bid)') {
+					$status_pay = 1;
+				} else if ($data['program_payment_name'] == 'Program Fee Batch 1') {
+					$status_pay = 2;
+				} else if ($data['program_payment_name'] == 'Program Fee Batch 2') {
+					$status_pay = 3;
+				}
+
+				// PARTICIPANT STATUS
+				$upd_payment = array(
+					'payment_status' => $status_pay,
+					'updated_at' => date('Y-m-d H:i:s'),
+				);
+				$this->mCore->save_data('participant_statuses', $upd_payment, true, ['participant_id' => $data['participant_id']]);
+
+				$data_view = array(
+					'logo_url' => $data['logo_url'],
+					'web_url' => $data['web_url'],
+					'id' => $data['order_id'],
+					'date' => date('D, d M Y H:i:s', strtotime($data['updated_at'])),
+					'currency' => $data['currency'],
+					'amount' => number_format($data['gross_amount']),
+					'app' => 'Midtrans'
+				);
+
+				$this->load->view("success_pay", $data_view);
+			} else {
+				$this->load->view("error_pay");
 			}
-
-			// PARTICIPANT STATUS
-			$upd_payment = array(
-				'payment_status' => $status_pay,
-				'updated_at' => date('Y-m-d H:i:s'),
-			);
-			$this->mCore->save_data('participant_statuses', $upd_payment, true, ['participant_id' => $data['participant_id']]);
-
-			$data_view = array(
-				'logo_url' => $data['logo_url'],
-				'web_url' => $data['web_url'],
-				'id' => $data['order_id'],
-				'date' => date('D, d M Y H:i:s', strtotime($data['updated_at'])),
-				'currency' => $data['currency'],
-				'amount' => number_format($data['gross_amount']),
-				'app' => 'Midtrans'
-			);
-
-			$this->load->view("success_pay", $data_view);
 		} else {
+			// error
 			$this->load->view("error_pay");
 		}
 	}
