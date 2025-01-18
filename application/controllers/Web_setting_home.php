@@ -33,7 +33,7 @@ class Web_setting_home extends RestController
                 ], 404);
             }
         } else {
-            $web_setting_home = $this->mCore->get_data('web_setting_home', ['program_id' => $program_id, 'is_active' => 1])->result();
+            $web_setting_home = $this->mCore->get_data('web_setting_home', ['program_id' => $program_id, 'is_active' => 1])->row_array();
             if ($web_setting_home) {
                 $this->response([
                     'status' => true,

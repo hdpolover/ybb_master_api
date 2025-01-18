@@ -108,43 +108,90 @@ class Program_announcements extends RestController
         ], 200);
         echo $encryptedData;
     }
+    
+// SIMPAN DATA
+function save_post()
+{
+    // Generate slug, meta_title, and meta_description
+    $seo_fields = $this->generate_seo_fields($this->post('title'), $this->post('description'));
 
-    //SIMPAN DATA
-    function save_post()
-    {
-        $data = array(
-            'program_id' => $this->post('program_id'),
-            'title' => $this->post('title'),
-            'description' => $this->post('description'),
-            'img_url' => NULL,
-            'visible_to' => $this->post('visible_to'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        );
-        $sql = $this->mCore->save_data('program_announcements', array_filter($data));
-        if ($sql) {
-            $last_id = $this->mCore->get_lastid('program_announcements', 'id');
-            if (!empty($_FILES['img_url']['name'])) {
-                $upload_file = $this->upload_image('img_url', $last_id);
-                if ($upload_file['status'] == 0) {
-                    $this->response([
-                        'status' => false,
-                        'message' => $upload_file['message']
-                    ], 404);
-                }
+    $data = array(
+        'program_id' => $this->post('program_id'),
+        'title' => $this->post('title'),
+        'description' => $this->post('description'),
+        'slug' => $seo_fields['slug'], // Add generated slug
+        'meta_title' => $seo_fields['meta_title'], // Add generated meta_title
+        'meta_description' => $seo_fields['meta_description'], // Add generated meta_description
+        'img_url' => NULL,
+        'tags' => $this->post('tags'),
+        'visible_to' => $this->post('visible_to'),
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+    );
+
+    $sql = $this->mCore->save_data('program_announcements', array_filter($data));
+    if ($sql) {
+        $last_id = $this->mCore->get_lastid('program_announcements', 'id');
+        if (!empty($_FILES['img_url']['name'])) {
+            $upload_file = $this->upload_image('img_url', $last_id);
+            if ($upload_file['status'] == 0) {
+                $this->response([
+                    'status' => false,
+                    'message' => $upload_file['message']
+                ], 404);
             }
-            $last_data = $this->mCore->get_data('program_announcements', ['id' => $last_id])->row_array();
-            $this->response([
-                'status' => true,
-                'data' => $last_data
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'Sorry, failed to save'
-            ], 404);
         }
+        $last_data = $this->mCore->get_data('program_announcements', ['id' => $last_id])->row_array();
+        $this->response([
+            'status' => true,
+            'data' => $last_data
+        ], 200);
+    } else {
+        $this->response([
+            'status' => false,
+            'message' => 'Sorry, failed to save'
+        ], 404);
     }
+}
+
+// Helper function to generate SEO fields
+private function generate_seo_fields($title, $description)
+{
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/', '-', $title), '-'));
+    $meta_title = substr($title, 0, 60);
+    $meta_description = substr(strip_tags($description), 0, 160);
+
+    return [
+        'slug' => $slug,
+        'meta_title' => $meta_title,
+        'meta_description' => $meta_description,
+    ];
+}
+
+public function announcement_by_slug_get($slug)
+{
+    // Query the database for the announcement with the given slug and is_active = 1
+    $announcement = $this->mCore->get_data('program_announcements', [
+        'slug' => $slug,
+        'is_active' => 1
+    ])->row_array();
+
+    if ($announcement) {
+        // If found, return the announcement data
+        $this->response([
+            'status' => true,
+            'data' => $announcement
+        ], 200);
+    } else {
+        // If not found, return an error response
+        $this->response([
+            'status' => false,
+            'message' => 'Announcement not found or inactive'
+        ], 404);
+    }
+}
+
+
 
     //UPDATE DATA
     function update_post($id)
