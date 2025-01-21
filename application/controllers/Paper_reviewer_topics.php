@@ -8,7 +8,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-class Paper_reviewers extends RestController
+class Paper_reviewer_topics extends RestController
 {
 
     function __construct()
@@ -20,7 +20,7 @@ class Paper_reviewers extends RestController
     {
         $id = $this->get('id');
         if ($id == '') {
-            $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['is_active' => 1])->result_array();
+            $paper_reviewers = $this->mCore->get_data('paper_reviewer_topics', ['is_active' => 1])->result_array();
             if ($paper_reviewers) {
                 $this->response([
                     'status' => true,
@@ -33,7 +33,7 @@ class Paper_reviewers extends RestController
                 ], 404);
             }
         } else {
-            $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['id' => $id, 'is_active' => 1])->row_array();
+            $paper_reviewers = $this->mCore->get_data('paper_reviewer_topics', ['id' => $id, 'is_active' => 1])->row_array();
             if ($paper_reviewers) {
                 $this->response([
                     'status' => true,
@@ -50,26 +50,8 @@ class Paper_reviewers extends RestController
     
     function list_get()
     {
-        $program_id = $this->get('program_id');
-        $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['program_id' => $program_id, 'is_active' => 1])->result_array();
-        if ($paper_reviewers) {
-            $this->response([
-                'status' => true,
-                'data' => $paper_reviewers
-            ], 200);
-        } else {
-            $this->response([
-                'status' => false,
-                'message' => 'No result were found'
-            ], 404);
-        }
-    }
-    
-    function signin_get()
-    {
-        $email = $this->get('email');
-        $password = $this->get('password');
-        $paper_reviewers = $this->mCore->get_data('paper_reviewers', ['email' => $email, 'password' => $password, 'is_active' => 1])->result_array();
+        $id = $this->get('paper_reviewer_id');
+        $paper_reviewers = $this->mCore->get_data('paper_reviewer_topics', ['paper_reviewer_id' => $id, 'is_active' => 1])->result_array();
         if ($paper_reviewers) {
             $this->response([
                 'status' => true,
@@ -87,18 +69,15 @@ class Paper_reviewers extends RestController
     function save_post()
     {
         $data = array(
-            'program_id' => $this->post('program_id'),
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
-            'institution' => $this->post('institution'),
-            'password' => $this->post('password'),
+            'paper_reviewer_id' => $this->post('paper_reviewer_id'),
+            'paper_topic_id' => $this->post('paper_topic_id'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('paper_reviewers', array_filter($data));
+        $sql = $this->mCore->save_data('paper_reviewer_topics', array_filter($data));
         if ($sql) {
-            $last_id = $this->mCore->get_lastid('paper_reviewers', 'id');
-            $last_data = $this->mCore->get_data('paper_reviewers', ['id' => $last_id])->row_array();
+            $last_id = $this->mCore->get_lastid('paper_reviewer_topics', 'id');
+            $last_data = $this->mCore->get_data('paper_reviewer_topics', ['id' => $last_id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -115,16 +94,13 @@ class Paper_reviewers extends RestController
     function update_post($id)
     {
         $data = array(
-            'program_id' => $this->post('program_id'),
-            'name' => $this->post('name'),
-            'email' => $this->post('email'),
-            'institution' => $this->post('institution'),
-            'password' => $this->post('password'),
+             'paper_reviewer_id' => $this->post('program_id'),
+            'paper_topic_id' => $this->post('paper_topic_id'),
             'updated_at' => date('Y-m-d H:i:s'),
         );
-        $sql = $this->mCore->save_data('paper_reviewers', array_filter($data), true, ['id' => $id]);
+        $sql = $this->mCore->save_data('paper_reviewer_topics', array_filter($data), true, ['id' => $id]);
         if ($sql) {
-            $last_data = $this->mCore->get_data('paper_reviewers', ['id' => $id])->row_array();
+            $last_data = $this->mCore->get_data('paper_reviewer_topics', ['id' => $id])->row_array();
             $this->response([
                 'status' => true,
                 'data' => $last_data
@@ -146,7 +122,7 @@ class Paper_reviewers extends RestController
             'is_deleted' => 1
             // 'updated_at' => date('Y-m-d H:i:s')
         );
-        $sql = $this->mCore->save_data('paper_reviewers', $data, true, ['id' => $id]);
+        $sql = $this->mCore->save_data('paper_reviewer_topics', $data, true, ['id' => $id]);
         if ($sql) {
             $this->response([
                 'status' => true,
